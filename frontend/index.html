@@ -15,6 +15,7 @@
 
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+</head>
 <body>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -219,7 +220,7 @@
     <aside class="sidebar">
       <div class="filter-title">Filters <button onclick="clearFilters()">Clear All</button></div>
 
-      <div class="filter-section">
+<div class="filter-section">
         <div class="filter-label">Category</div>
         <div class="filter-option"><input type="checkbox" id="f1"><label for="f1">Electronics (124)</label></div>
         <div class="filter-option"><input type="checkbox" id="f2"><label for="f2">Fashion (89)</label></div>
@@ -403,3 +404,30 @@
         style="width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;margin-bottom:20px;transition:var(--transition)"
         onfocus="this.style.borderColor='var(--primary)'"
         onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter') submitAuth()">
+      <div id="authError" style="display:none;color:var(--danger);font-size:13px;margin-bottom:12px;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px"></div>
+      <button id="authSubmitBtn" onclick="submitAuth()"
+        style="width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;transition:var(--transition)">
+        Sign In
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Orders Modal -->
+<div class="modal-overlay" id="ordersModal" style="z-index:3000">
+  <div class="modal-wrapper">
+    <button class="modal-close" onclick="closeOrdersModal()"><i class="fas fa-times"></i></button>
+    <div style="background:#fff;border-radius:20px;padding:40px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto">
+      <h2 style="margin-bottom:24px">📦 My Orders</h2>
+      <div id="ordersList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:14px 28px;border-radius:50px;font-size:15px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
