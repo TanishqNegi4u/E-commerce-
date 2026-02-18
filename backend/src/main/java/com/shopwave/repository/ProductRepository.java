@@ -23,12 +23,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
     
+    // WITH PAGEABLE
+    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+    
     List<Product> findByIsFeaturedTrueAndIsActiveTrue();
     
+    // Search products - simple version
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Product> searchProducts(@Param("query") String query);
+    
+    // Search products - WITH PAGEABLE
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
+           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<Product> searchProducts(@Param("query") String query, Pageable pageable);
     
     Page<Product> findByIsActiveTrue(Pageable pageable);
     
@@ -48,9 +58,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.isActive = true AND p.brand IS NOT NULL")
     List<String> findAllBrands();
     
-    // Bestseller products (ordered by review count and rating)
+    // Bestseller products
     @Query("SELECT p FROM Product p WHERE p.isActive = true ORDER BY p.reviewCount DESC, p.rating DESC")
     List<Product> findBestsellerProducts(Pageable pageable);
+    
+    // Featured products WITH PAGEABLE
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.isFeatured = true")
+    List<Product> findFeaturedProducts(Pageable pageable);
     
     // Decrement stock
     @Modifying
