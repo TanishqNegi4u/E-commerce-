@@ -242,3 +242,10 @@ const CATEGORIES = [
 ];
 
 console.log('✅ ALL BUTTONS READY');
+
+// ============================================================
+// BUTTON FIXES - ADD TO EXISTING app.js
+// ============================================================
+
+// ── CART STATE ───────────────────────────────────────────────
+let cart = JSON.parse(localStorage.getItem('sw_cart')
