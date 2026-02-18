@@ -230,7 +230,6 @@ function highlightMatch(str, q) {
     + '<strong style="color:var(--primary)">' + str.slice(i, i + q.length) + '</strong>'
     + str.slice(i + q.length);
 }
-
 function selectSuggestion(s) {
   document.getElementById('searchInput').value = s;
   const box = document.getElementById('suggestions');
@@ -621,6 +620,7 @@ async function submitAuth() {
     if (authTab === 'login') {
       const res  = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({email, password})
       });
@@ -638,6 +638,7 @@ async function submitAuth() {
       const [firstName, ...rest] = fullName.split(' ');
       const res  = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
+        credentials: 'include',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({firstName, lastName: rest.join(' '), email, password})
       });
@@ -647,7 +648,10 @@ async function submitAuth() {
       switchTab('login');
     }
   } catch (err) {
-    errEl.textContent = err.message; errEl.style.display = 'block';
+    const msg = err.message === 'Failed to fetch'
+      ? 'Server is starting up, please wait 30 seconds and try again.'
+      : err.message;
+    errEl.textContent = msg; errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
     btn.textContent = authTab === 'login' ? 'Sign In' : 'Create Account';
@@ -664,7 +668,10 @@ async function showOrders() {
   const list = document.getElementById('ordersList');
   list.innerHTML = '<div style="text-align:center;padding:40px"><i class="fas fa-spinner fa-spin" style="font-size:32px"></i></div>';
   try {
-    const res    = await fetch(`${API_BASE}/orders`, {headers: {'Authorization': `Bearer ${authToken}`}});
+    const res    = await fetch(`${API_BASE}/orders`, {
+      credentials: 'include',
+      headers: {'Authorization': `Bearer ${authToken}`}
+    });
     if (!res.ok) throw new Error('Failed to load orders.');
     const data   = await res.json();
     const orders = data.content || data;
@@ -729,6 +736,7 @@ async function checkout() {
   try {
     const res  = await fetch(`${API_BASE}/orders`, {
       method: 'POST',
+      credentials: 'include',
       headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`},
       body: JSON.stringify({couponCode: null, shippingAddress: 'Default Address', paymentMethod: 'COD', notes: ''})
     });
