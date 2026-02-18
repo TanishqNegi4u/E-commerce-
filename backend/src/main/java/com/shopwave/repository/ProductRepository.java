@@ -25,7 +25,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
     
-    Page<Product> findByCategoryIdAndStatus(Long categoryId, Product.ProductStatus status, Pageable pageable);
+    // ADDED: This is the missing method with explicit @Query
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.status = :status")
+    Page<Product> findByCategoryAndStatus(@Param("categoryId") Long categoryId, 
+                                          @Param("status") Product.ProductStatus status, 
+                                          Pageable pageable);
     
     List<Product> findByIsFeaturedTrueAndIsActiveTrue();
     
