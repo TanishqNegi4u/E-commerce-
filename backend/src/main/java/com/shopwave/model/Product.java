@@ -2,23 +2,17 @@ package com.shopwave.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Entity
-@Table(name = "products", indexes = {
-    @Index(name = "idx_product_category", columnList = "category_id"),
-    @Index(name = "idx_product_slug", columnList = "slug", unique = true),
-    @Index(name = "idx_product_status", columnList = "status")
-})
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "products")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Product {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,92 +20,71 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
+    private String slug;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String highlights;
-
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "original_price", precision = 12, scale = 2)
-    private BigDecimal originalPrice;
+    @Column(name = "compare_price", precision = 10, scale = 2)
+    private BigDecimal comparePrice;
 
-    @Column(name = "discount_percent")
-    private Integer discountPercent;
+    @Column(name = "cost_price", precision = 10, scale = 2)
+    private BigDecimal costPrice;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer stock = 0;
-
-    @Column(unique = true)
-    private String sku;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private String brand;
 
-    @Column(unique = true)
-    private String slug;
+    private String sku;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @Column(name = "stock_quantity")
+    @Builder.Default
+    private Integer stockQuantity = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id")
-    private User seller;
+    @Column(name = "low_stock_threshold")
+    @Builder.Default
+    private Integer lowStockThreshold = 5;
 
-    @ElementCollection
-    @CollectionTable(name = "product_images",
-        joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    @Builder.Default
-    private List<String> images = new ArrayList<>();
-
-    @ElementCollection
-    @CollectionTable(name = "product_specs",
-        joinColumns = @JoinColumn(name = "product_id"))
-    @MapKeyColumn(name = "spec_key")
-    @Column(name = "spec_value")
-    @Builder.Default
-    private Map<String, String> specifications = new HashMap<>();
-
-    @Column(name = "average_rating")
-    @Builder.Default
-    private Double averageRating = 0.0;
-
-    @Column(name = "total_reviews")
-    @Builder.Default
-    private Integer totalReviews = 0;
-
-    @Column(name = "total_sold")
-    @Builder.Default
-    private Integer totalSold = 0;
-
-    @Column(name = "free_shipping")
-    @Builder.Default
-    private boolean freeShipping = false;
+    private String imageUrl;
 
     @Column(name = "is_featured")
     @Builder.Default
-    private boolean featured = false;
+    private Boolean isFeatured = false;
 
-    @Enumerated(EnumType.STRING)
+    @Column(name = "is_active")
     @Builder.Default
-    private ProductStatus status = ProductStatus.ACTIVE;
+    private Boolean isActive = true;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "view_count")
     @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Integer viewCount = 0;
+
+    private Double rating;
+
+    @Column(name = "review_count")
+    @Builder.Default
+    private Integer reviewCount = 0;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
     @PreUpdate
-    public void preUpdate() { this.updatedAt = LocalDateTime.now(); }
-
-    public enum ProductStatus {
-        ACTIVE, INACTIVE, OUT_OF_STOCK, DISCONTINUED
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
