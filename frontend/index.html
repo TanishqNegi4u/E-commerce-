@@ -1,433 +1,219 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopWave — Premium E-Commerce</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- App Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <title>ShopWave - Premium E-Commerce</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════════════════════
-     TOP BAR
-════════════════════════════════════════════════════════════ -->
-<div class="topbar">
-  <div class="topbar-offer">
-    <span class="badge">🔥 SALE</span>
-    <span>Up to 80% OFF on Top Brands! Code: <strong>WAVE80</strong></span>
-  </div>
-  <div>
-    <a href="#"><i class="fas fa-store"></i> Become a Seller</a>
-    <a href="#"><i class="fas fa-gift"></i> Gift Cards</a>
-    <a href="#"><i class="fas fa-question-circle"></i> Help</a>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     NAVBAR
-════════════════════════════════════════════════════════════ -->
-<nav>
-  <a class="nav-logo" href="#"><span>Shop</span>Wave</a>
-
-  <!-- Search -->
-  <div class="search-wrap">
-    <select id="catFilter">
-      <option>All</option>
-      <option>Electronics</option>
-      <option>Fashion</option>
-      <option>Home</option>
-      <option>Sports</option>
-      <option>Beauty</option>
-    </select>
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search for products, brands and more..."
-      oninput="handleSearch(this.value)"
-      onkeydown="if(event.key==='Enter') doSearch()">
-    <button class="search-btn" onclick="doSearch()">
-      <i class="fas fa-search"></i>
-    </button>
-    <div class="suggestions" id="suggestions"></div>
-  </div>
-
-  <!-- Nav Actions -->
-  <div class="nav-actions">
-    <button class="nav-btn" onclick="toggleCart()">
-      <i class="fas fa-shopping-cart"></i>
-      <span>Cart</span>
-      <span class="nav-badge" id="cartBadge">0</span>
-    </button>
-    <button class="nav-btn" onclick="toggleWishlist()">
-      <i class="fas fa-heart"></i>
-      <span>Wishlist</span>
-      <span class="nav-badge" id="wishlistBadge" style="background:var(--danger)">0</span>
-    </button>
-    <button class="nav-btn" onclick="showProfile()">
-      <i class="fas fa-user"></i>
-      <span id="loginBtnText">Login</span>
-    </button>
-    <button class="nav-btn" style="background:var(--primary);border-radius:10px;color:#fff" onclick="showOrders()">
-      <i class="fas fa-box"></i>
-      <span>Orders</span>
-    </button>
-  </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════
-     CATEGORY BAR
-════════════════════════════════════════════════════════════ -->
-<div class="cat-bar">
-  <a href="#" class="cat-btn active" onclick="renderAllProducts(PRODUCTS);return false;">🏠 Home</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(1);return false;">📱 Electronics</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(2);return false;">👗 Fashion</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(3);return false;">🛋️ Home & Kitchen</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(5);return false;">💄 Beauty</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(4);return false;">⚽ Sports</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(6);return false;">📚 Books</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(8);return false;">🚗 Automotive</a>
-  <a href="#" class="cat-btn" onclick="filterCategory(7);return false;">🧸 Toys</a>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════════════════════ -->
-<main>
-
-  <!-- ── HERO BANNER ────────────────────────────────────── -->
-  <section class="hero">
-    <div class="hero-slider" id="heroSlider">
-
-      <!-- Slide 1 -->
-      <div class="hero-slide active" style="background:linear-gradient(135deg,#1a0a00 0%,#3d1400 60%,#7a2800 100%)">
-        <div class="hero-content">
-          <span class="hero-tag">⚡ New Arrival</span>
-          <div class="hero-title">Latest MacBook<br>Pro M3 Max</div>
-          <div class="hero-subtitle">Blazing-fast. Power-efficient. Remarkably thin.</div>
-          <a href="#" class="hero-cta" onclick="filterCategory(1);return false;">Shop Now <i class="fas fa-arrow-right"></i></a>
+  <!-- HEADER -->
+  <header>
+    <div class="top-bar">
+      <div class="container">
+        <div class="top-links">
+          <a href="#">Track Order</a>
+          <a href="#">Support</a>
+          <a href="#" onclick="toggleAuthModal()">Login</a>
         </div>
-        <div style="position:absolute;right:10%;top:50%;transform:translateY(-50%);font-size:180px;opacity:.08">💻</div>
       </div>
-
-      <!-- Slide 2 -->
-      <div class="hero-slide" style="background:linear-gradient(135deg,#000428 0%,#004e92 100%)">
-        <div class="hero-content">
-          <span class="hero-tag" style="background:#fff;color:#000">👟 Exclusive</span>
-          <div class="hero-title">Nike Air Max<br>720 Series</div>
-          <div class="hero-subtitle">Step into the future of comfort & style.</div>
-          <a href="#" class="hero-cta" style="background:var(--gold);color:#000" onclick="filterCategory(2);return false;">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div style="position:absolute;right:10%;top:50%;transform:translateY(-50%);font-size:180px;opacity:.08">👟</div>
-      </div>
-
-      <!-- Slide 3 -->
-      <div class="hero-slide" style="background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%)">
-        <div class="hero-content">
-          <span class="hero-tag" style="background:var(--success)">🎧 Best Seller</span>
-          <div class="hero-title">Sony WH-1000<br>XM5 Headphones</div>
-          <div class="hero-subtitle">Industry-leading noise cancellation. All-day comfort.</div>
-          <a href="#" class="hero-cta" style="background:var(--success);color:#fff" onclick="openModal(3);return false;">Buy Now <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div style="position:absolute;right:10%;top:50%;transform:translateY(-50%);font-size:180px;opacity:.08">🎧</div>
-      </div>
-
-      <!-- Slider Controls -->
-      <div class="hero-arrows">
-        <button class="hero-arrow" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-        <button class="hero-arrow" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
-      </div>
-      <div class="hero-dots" id="heroDots"></div>
     </div>
+    
+    <nav class="main-nav">
+      <div class="nav-container">
+        <a href="#" class="logo">
+          <i class="fas fa-store"></i>
+          <span>ShopWave</span>
+        </a>
 
-    <!-- Side Banners -->
-    <div class="hero-side">
-      <div class="hero-side-card" style="background:linear-gradient(135deg,#ff9a9e,#fad0c4)">
-        <div class="overlay"><strong>Women's Fashion</strong><span>Up to 60% OFF</span></div>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search 10,000+ products...">
+          <button onclick="doSearch()">
+            <i class="fas fa-search"></i>
+          </button>
+          <div id="suggestions" class="suggestions"></div>
+        </div>
+
+        <div class="nav-icons">
+          <div class="nav-icon" onclick="toggleWishlist()">
+            <i class="far fa-heart"></i>
+            <span>Wishlist</span>
+            <div class="badge" id="wishlistBadge">0</div>
+          </div>
+          <div class="nav-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <div class="badge" id="cartBadge">0</div>
+          </div>
+        </div>
       </div>
-      <div class="hero-side-card" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">
-        <div class="overlay"><strong>Home & Living</strong><span>New Arrivals</span></div>
+    </nav>
+  </header>
+
+  <!-- HERO SLIDER -->
+  <section class="hero">
+    <div class="carousel-container">
+      <div class="carousel" id="heroCarousel">
+        <div class="hero-slide active">
+          <div class="slide-content">
+            <h1>Latest MacBook</h1>
+            <p>Pro M3 Max - Blazing-fast. Power-efficient.</p>
+            <button class="btn btn-primary btn-lg" onclick="scrollToFeatured()">Shop Now</button>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <div class="slide-content">
+            <h1>Nike Air Max</h1>
+            <p>720 Series - Future of comfort & style</p>
+            <button class="btn btn-primary btn-lg">Explore</button>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <div class="slide-content">
+            <h1>Sony XM5</h1>
+            <p>Industry-leading noise cancellation</p>
+            <button class="btn btn-primary btn-lg">Buy Now</button>
+          </div>
+        </div>
       </div>
-      <div class="hero-side-card" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)">
-        <div class="overlay"><strong>Electronics</strong><span>Best Deals Today</span></div>
+      <div class="carousel-nav" id="heroDots"></div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-truck"></i>
+          <h3>Free Delivery</h3>
+          <p>On orders above ₹499</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-lock"></i>
+          <h3>Secure Payment</h3>
+          <p>100% protected</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-undo"></i>
+          <h3>Easy Returns</h3>
+          <p>30-day return policy</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-headset"></i>
+          <h3>24/7 Support</h3>
+          <p>Always here for you</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ── OFFER STRIP ────────────────────────────────────── -->
-  <div class="offers-strip">
-    <div class="offer-card">
-      <div class="offer-icon"><i class="fas fa-shipping-fast"></i></div>
-      <div class="offer-text"><strong>Free Delivery</strong><span>On orders above ₹499</span></div>
-    </div>
-    <div class="offer-card">
-      <div class="offer-icon"><i class="fas fa-shield-alt"></i></div>
-      <div class="offer-text"><strong>Secure Payment</strong><span>100% protected</span></div>
-    </div>
-    <div class="offer-card">
-      <div class="offer-icon"><i class="fas fa-undo-alt"></i></div>
-      <div class="offer-text"><strong>Easy Returns</strong><span>30-day return policy</span></div>
-    </div>
-    <div class="offer-card">
-      <div class="offer-icon"><i class="fas fa-headset"></i></div>
-      <div class="offer-text"><strong>24/7 Support</strong><span>Always here for you</span></div>
-    </div>
-  </div>
-
-  <!-- ── SHOP BY CATEGORY ───────────────────────────────── -->
-  <div class="section-header">
-    <h2 class="section-title">Shop by <span>Category</span></h2>
-    <a href="#" class="see-all">View All <i class="fas fa-arrow-right"></i></a>
-  </div>
-  <div class="cat-grid" id="catGrid"></div>
-
-  <!-- ── FEATURED PRODUCTS ──────────────────────────────── -->
-  <div class="section-header">
-    <h2 class="section-title">Featured <span>Products</span></h2>
-    <a href="#" class="see-all">View All <i class="fas fa-arrow-right"></i></a>
-  </div>
-  <div class="prod-grid" id="featuredGrid"></div>
-
-  <!-- ── FLASH SALE ─────────────────────────────────────── -->
-  <div class="flash-sale">
-    <div class="flash-header">
-      <div class="flash-title"><i class="fas fa-bolt"></i> Flash Sale — Ends in:</div>
-      <div class="countdown">
-        <div class="count-box"><div class="num" id="ch">04</div><div class="lbl">Hrs</div></div>
-        <span class="count-sep">:</span>
-        <div class="count-box"><div class="num" id="cm">47</div><div class="lbl">Min</div></div>
-        <span class="count-sep">:</span>
-        <div class="count-box"><div class="num" id="cs">23</div><div class="lbl">Sec</div></div>
+  <!-- CATEGORIES -->
+  <section class="categories">
+    <div class="container">
+      <div class="section-header">
+        <h2>Shop by Category</h2>
+        <a href="#" class="view-all">View All →</a>
       </div>
-      <a href="#" class="see-all" style="color:#fff;border-color:rgba(255,255,255,.3)">See All <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="flash-grid" id="flashGrid"></div>
-  </div>
-
-  <!-- ── SHOP LAYOUT (Sidebar + Product Grid) ──────────── -->
-  <div class="shop-layout">
-
-    <!-- Sidebar Filters -->
-    <aside class="sidebar">
-      <div class="filter-title">Filters <button onclick="clearFilters()">Clear All</button></div>
-
-<div class="filter-section">
-        <div class="filter-label">Category</div>
-        <div class="filter-option"><input type="checkbox" id="f1"><label for="f1">Electronics (124)</label></div>
-        <div class="filter-option"><input type="checkbox" id="f2"><label for="f2">Fashion (89)</label></div>
-        <div class="filter-option"><input type="checkbox" id="f3"><label for="f3">Home & Kitchen (67)</label></div>
-        <div class="filter-option"><input type="checkbox" id="f4"><label for="f4">Sports (45)</label></div>
-        <div class="filter-option"><input type="checkbox" id="f5"><label for="f5">Beauty (38)</label></div>
+      <div class="category-grid" id="catGrid">
+        <!-- Categories loaded by JS -->
       </div>
+    </div>
+  </section>
 
-      <div class="filter-section">
-        <div class="filter-label">Price Range</div>
-        <div class="price-range">
-          <input type="range" min="0" max="300000" value="300000" oninput="updatePriceFilter(this.value)">
-          <div class="price-labels"><span>₹0</span><span id="priceVal">₹3,00,000</span></div>
+  <!-- FEATURED PRODUCTS -->
+  <section class="featured section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Products</h2>
+        <a href="#" class="view-all" onclick="scrollToAllProducts()">View All →</a>
+      </div>
+      <div class="product-grid" id="featuredGrid">
+        <!-- Featured products loaded by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- FLASH SALE -->
+  <section class="flash-sale">
+    <div class="container">
+      <div class="section-header">
+        <h2>Flash Sale <span id="countdown"></span></h2>
+      </div>
+      <div class="flash-grid" id="flashGrid">
+        <!-- Flash products loaded by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ALL PRODUCTS -->
+  <section class="all-products section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>All Products</h2>
+          <span class="count" id="listCount">12</span> results
         </div>
       </div>
+      <div class="product-grid" id="mainGrid">
+        <!-- All products loaded by JS -->
+      </div>
+    </div>
+  </section>
 
-      <div class="filter-section">
-        <div class="filter-label">Customer Rating</div>
-        <div class="rating-filter">
-          <label class="rating-row"><input type="radio" name="rating" value="4"> 4★ &amp; above</label>
-          <label class="rating-row"><input type="radio" name="rating" value="3"> 3★ &amp; above</label>
-          <label class="rating-row"><input type="radio" name="rating" value="2"> 2★ &amp; above</label>
+  <!-- CART MODAL -->
+  <div class="cart-overlay" id="cartOverlay">
+    <div class="cart-panel" id="cartPanel">
+      <div class="cart-header">
+        <h3>My Cart</h3>
+        <button class="cart-close" onclick="toggleCart()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="cart-body">
+        <div class="cart-items" id="cartItems"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Login</h3>
+        <button class="modal-close" onclick="toggleAuthModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <input type="email" name="email" placeholder="Email" required>
         </div>
-      </div>
-
-      <div class="filter-section">
-        <div class="filter-label">Brand</div>
-        <div class="filter-option"><input type="checkbox" id="b1"><label for="b1">Apple</label></div>
-        <div class="filter-option"><input type="checkbox" id="b2"><label for="b2">Samsung</label></div>
-        <div class="filter-option"><input type="checkbox" id="b3"><label for="b3">Nike</label></div>
-        <div class="filter-option"><input type="checkbox" id="b4"><label for="b4">Sony</label></div>
-        <div class="filter-option"><input type="checkbox" id="b5"><label for="b5">LG</label></div>
-      </div>
-
-      <div class="filter-section">
-        <div class="filter-label">Offers</div>
-        <div class="filter-option"><input type="checkbox"><label>Free Delivery</label></div>
-        <div class="filter-option"><input type="checkbox"><label>Buy More Save More</label></div>
-        <div class="filter-option"><input type="checkbox"><label>Bank Offers</label></div>
-      </div>
-    </aside>
-
-    <!-- Product Listing -->
-    <div>
-      <div class="listing-header">
-        <div class="listing-count">Showing <strong id="listCount">0</strong> results</div>
-        <div style="display:flex;gap:12px;align-items:center">
-          <select class="sort-select" onchange="sortProducts(this.value)">
-            <option value="relevance">Sort: Relevance</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="rating">Customer Rating</option>
-            <option value="newest">Newest First</option>
-            <option value="discount">Discount</option>
-          </select>
-          <div class="view-toggle">
-            <button class="view-btn active" onclick="setView('grid',this)"><i class="fas fa-th"></i></button>
-            <button class="view-btn" onclick="setView('list',this)"><i class="fas fa-bars"></i></button>
-          </div>
+        <div class="form-group">
+          <input type="password" name="password" placeholder="Password" required>
         </div>
+        <button type="submit" class="btn btn-primary full-width">Login</button>
+      </form>
+      <div class="modal-divider">
+        <span>or</span>
       </div>
-      <div class="prod-grid" id="mainGrid"></div>
+      <button class="btn btn-secondary full-width" onclick="switchToRegister()">Create Account</button>
     </div>
   </div>
 
-</main>
-
-<!-- ═══════════════════════════════════════════════════════════
-     FOOTER
-════════════════════════════════════════════════════════════ -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-logo"><span>Shop</span>Wave</div>
-        <p class="footer-desc">India's fastest growing e-commerce platform. Shop millions of products with assured quality and lightning-fast delivery.</p>
-        <div class="footer-socials">
-          <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
-          <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
-        </div>
+  <!-- PRODUCT MODAL -->
+  <div class="modal" id="productModal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul class="footer-links">
-          <li><a href="#"><i class="fas fa-chevron-right"></i>About Us</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Careers</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Press</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Corporate Info</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Customer Service</h4>
-        <ul class="footer-links">
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Help Center</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Track Order</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Returns &amp; Refunds</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Cancellation Policy</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Policies</h4>
-        <ul class="footer-links">
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Terms of Use</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Security</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i>Sitemap</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2024 ShopWave. All rights reserved. Built with Spring Boot + JWT + MySQL</p>
-      <div class="payment-icons">
-        <span class="pay-icon">💳</span>
-        <span class="pay-icon">🏦</span>
-        <span class="pay-icon" style="font-size:14px">UPI</span>
-        <span class="pay-icon">📱</span>
-        <span class="pay-icon">💰</span>
-      </div>
+      <div id="modalContent"></div>
     </div>
   </div>
-</footer>
 
-<!-- Cart Panel -->
-<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-head">
-    <h3>🛒 My Cart (<span id="cartCount">0</span>)</h3>
-    <button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="cart-items" id="cartItems"></div>
-  <div class="cart-footer">
-    <div class="cart-summary">
-      <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
-      <div class="cart-summary-row"><span>Shipping</span><span id="cartShipping">Free</span></div>
-      <div class="cart-summary-row"><span>Discount (5%)</span><span style="color:var(--success)" id="cartDiscount">-₹0</span></div>
-      <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹0</span></div>
-    </div>
-    <button class="btn-checkout" onclick="checkout()">
-      <i class="fas fa-lock"></i> Secure Checkout
-    </button>
-  </div>
-</div>
-
-<!-- Product Modal -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div class="product-modal" id="modalContent"></div>
-  </div>
-</div>
-
-<!-- Auth Modal -->
-<div class="modal-overlay" id="authModal" style="z-index:3000">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-    <div style="background:#fff;border-radius:20px;padding:40px;max-width:440px;width:100%;min-width:320px">
-      <div style="text-align:center;margin-bottom:28px">
-        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text)">
-          <span style="color:var(--primary)">Shop</span>Wave
-        </div>
-        <p id="authSubtitle" style="color:var(--text3);font-size:14px;margin-top:6px">Sign in to your account</p>
-      </div>
-      <div style="display:flex;border:2px solid var(--border);border-radius:10px;margin-bottom:24px;overflow:hidden">
-        <button id="tabLogin"    onclick="switchTab('login')"    style="flex:1;padding:10px;border:none;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;background:var(--primary);color:#fff;transition:var(--transition)">Login</button>
-        <button id="tabRegister" onclick="switchTab('register')" style="flex:1;padding:10px;border:none;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;background:#fff;color:var(--text2);transition:var(--transition)">Register</button>
-      </div>
-      <div id="registerFields" style="display:none">
-        <input id="authName" type="text" placeholder="Full Name"
-          style="width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:var(--transition)"
-          onfocus="this.style.borderColor='var(--primary)'"
-          onblur="this.style.borderColor='var(--border)'">
-      </div>
-      <input id="authEmail" type="email" placeholder="Email Address"
-        style="width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:var(--transition)"
-        onfocus="this.style.borderColor='var(--primary)'"
-        onblur="this.style.borderColor='var(--border)'">
-      <input id="authPassword" type="password" placeholder="Password (min 6 characters)"
-        style="width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;margin-bottom:20px;transition:var(--transition)"
-        onfocus="this.style.borderColor='var(--primary)'"
-        onblur="this.style.borderColor='var(--border)'"
-        onkeydown="if(event.key==='Enter') submitAuth()">
-      <div id="authError" style="display:none;color:var(--danger);font-size:13px;margin-bottom:12px;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px"></div>
-      <button id="authSubmitBtn" onclick="submitAuth()"
-        style="width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;transition:var(--transition)">
-        Sign In
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Orders Modal -->
-<div class="modal-overlay" id="ordersModal" style="z-index:3000">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeOrdersModal()"><i class="fas fa-times"></i></button>
-    <div style="background:#fff;border-radius:20px;padding:40px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto">
-      <h2 style="margin-bottom:24px">📦 My Orders</h2>
-      <div id="ordersList"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:14px 28px;border-radius:50px;font-size:15px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap"></div>
-
-<script src="js/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
