@@ -452,4 +452,321 @@ function toggleWishlist() {
 
 function renderWishlistPanel() {
   const container = document.getElementById('wishlistItems');
-  document.getElementBy
+  document.getElementById('wishlistCount').textContent = wishlist.length;
+  
+  if (!wishlist.length) {
+    container.innerHTML = `
+      <div class="wishlist-empty">
+        <i class="fas fa-heart"></i>
+        <p>Your wishlist is empty</p>
+        <button class="btn-shop" onclick="toggleWishlist()">Start Shopping</button>
+      </div>`;
+    return;
+  }
+  
+  container.innerHTML = wishlist.map(id => {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return '';
+    return `
+      <div class="wishlist-item">
+        <div class="item-image">${p.image}</div>
+        <div class="item-details">
+          <div class="item-name">${p.name}</div>
+          <div class="item-price">₹${p.price.toLocaleString()}</div>
+          <div class="item-controls">
+            <button class="btn-add-cart" onclick="addToCart(${p.id}, 1); toggleWishlist();">
+              <i class="fas fa-shopping-cart"></i> Add to Cart
+            </button>
+            <button class="btn-remove" onclick="toggleWishlistItem(event, ${p.id})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ============================================================
+// SORTING & FILTERS
+// ============================================================
+function sortProducts(val) {
+  let sorted = [...PRODUCTS];
+  if (val === 'price_asc')  sorted = mergeSort(sorted, 'price',    true);
+  if (val === 'price_desc') sorted = mergeSort(sorted, 'price',   false);
+  if (val === 'rating')     sorted = mergeSort(sorted, 'rating',  false);
+  if (val === 'discount')   sorted = mergeSort(sorted, 'discount',false);
+  renderAllProducts(sorted);
+}
+
+function filterCategory(id) {
+  const cat      = CATEGORIES.find(c => c.id === id);
+  const filtered = cat ? PRODUCTS.filter(p => p.category === cat.name) : PRODUCTS;
+  renderAllProducts(filtered);
+  const section = document.querySelector('.products-section');
+  if (section) {
+    section.scrollIntoView({behavior: 'smooth'});
+  }
+}
+
+function updatePriceFilter(val) {
+  document.getElementById('priceVal').textContent = '₹' + parseInt(val).toLocaleString();
+  renderAllProducts(binarySearchPriceRange(
+    mergeSort([...PRODUCTS], 'price', true), 0, parseInt(val)));
+}
+
+function clearFilters() {
+  document.querySelectorAll('.sidebar input').forEach(i => {
+    if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+  });
+  renderAllProducts(PRODUCTS);
+}
+
+function setView(type, btn) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mainGrid').style.gridTemplateColumns = type === 'list' ? '1fr' : '';
+}
+
+// ============================================================
+// COUNTDOWN TIMER
+// ============================================================
+function updateCountdown() {
+  if (countdownTime <= 0) return;
+  countdownTime--;
+  const h = Math.floor(countdownTime / 3600);
+  const m = Math.floor((countdownTime % 3600) / 60);
+  const s = countdownTime % 60;
+  const hEl = document.getElementById('hours');
+  const mEl = document.getElementById('minutes');
+  const sEl = document.getElementById('seconds');
+  if (hEl) hEl.textContent = String(h).padStart(2, '0');
+  if (mEl) mEl.textContent = String(m).padStart(2, '0');
+  if (sEl) sEl.textContent = String(s).padStart(2, '0');
+}
+setInterval(updateCountdown, 1000);
+
+// ============================================================
+// TOAST NOTIFICATIONS
+// ============================================================
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function updateNavAuth() {
+  const btn = document.getElementById('loginBtnText');
+  btn.textContent = currentUser
+    ? (currentUser.name?.split(' ')[0] || 'Account')
+    : 'Login';
+}
+
+function showProfile() {
+  if (currentUser) {
+    if (confirm(`Logged in as ${currentUser.email}\n\nClick OK to logout.`)) {
+      authToken = null; currentUser = null;
+      localStorage.removeItem('sw_token');
+      localStorage.removeItem('sw_user');
+      updateNavAuth();
+      showToast('Logged out successfully', 'info');
+    }
+    return;
+  }
+  openAuthModal();
+}
+
+function openAuthModal() {
+  document.getElementById('authModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('authError').style.display = 'none';
+  switchTab('login');
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').classList.remove('active');
+  document.body.style.overflow = '';
+}function switchTab(tab) {
+  authTab = tab;
+  document.getElementById('registerFields').style.display  = tab === 'register' ? 'block' : 'none';
+  document.getElementById('authSubtitle').textContent      = tab === 'login' ? 'Sign in to your account' : 'Create a new account';
+  document.getElementById('authSubmitBtn').textContent     = tab === 'login' ? 'Sign In' : 'Create Account';
+  document.getElementById('tabLogin').style.background     = tab === 'login' ? 'var(--primary)' : '#fff';
+  document.getElementById('tabLogin').style.color          = tab === 'login' ? '#fff' : 'var(--text2)';
+  document.getElementById('tabRegister').style.background  = tab === 'register' ? 'var(--primary)' : '#fff';
+  document.getElementById('tabRegister').style.color       = tab === 'register' ? '#fff' : 'var(--text2)';
+  document.getElementById('authError').style.display       = 'none';
+}
+
+async function submitAuth() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  const btn      = document.getElementById('authSubmitBtn');
+
+  if (!email || !password) {
+    errEl.textContent = 'Please fill in all fields.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.textContent = 'Please wait...'; btn.disabled = true;
+  errEl.style.display = 'none';
+
+  try {
+    if (authTab === 'login') {
+      const res  = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, password})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Invalid email or password.');
+      authToken   = data.accessToken;
+      currentUser = {id: data.userId, email: data.email, name: data.firstName, role: data.role};
+      localStorage.setItem('sw_token', authToken);
+      localStorage.setItem('sw_user', JSON.stringify(currentUser));
+      updateNavAuth(); closeAuthModal();
+      showToast(`Welcome back, ${currentUser.name || 'User'}! 👋`, 'success');
+    } else {
+      const fullName = document.getElementById('authName').value.trim();
+      if (!fullName) { errEl.textContent = 'Please enter your full name.'; errEl.style.display = 'block'; return; }
+      const [firstName, ...rest] = fullName.split(' ');
+      const res  = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({firstName, lastName: rest.join(' '), email, password})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Registration failed.');
+      showToast('Account created! Please sign in. ✅', 'success');
+      switchTab('login');
+    }
+  } catch (err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authTab === 'login' ? 'Sign In' : 'Create Account';
+  }
+}
+
+// ============================================================
+// ORDERS
+// ============================================================
+async function showOrders() {
+  if (!authToken) { openAuthModal(); showToast('Please login to view orders', 'info'); return; }
+  document.getElementById('ordersModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  const list = document.getElementById('ordersList');
+  list.innerHTML = '<div style="text-align:center;padding:40px"><i class="fas fa-spinner fa-spin" style="font-size:32px"></i></div>';
+  try {
+    const res    = await fetch(`${API_BASE}/orders`, {headers: {'Authorization': `Bearer ${authToken}`}});
+    if (!res.ok) throw new Error('Failed to load orders.');
+    const data   = await res.json();
+    const orders = data.content || data;
+    if (!orders.length) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet</div>';
+      return;
+    }
+    list.innerHTML = orders.map(o => `
+      <div style="border:2px solid var(--border-color);border-radius:12px;padding:20px;margin-bottom:16px;background:white">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong>📦 ${o.orderNumber}</strong>
+          <span style="background:${statusColor(o.status)};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px">${o.status}</span>
+        </div>
+        <div>Total: <strong>₹${o.totalAmount?.toLocaleString()}</strong></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${new Date(o.createdAt).toLocaleDateString('en-IN')}</div>
+      </div>`).join('');
+  } catch (e) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--accent-red)">${e.message}</div>`;
+  }
+}
+
+function statusColor(status) {
+  const map = {
+    PENDING:'#FF9800', CONFIRMED:'#2196F3', SHIPPED:'#00BCD4',
+    DELIVERED:'#4CAF50', CANCELLED:'#F44336', REFUNDED:'#607D8B'
+  };
+  return map[status] || 'var(--primary)';
+}
+
+function closeOrdersModal() {
+  document.getElementById('ordersModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ============================================================
+// BACK TO TOP
+// ============================================================
+function scrollToTop() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('backToTop');
+  if (btn) {
+    if (window.scrollY > 500) {
+      btn.classList.add('show');
+    } else {
+      btn.classList.remove('show');
+    }
+  }
+});
+
+// ============================================================
+// CHECKOUT
+// ============================================================
+async function checkout() {
+  if (!cart.length) { showToast('Add items to cart first!', 'error'); return; }
+  if (!authToken)   { toggleCart(); openAuthModal(); return; }
+  const btn = document.querySelector('.btn-checkout');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing order...';
+  btn.disabled  = true;
+  try {
+    const res  = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`},
+      body: JSON.stringify({couponCode: null, shippingAddress: 'Default Address', paymentMethod: 'COD', notes: ''})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Order failed.');
+    cart = []; saveCart(); renderCartPanel(); toggleCart();
+    showToast(`🎉 Order placed! #${data.orderNumber}`, 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.innerHTML = '<i class="fas fa-lock"></i> Secure Checkout';
+    btn.disabled  = false;
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  renderCategories();
+  renderFeatured();
+  renderAllProducts(PRODUCTS);
+  renderFlashProducts();
+  initHeroDots();
+  const cartTotal = cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cartBadge').textContent     = cartTotal;
+  document.getElementById('cartCount').textContent     = cartTotal;
+  document.getElementById('wishlistBadge').textContent = wishlist.length;
+  updateNavAuth();
+  document.getElementById('authModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('authModal')) closeAuthModal();
+  });
+  document.getElementById('ordersModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('ordersModal')) closeOrdersModal();
+  });
+  document.getElementById('productModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('productModal')) closeModal();
+  });
+}
+
+init();
