@@ -23,18 +23,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
     
-    // WITH PAGEABLE
     Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+    
+    Page<Product> findByCategoryIdAndStatus(Long categoryId, Product.ProductStatus status, Pageable pageable);
     
     List<Product> findByIsFeaturedTrueAndIsActiveTrue();
     
-    // Search products - simple version
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Product> searchProducts(@Param("query") String query);
     
-    // Search products - WITH PAGEABLE
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))")
@@ -48,27 +47,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     List<Product> findByBrandAndIsActiveTrue(String brand);
     
-    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.stockQuantity <= p.lowStockThreshold")
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.stock <= p.lowStockThreshold")
     List<Product> findLowStockProducts();
     
-    List<Product> findByStockQuantityAndIsActiveTrue(Integer stockQuantity);
+    List<Product> findByStockAndIsActiveTrue(Integer stock);
     
     long countByCategoryId(Long categoryId);
     
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.isActive = true AND p.brand IS NOT NULL")
     List<String> findAllBrands();
     
-    // Bestseller products
-    @Query("SELECT p FROM Product p WHERE p.isActive = true ORDER BY p.reviewCount DESC, p.rating DESC")
+    @Query("SELECT p FROM Product p WHERE p.isActive = true ORDER BY p.totalReviews DESC, p.averageRating DESC")
     List<Product> findBestsellerProducts(Pageable pageable);
     
-    // Featured products WITH PAGEABLE
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.isFeatured = true")
     List<Product> findFeaturedProducts(Pageable pageable);
     
-    // Decrement stock
     @Modifying
     @Transactional
-    @Query("UPDATE Product p SET p.stockQuantity = p.stockQuantity - :quantity WHERE p.id = :productId AND p.stockQuantity >= :quantity")
+    @Query("UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.id = :productId AND p.stock >= :quantity")
     int decrementStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 }
