@@ -13,3 +13,19 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByParentIsNullAndIsActiveTrue();
     List<Category> findByParentIdAndIsActiveTrue(Long parentId);
 }
+@Entity
+public class Category {
+    // existing fields...
+    
+    @Column(name = "active")  // maps to DB column, adjust if needed
+    private Boolean active = true;  // or boolean, default as needed
+    
+    // getter and setter
+    public Boolean getActive() {
+        return active;
+    }
+    
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+}
