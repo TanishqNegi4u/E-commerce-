@@ -3,217 +3,548 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopWave - Premium E-Commerce</title>
+  <title>ShopWave — Premium E-Commerce Experience</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <div class="top-bar">
-      <div class="container">
-        <div class="top-links">
-          <a href="#">Track Order</a>
-          <a href="#">Support</a>
-          <a href="#" onclick="toggleAuthModal()">Login</a>
-        </div>
-      </div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOP BAR
+════════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="container-topbar">
+    <div class="topbar-offer">
+      <span class="flash-badge">🔥 FLASH SALE</span>
+      <span class="topbar-text">Up to <strong>80% OFF</strong> on Premium Brands! Use Code: <strong class="promo-code">WAVE80</strong></span>
     </div>
-    
-    <nav class="main-nav">
-      <div class="nav-container">
-        <a href="#" class="logo">
-          <i class="fas fa-store"></i>
-          <span>ShopWave</span>
-        </a>
+    <div class="topbar-links">
+      <a href="#"><i class="fas fa-store"></i> Become a Seller</a>
+      <a href="#"><i class="fas fa-gift"></i> Gift Cards</a>
+      <a href="#"><i class="fas fa-headset"></i> 24/7 Support</a>
+      <a href="#"><i class="fas fa-truck"></i> Track Order</a>
+    </div>
+  </div>
+</div>
 
-        <div class="search-bar">
-          <input type="text" id="searchInput" placeholder="Search 10,000+ products...">
-          <button onclick="doSearch()">
-            <i class="fas fa-search"></i>
-          </button>
-          <div id="suggestions" class="suggestions"></div>
-        </div>
-
-        <div class="nav-icons">
-          <div class="nav-icon" onclick="toggleWishlist()">
-            <i class="far fa-heart"></i>
-            <span>Wishlist</span>
-            <div class="badge" id="wishlistBadge">0</div>
-          </div>
-          <div class="nav-icon" onclick="toggleCart()">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <div class="badge" id="cartBadge">0</div>
-          </div>
-        </div>
+<!-- ═══════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a class="nav-logo" href="#" onclick="renderAllProducts(PRODUCTS);return false;">
+      <div class="logo-icon">
+        <i class="fas fa-wave-square"></i>
       </div>
-    </nav>
-  </header>
+      <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
+    </a>
 
-  <!-- HERO SLIDER -->
+    <!-- Search -->
+    <div class="search-wrap">
+      <div class="search-category">
+        <select id="catFilter" class="category-select">
+          <option>All Categories</option>
+          <option>Electronics</option>
+          <option>Fashion</option>
+          <option>Home & Kitchen</option>
+          <option>Sports</option>
+          <option>Beauty</option>
+          <option>Books</option>
+          <option>Toys</option>
+          <option>Automotive</option>
+        </select>
+      </div>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search for products, brands and more..."
+        oninput="handleSearch(this.value)"
+        onkeydown="if(event.key==='Enter') doSearch()">
+      <button class="search-btn" onclick="doSearch()">
+        <i class="fas fa-search"></i>
+        <span>Search</span>
+      </button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+
+    <!-- Nav Actions -->
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="toggleWishlist()">
+        <i class="fas fa-heart"></i>
+        <span class="nav-label">Wishlist</span>
+        <span class="nav-badge wishlist-badge" id="wishlistBadge">0</span>
+      </button>
+      <button class="nav-btn" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-label">Cart</span>
+        <span class="nav-badge cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="nav-btn nav-btn-user" onclick="showProfile()">
+        <i class="fas fa-user-circle"></i>
+        <span class="nav-label" id="loginBtnText">Sign In</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORY BAR
+════════════════════════════════════════════════════════════ -->
+<div class="cat-bar">
+  <div class="cat-container">
+    <a href="#" class="cat-btn active" onclick="renderAllProducts(PRODUCTS);return false;">
+      <i class="fas fa-home"></i> All Products
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(1);return false;">
+      <i class="fas fa-mobile-alt"></i> Electronics
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(2);return false;">
+      <i class="fas fa-tshirt"></i> Fashion
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(3);return false;">
+      <i class="fas fa-couch"></i> Home & Kitchen
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(5);return false;">
+      <i class="fas fa-spa"></i> Beauty
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(4);return false;">
+      <i class="fas fa-futbol"></i> Sports
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(6);return false;">
+      <i class="fas fa-book"></i> Books
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(8);return false;">
+      <i class="fas fa-car"></i> Automotive
+    </a>
+    <a href="#" class="cat-btn" onclick="filterCategory(7);return false;">
+      <i class="fas fa-gamepad"></i> Toys
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── HERO BANNER ────────────────────────────────────── -->
   <section class="hero">
-    <div class="carousel-container">
-      <div class="carousel" id="heroCarousel">
-        <div class="hero-slide active">
-          <div class="slide-content">
-            <h1>Latest MacBook</h1>
-            <p>Pro M3 Max - Blazing-fast. Power-efficient.</p>
-            <button class="btn btn-primary btn-lg" onclick="scrollToFeatured()">Shop Now</button>
+    <div class="hero-content-wrapper">
+      <div class="hero-slider" id="heroSlider">
+
+        <!-- Slide 1 -->
+        <div class="hero-slide active" style="background:linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);">
+          <div class="hero-content">
+            <span class="hero-tag">⚡ NEW ARRIVAL</span>
+            <h1 class="hero-title">MacBook Pro<br>M3 Max</h1>
+            <p class="hero-subtitle">Blazing performance. All-day battery. Remarkably thin design.</p>
+            <div class="hero-price">Starting at <strong>₹2,49,990</strong></div>
+            <a href="#" class="hero-cta" onclick="filterCategory(1);return false;">
+              Shop Now <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div class="hero-image">
+            <div class="hero-emoji">💻</div>
           </div>
         </div>
-        <div class="hero-slide">
-          <div class="slide-content">
-            <h1>Nike Air Max</h1>
-            <p>720 Series - Future of comfort & style</p>
-            <button class="btn btn-primary btn-lg">Explore</button>
+
+        <!-- Slide 2 -->
+        <div class="hero-slide" style="background:linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2c3e50 100%);">
+          <div class="hero-content">
+            <span class="hero-tag exclusive">👟 EXCLUSIVE</span>
+            <h1 class="hero-title">Nike Air Max<br>720 Collection</h1>
+            <p class="hero-subtitle">Step into the future with revolutionary cushioning technology.</p>
+            <div class="hero-price">From <strong>₹14,995</strong></div>
+            <a href="#" class="hero-cta cta-secondary" onclick="filterCategory(2);return false;">
+              Explore Collection <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div class="hero-image">
+            <div class="hero-emoji">👟</div>
           </div>
         </div>
-        <div class="hero-slide">
-          <div class="slide-content">
-            <h1>Sony XM5</h1>
-            <p>Industry-leading noise cancellation</p>
-            <button class="btn btn-primary btn-lg">Buy Now</button>
+
+        <!-- Slide 3 -->
+        <div class="hero-slide" style="background:linear-gradient(135deg, #283c86 0%, #45a247 50%, #283c86 100%);">
+          <div class="hero-content">
+            <span class="hero-tag bestseller">🎧 BEST SELLER</span>
+            <h1 class="hero-title">Sony WH-1000<br>XM5 Headphones</h1>
+            <p class="hero-subtitle">Industry-leading noise cancellation. Premium comfort.</p>
+            <div class="hero-price">Save <strong>₹10,000</strong> Today</div>
+            <a href="#" class="hero-cta cta-success" onclick="openModal(3);return false;">
+              Buy Now <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div class="hero-image">
+            <div class="hero-emoji">🎧</div>
+          </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="hero-controls">
+          <button class="hero-arrow hero-arrow-prev" onclick="changeSlide(-1)">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="hero-arrow hero-arrow-next" onclick="changeSlide(1)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="hero-dots" id="heroDots"></div>
+      </div>
+
+      <!-- Side Banners -->
+      <div class="hero-sidebar">
+        <div class="sidebar-card" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="filterCategory(2)">
+          <div class="sidebar-content">
+            <h3>Women's Fashion</h3>
+            <p>Up to 60% OFF</p>
+            <span class="sidebar-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+        <div class="sidebar-card" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="filterCategory(3)">
+          <div class="sidebar-content">
+            <h3>Home & Living</h3>
+            <p>New Arrivals Daily</p>
+            <span class="sidebar-arrow"><i class="fas fa-arrow-right"></i></span>
           </div>
         </div>
       </div>
-      <div class="carousel-nav" id="heroDots"></div>
     </div>
   </section>
-
-  <!-- FEATURES -->
-  <section class="features">
-    <div class="container">
-      <div class="features-grid">
-        <div class="feature-card">
-          <i class="fas fa-truck"></i>
-          <h3>Free Delivery</h3>
-          <p>On orders above ₹499</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-lock"></i>
-          <h3>Secure Payment</h3>
-          <p>100% protected</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-undo"></i>
-          <h3>Easy Returns</h3>
-          <p>30-day return policy</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-headset"></i>
-          <h3>24/7 Support</h3>
-          <p>Always here for you</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CATEGORIES -->
-  <section class="categories">
+  <!-- ── FLASH DEALS ─────────────────────────────────────── -->
+  <section class="flash-deals">
     <div class="container">
       <div class="section-header">
-        <h2>Shop by Category</h2>
-        <a href="#" class="view-all">View All →</a>
-      </div>
-      <div class="category-grid" id="catGrid">
-        <!-- Categories loaded by JS -->
-      </div>
-    </div>
-  </section>
-
-  <!-- FEATURED PRODUCTS -->
-  <section class="featured section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Featured Products</h2>
-        <a href="#" class="view-all" onclick="scrollToAllProducts()">View All →</a>
-      </div>
-      <div class="product-grid" id="featuredGrid">
-        <!-- Featured products loaded by JS -->
-      </div>
-    </div>
-  </section>
-
-  <!-- FLASH SALE -->
-  <section class="flash-sale">
-    <div class="container">
-      <div class="section-header">
-        <h2>Flash Sale <span id="countdown"></span></h2>
-      </div>
-      <div class="flash-grid" id="flashGrid">
-        <!-- Flash products loaded by JS -->
-      </div>
-    </div>
-  </section>
-
-  <!-- ALL PRODUCTS -->
-  <section class="all-products section">
-    <div class="container">
-      <div class="section-header">
-        <div>
-          <h2>All Products</h2>
-          <span class="count" id="listCount">12</span> results
+        <div class="section-header-left">
+          <span class="section-icon">⚡</span>
+          <h2 class="section-title">Flash Deals</h2>
+          <span class="section-badge">LIMITED TIME</span>
+        </div>
+        <div class="countdown" id="countdown">
+          <div class="countdown-item">
+            <span class="countdown-value" id="hours">04</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-item">
+            <span class="countdown-value" id="minutes">47</span>
+            <span class="countdown-label">Minutes</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-item">
+            <span class="countdown-value" id="seconds">23</span>
+            <span class="countdown-label">Seconds</span>
+          </div>
         </div>
       </div>
-      <div class="product-grid" id="mainGrid">
-        <!-- All products loaded by JS -->
-      </div>
+      <div class="flash-grid" id="flashGrid"></div>
     </div>
   </section>
 
-  <!-- CART MODAL -->
-  <div class="cart-overlay" id="cartOverlay">
-    <div class="cart-panel" id="cartPanel">
-      <div class="cart-header">
-        <h3>My Cart</h3>
-        <button class="cart-close" onclick="toggleCart()">
-          <i class="fas fa-times"></i>
-        </button>
+  <!-- ── CATEGORIES ──────────────────────────────────────── -->
+  <section class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-header-left">
+          <span class="section-icon">🏷️</span>
+          <h2 class="section-title">Shop by Category</h2>
+        </div>
+        <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
       </div>
-      <div class="cart-body">
-        <div class="cart-items" id="cartItems"></div>
+      <div class="category-grid" id="categoryGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── ALL PRODUCTS ────────────────────────────────────── -->
+  <section class="products-section">
+    <div class="container-fluid">
+      <div class="products-header">
+        <div class="products-header-left">
+          <h2 class="products-title">All Products</h2>
+          <span class="products-count" id="productCount">Showing all products</span>
+        </div>
+        <div class="products-controls">
+          <select class="sort-select" onchange="sortProducts(this.value)">
+            <option value="relevance">Sort by: Relevance</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="rating">Customer Rating</option>
+            <option value="newest">Newest First</option>
+            <option value="discount">Best Discount</option>
+          </select>
+          <div class="view-toggle">
+            <button class="view-btn active" onclick="setView('grid',this)" title="Grid View">
+              <i class="fas fa-th"></i>
+            </button>
+            <button class="view-btn" onclick="setView('list',this)" title="List View">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="prod-grid" id="mainGrid"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-icon">
+              <i class="fas fa-wave-square"></i>
+            </div>
+            <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
+          </div>
+          <p class="footer-desc">India's most trusted e-commerce platform. Shop millions of products with guaranteed quality, lightning-fast delivery, and unbeatable prices.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i>About Us</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Careers</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Press & Media</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Corporate Info</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Customer Service</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Help Center</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Track Order</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Returns & Refunds</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Cancellation Policy</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Report Infringement</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Policies</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Terms of Use</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Security</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>Shipping Policy</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i>EPR Compliance</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Newsletter</h4>
+          <p class="newsletter-text">Subscribe to get special offers, updates and more.</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="Enter your email" class="newsletter-input">
+            <button class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+          </div>
+          <div class="app-download">
+            <p class="app-text">Download App</p>
+            <div class="app-buttons">
+              <a href="#" class="app-btn"><i class="fab fa-apple"></i> App Store</a>
+              <a href="#" class="app-btn"><i class="fab fa-google-play"></i> Play Store</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- AUTH MODAL -->
-  <div class="modal" id="authModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalTitle">Login</h3>
-        <button class="modal-close" onclick="toggleAuthModal()">
-          <i class="fas fa-times"></i>
-        </button>
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-bottom-content">
+        <p class="copyright">© 2024 ShopWave. All rights reserved. Designed with ❤️ in India</p>
+        <div class="payment-methods">
+          <span class="payment-text">We Accept:</span>
+          <div class="payment-icons">
+            <span class="payment-icon">💳</span>
+            <span class="payment-icon">🏦</span>
+            <span class="payment-icon upi">UPI</span>
+            <span class="payment-icon">📱</span>
+            <span class="payment-icon">💰</span>
+          </div>
+        </div>
       </div>
-      <form id="loginForm">
-        <div class="form-group">
-          <input type="email" name="email" placeholder="Email" required>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CART PANEL
+════════════════════════════════════════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-head">
+    <h3 class="cart-title">
+      <i class="fas fa-shopping-cart"></i>
+      My Cart <span class="cart-count-badge" id="cartCount">0</span>
+    </h3>
+    <button class="cart-close" onclick="toggleCart()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <i class="fas fa-shopping-cart"></i>
+      <p>Your cart is empty</p>
+      <button class="btn-shop" onclick="toggleCart()">Continue Shopping</button>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-summary">
+      <div class="cart-summary-row">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">₹0</span>
+      </div>
+      <div class="cart-summary-row">
+        <span>Shipping</span>
+        <span class="free-badge" id="cartShipping">FREE</span>
+      </div>
+      <div class="cart-summary-row discount-row">
+        <span>Discount (5%)</span>
+        <span id="cartDiscount">-₹0</span>
+      </div>
+      <div class="cart-summary-row total-row">
+        <span>Total</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+    </div>
+    <button class="btn-checkout" onclick="checkout()">
+      <i class="fas fa-lock"></i> Proceed to Checkout
+    </button>
+    <p class="secure-text"><i class="fas fa-shield-alt"></i> 100% Secure Payment</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WISHLIST PANEL
+════════════════════════════════════════════════════════════ -->
+<div class="wishlist-overlay" id="wishlistOverlay" onclick="toggleWishlist()"></div>
+<div class="wishlist-panel" id="wishlistPanel">
+  <div class="wishlist-head">
+    <h3 class="wishlist-title">
+      <i class="fas fa-heart"></i>
+      My Wishlist <span class="wishlist-count-badge" id="wishlistCount">0</span>
+    </h3>
+    <button class="wishlist-close" onclick="toggleWishlist()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="wishlist-items" id="wishlistItems">
+    <div class="wishlist-empty">
+      <i class="fas fa-heart"></i>
+      <p>Your wishlist is empty</p>
+      <button class="btn-shop" onclick="toggleWishlist()">Start Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUCT MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-wrapper">
+    <button class="modal-close" onclick="closeModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="product-modal" id="modalContent"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AUTH MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-wrapper">
+    <button class="modal-close" onclick="closeAuthModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="auth-modal">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <div class="logo-icon">
+            <i class="fas fa-wave-square"></i>
+          </div>
+          <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
+        </div>
+        <p class="auth-subtitle" id="authSubtitle">Sign in to your account</p>
+      </div>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="auth-tab active" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" class="auth-tab" onclick="switchTab('register')">Register</button>
+      </div>
+      <form class="auth-form" onsubmit="submitAuth(); return false;">
+        <div id="registerFields" class="form-group" style="display:none">
+          <label>Full Name</label>
+          <input id="authName" type="text" placeholder="Enter your full name" class="form-input">
         </div>
         <div class="form-group">
-          <input type="password" name="password" placeholder="Password" required>
+          <label>Email Address</label>
+          <input id="authEmail" type="email" placeholder="Enter your email" class="form-input" required>
         </div>
-        <button type="submit" class="btn btn-primary full-width">Login</button>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="authPassword" type="password" placeholder="Enter your password (min 6 characters)" class="form-input" required>
+        </div>
+        <div id="authError" class="auth-error" style="display:none"></div>
+        <button type="submit" id="authSubmitBtn" class="auth-submit-btn">
+          Sign In
+        </button>
       </form>
-      <div class="modal-divider">
-        <span>or</span>
+      <div class="auth-footer">
+        <p>By continuing, you agree to ShopWave's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
       </div>
-      <button class="btn btn-secondary full-width" onclick="switchToRegister()">Create Account</button>
     </div>
   </div>
+</div>
 
-  <!-- PRODUCT MODAL -->
-  <div class="modal" id="productModal">
-    <div class="modal-content large">
-      <div class="modal-header">
-        <button class="modal-close" onclick="closeModal()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div id="modalContent"></div>
+<!-- ═══════════════════════════════════════════════════════════
+     ORDERS MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="ordersModal">
+  <div class="modal-wrapper">
+    <button class="modal-close" onclick="closeOrdersModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="orders-modal">
+      <h2 class="orders-title">
+        <i class="fas fa-box"></i> My Orders
+      </h2>
+      <div id="ordersList" class="orders-list"></div>
     </div>
   </div>
+</div>
 
-  <script src="app.js"></script>
+<!-- ═══════════════════════════════════════════════════════════
+     TOAST NOTIFICATION
+════════════════════════════════════════════════════════════ -->
+<div id="toast" class="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BACK TO TOP BUTTON
+════════════════════════════════════════════════════════════ -->
+<button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script src="app.js"></script>
 </body>
 </html>
