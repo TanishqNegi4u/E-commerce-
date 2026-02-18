@@ -1,4 +1,3 @@
-
 package com.shopwave.model;
 
 import jakarta.persistence.*;
