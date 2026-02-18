@@ -1,3 +1,4 @@
+
 package com.shopwave.model;
 
 import jakarta.persistence.*;
@@ -28,6 +29,9 @@ public class Product {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+    
+    @Column(columnDefinition = "TEXT")
+    private String highlights; // ADDED THIS
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
@@ -81,7 +85,6 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Transient fields for additional data (not stored in DB)
     @Transient
     @Builder.Default
     private List<String> images = new ArrayList<>();
@@ -107,7 +110,7 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
-    // Alias methods for compatibility
+    // Alias methods
     public Integer getStock() {
         return stockQuantity;
     }
@@ -123,15 +126,16 @@ public class Product {
     public void setAverageRating(Double averageRating) {
         this.rating = averageRating;
     }
-
-    // Helper method for discount calculation
-    public void calculateDiscount() {
-        if (comparePrice != null && price != null && comparePrice.compareTo(price) > 0) {
-            BigDecimal discount = comparePrice.subtract(price);
-            BigDecimal percent = discount.divide(comparePrice, 4, java.math.RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(100));
-            this.discountPercent = percent.intValue();
-            this.originalPrice = comparePrice;
-        }
+    
+    // Product status enum (nested class)
+    public static enum ProductStatus {
+        ACTIVE, INACTIVE, OUT_OF_STOCK, DISCONTINUED
+    }
+    
+    // Get status based on stock and isActive
+    public ProductStatus getProductStatus() {
+        if (!isActive) return ProductStatus.INACTIVE;
+        if (stockQuantity == null || stockQuantity <= 0) return ProductStatus.OUT_OF_STOCK;
+        return ProductStatus.ACTIVE;
     }
 }
