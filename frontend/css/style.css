@@ -25,7 +25,7 @@
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
+  background: var(--bg-navy);
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
