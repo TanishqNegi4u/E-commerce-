@@ -8,29 +8,47 @@
   --gold:       #f59e0b;
   --success:    #10b981;
   --danger:     #ef4444;
-  --bg:         #0f0f0f;
-  --bg2:        #1a1a1a;
-  --bg3:        #242424;
-  --bg4:        #2e2e2e;
-  --border:     #333;
+  
+  /* BRIGHT VIBRANT BACKGROUND */
+  --bg:         #0a0e1f;           /* Deep space base */
+  --bg-bright:  linear-gradient(135deg, #00d4ff 0%, #0099cc 25%, #0072b0 50%, #0a0e1f 100%);
+  --bg-alt:     linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  
+  --bg2:        #1a1f2e;
+  --bg3:        #2a3449;
+  --bg4:        #3a4a5e;
+  --border:     rgba(255,255,255,.08);
   --text:       #ffffff;
-  --text2:      #b3b3b3;
-  --text3:      #707070;
-  --shadow:     0 4px 24px rgba(0,0,0,.5);
-  --transition: all .25s ease;
-  --radius:     12px;
+  --text2:      #d1d5db;
+  --text3:      #9ca3af;
+  --shadow:     0 8px 32px rgba(0,212,255,.15);
+  --transition: all .3s cubic-bezier(.4,0,.2,1);
+  --radius:     16px;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-navy);
+  background: var(--bg-bright);
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
+  position: relative;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0,212,255,.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,107,107,.25) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(78,205,196,.2) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
 a { text-decoration: none; color: inherit; }
 
 ::-webkit-scrollbar { width: 8px; }
