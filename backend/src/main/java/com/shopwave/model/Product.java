@@ -1,10 +1,13 @@
-
 package com.shopwave.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "products")
@@ -78,6 +81,21 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Transient fields for additional data (not stored in DB)
+    @Transient
+    @Builder.Default
+    private List<String> images = new ArrayList<>();
+
+    @Transient
+    @Builder.Default
+    private Map<String, String> specifications = new HashMap<>();
+
+    @Transient
+    private BigDecimal originalPrice;
+
+    @Transient
+    private Integer discountPercent;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -104,5 +122,16 @@ public class Product {
 
     public void setAverageRating(Double averageRating) {
         this.rating = averageRating;
+    }
+
+    // Helper method for discount calculation
+    public void calculateDiscount() {
+        if (comparePrice != null && price != null && comparePrice.compareTo(price) > 0) {
+            BigDecimal discount = comparePrice.subtract(price);
+            BigDecimal percent = discount.divide(comparePrice, 4, java.math.RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            this.discountPercent = percent.intValue();
+            this.originalPrice = comparePrice;
+        }
     }
 }
