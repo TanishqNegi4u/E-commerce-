@@ -36,7 +36,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
 
-    @Value("${cors.allowed-origins:http://localhost:5500,http://localhost:3000}")
+    @Value("${cors.allowed-origins:http://localhost:5500,http://localhost:3000,http://127.0.0.1:5500}")
     private String allowedOrigins;
 
     @Bean
@@ -65,6 +65,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOriginPattern("http://localhost:*");
         config.addAllowedOriginPattern("http://127.0.0.1:*");
+        config.addAllowedOriginPattern("https://*.onrender.com");
         config.addAllowedOriginPattern("null");
         Arrays.stream(allowedOrigins.split(","))
               .map(String::trim)
