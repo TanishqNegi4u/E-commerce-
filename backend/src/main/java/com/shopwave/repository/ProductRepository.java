@@ -4,48 +4,58 @@ import com.shopwave.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    // Find by slug
     Optional<Product> findBySlug(String slug);
 
-    @Query("SELECT p FROM Product p WHERE p.status = 'ACTIVE' AND " +
-           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<Product> searchProducts(@Param("keyword") String keyword,
-                                 Pageable pageable);
+    // Find active products
+    List<Product> findByIsActiveTrue();
 
-    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId " +
-           "AND p.status = :status")
-    Page<Product> findByCategoryAndStatus(
-            @Param("categoryId") Long categoryId,
-            @Param("status") Product.ProductStatus status,
-            Pageable pageable);
+    // Find by category
+    List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
 
-    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId " +
-           "AND p.status = 'ACTIVE'")
-    Page<Product> findByCategoryId(@Param("categoryId") Long categoryId,
-                                   Pageable pageable);
+    // Find featured products
+    List<Product> findByIsFeaturedTrueAndIsActiveTrue();
 
-    @Query("SELECT p FROM Product p WHERE p.featured = true " +
-           "AND p.status = 'ACTIVE' ORDER BY p.createdAt DESC")
-    List<Product> findFeaturedProducts(Pageable pageable);
+    // Search products by name or description
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
+           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    List<Product> searchProducts(@Param("query") String query);
 
-    @Query("SELECT p FROM Product p WHERE p.status = 'ACTIVE' " +
-           "ORDER BY p.totalSold DESC")
-    List<Product> findBestsellerProducts(Pageable pageable);
+    // Find products with pagination
+    Page<Product> findByIsActiveTrue(Pageable pageable);
 
-    @Modifying
-    @Query("UPDATE Product p SET p.stock = p.stock - :qty " +
-           "WHERE p.id = :id AND p.stock >= :qty")
-    int decrementStock(@Param("id") Long id, @Param("qty") int qty);
+    // Find by category with pagination
+    Page<Product> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable);
+
+    // Find by price range
+    List<Product> findByPriceBetweenAndIsActiveTrue(BigDecimal minPrice, BigDecimal maxPrice);
+
+    // Find by brand
+    List<Product> findByBrandAndIsActiveTrue(String brand);
+
+    // Find low stock products
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.stockQuantity <= p.lowStockThreshold")
+    List<Product> findLowStockProducts();
+
+    // Find out of stock products
+    List<Product> findByStockQuantityAndIsActiveTrue(Integer stockQuantity);
+
+    // Count products by category
+    long countByCategoryId(Long categoryId);
+
+    // Get all distinct brands
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.isActive = true AND p.brand IS NOT NULL")
+    List<String> findAllBrands();
 }
