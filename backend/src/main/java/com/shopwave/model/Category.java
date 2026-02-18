@@ -1,59 +1,61 @@
 package com.shopwave.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "categories")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Category {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
-
     @Column(unique = true)
     private String slug;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private String name;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @Column(name = "display_order")
-    @Builder.Default
-    private Integer displayOrder = 0;
+    @Column(name = "active")
+    private Boolean active = true;
 
-    @Column(name = "is_active")
-    @Builder.Default
-    private Boolean isActive = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    // Constructors
+    public Category() {}
+    
+    public Category(String name, String slug) {
+        this.name = name;
+        this.slug = slug;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    // Getters/Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public Category getParent() { return parent; }
+    public void setParent(Category parent) { this.parent = parent; }
+
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Category)) return false;
+        Category category = (Category) o;
+        return Objects.equals(getId(), category.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }
