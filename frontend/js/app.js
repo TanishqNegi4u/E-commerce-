@@ -724,3 +724,26 @@ document.addEventListener('click', function(e) {
 });
 
 console.log('✅ Buttons fixed!');
+
+// 🔥 MISSING FUNCTIONS - ADD THESE 3 ONLY
+function filterCategory(id) {
+  const filtered = id === 0 ? PRODUCTS : PRODUCTS.filter(p => p.category === CATEGORIES[id-1]?.name);
+  renderAllProducts(filtered);
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderCategories();
+  renderFeatured();
+  renderFlashProducts();
+  renderAllProducts(PRODUCTS);
+  renderCartPanel();
+  initHeroDots();
+});
