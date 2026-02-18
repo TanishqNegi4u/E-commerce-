@@ -1,3 +1,4 @@
+
 package com.shopwave.model;
 
 import jakarta.persistence.*;
@@ -86,5 +87,22 @@ public class Product {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // Alias methods for compatibility
+    public Integer getStock() {
+        return stockQuantity;
+    }
+
+    public void setStock(Integer stock) {
+        this.stockQuantity = stock;
+    }
+
+    public Double getAverageRating() {
+        return rating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.rating = averageRating;
     }
 }
