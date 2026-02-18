@@ -377,3 +377,22 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 console.log('✅ ShopWave Ready - All DSA + UI + Cart Working!');
+
+// 🔥 DEBUG - RUN THIS FIRST
+console.log('🔍 Checking HTML elements...');
+console.log('catGrid:', document.getElementById('catGrid'));
+console.log('featuredGrid:', document.getElementById('featuredGrid'));
+console.log('mainGrid:', document.getElementById('mainGrid'));
+console.log('Products ready:', PRODUCTS.length);
+
+// FORCE RENDER ANYWAY
+document.querySelectorAll('.prod-grid, [class*="grid"], .products').forEach(grid => {
+  grid.innerHTML = PRODUCTS.slice(0,6).map(p => `
+    <div class="prod-card" style="background:white;padding:20px;border-radius:12px;margin:10px;">
+      <div style="font-size:80px;text-align:center;margin:20px 0">${p.image}</div>
+      <h3>${p.name}</h3>
+      <div>₹${(p.price/100).toLocaleString()}</div>
+      <button onclick="alert('✅ Works!')" style="background:#6366f1;color:white;padding:10px;border:none;border-radius:8px;">Add to Cart</button>
+    </div>
+  `).join('');
+});
