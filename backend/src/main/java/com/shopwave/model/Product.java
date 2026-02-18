@@ -31,10 +31,16 @@ public class Product {
     private String description;
     
     @Column(columnDefinition = "TEXT")
-    private String highlights; // ADDED THIS
+    private String highlights;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    @Column(name = "original_price", precision = 10, scale = 2)
+    private BigDecimal originalPrice;
+
+    @Column(name = "discount_percent")
+    private Integer discountPercent;
 
     @Column(name = "compare_price", precision = 10, scale = 2)
     private BigDecimal comparePrice;
@@ -45,14 +51,18 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id")
+    private User seller;
 
     private String brand;
 
     private String sku;
 
-    @Column(name = "stock_quantity")
+    @Column(name = "stock")
     @Builder.Default
-    private Integer stockQuantity = 0;
+    private Integer stock = 0;
 
     @Column(name = "low_stock_threshold")
     @Builder.Default
@@ -68,16 +78,30 @@ public class Product {
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
+    
+    @Column(name = "free_shipping")
+    @Builder.Default
+    private Boolean freeShipping = false;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    @Builder.Default
+    private ProductStatus status = ProductStatus.ACTIVE;
 
     @Column(name = "view_count")
     @Builder.Default
     private Integer viewCount = 0;
+    
+    @Column(name = "average_rating")
+    private Double averageRating;
 
-    private Double rating;
-
-    @Column(name = "review_count")
+    @Column(name = "total_reviews")
     @Builder.Default
-    private Integer reviewCount = 0;
+    private Integer totalReviews = 0;
+    
+    @Column(name = "total_sold")
+    @Builder.Default
+    private Integer totalSold = 0;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -93,12 +117,6 @@ public class Product {
     @Builder.Default
     private Map<String, String> specifications = new HashMap<>();
 
-    @Transient
-    private BigDecimal originalPrice;
-
-    @Transient
-    private Integer discountPercent;
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -110,32 +128,39 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
-    // Alias methods
-    public Integer getStock() {
-        return stockQuantity;
+    // Alias methods for backward compatibility
+    public Integer getStockQuantity() {
+        return stock;
     }
 
-    public void setStock(Integer stock) {
-        this.stockQuantity = stock;
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stock = stockQuantity;
     }
 
-    public Double getAverageRating() {
-        return rating;
+    public Double getRating() {
+        return averageRating;
     }
 
-    public void setAverageRating(Double averageRating) {
-        this.rating = averageRating;
+    public void setRating(Double rating) {
+        this.averageRating = rating;
     }
     
-    // Product status enum (nested class)
-    public static enum ProductStatus {
+    public Integer getReviewCount() {
+        return totalReviews;
+    }
+    
+    public void setReviewCount(Integer reviewCount) {
+        this.totalReviews = reviewCount;
+    }
+    
+    public enum ProductStatus {
         ACTIVE, INACTIVE, OUT_OF_STOCK, DISCONTINUED
     }
     
-    // Get status based on stock and isActive
     public ProductStatus getProductStatus() {
+        if (status != null) return status;
         if (!isActive) return ProductStatus.INACTIVE;
-        if (stockQuantity == null || stockQuantity <= 0) return ProductStatus.OUT_OF_STOCK;
+        if (stock == null || stock <= 0) return ProductStatus.OUT_OF_STOCK;
         return ProductStatus.ACTIVE;
     }
 }
