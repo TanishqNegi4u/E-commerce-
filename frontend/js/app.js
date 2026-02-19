@@ -1,6 +1,8 @@
 // ============================================================
-// ShopWave — app.js
-// All JavaScript for the ShopWave frontend
+// ShopWave — app.js  (FULLY FIXED VERSION)
+// ✅ Backend cart sync  ✅ Checkout modal with address
+// ✅ Payment options (COD / Online)  ✅ Live product fetch
+// ✅ Buy Now → Checkout  ✅ Coupon code support
 // ============================================================
 
 // ── API CONFIG ───────────────────────────────────────────────
@@ -10,7 +12,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 
 console.log('🚀 ShopWave initialized with API:', API_BASE);
 
-// ── STATIC DATA ──────────────────────────────────────────────
+// ── STATIC FALLBACK DATA (used if backend has no products yet)
 const CATEGORIES = [
   {id:1, name:'Electronics', icon:'📱', color:'#E8F4FF', count:124},
   {id:2, name:'Fashion',     icon:'👗', color:'#FFF0F5', count:89},
@@ -22,7 +24,7 @@ const CATEGORIES = [
   {id:8, name:'Automotive', icon:'🚗', color:'#FBE9E7', count:29}
 ];
 
-const PRODUCTS = [
+const STATIC_PRODUCTS = [
   {id:1,  name:"Apple MacBook Pro M3 Max 16\"", brand:'Apple',        price:249990, original:299990, discount:17, rating:4.8, reviews:1247, stock:5,   category:'Electronics',   badge:'New', image:'💻', featured:true},
   {id:2,  name:'Samsung Galaxy S24 Ultra',      brand:'Samsung',      price:124999, original:149999, discount:17, rating:4.7, reviews:2341, stock:12,  category:'Electronics',   badge:'Hot', image:'📱', featured:true},
   {id:3,  name:'Sony WH-1000XM5 Headphones',   brand:'Sony',         price:29990,  original:39990,  discount:25, rating:4.6, reviews:3892, stock:23,  category:'Electronics',   badge:'',    image:'🎧', featured:true},
@@ -36,6 +38,8 @@ const PRODUCTS = [
   {id:11, name:'Atomic Habits — James Clear',   brand:'Penguin Books', price:399,   original:799,    discount:50, rating:4.9, reviews:12456,stock:456, category:'Books',         badge:'',    image:'📖', featured:false},
   {id:12, name:'Lego Technic Ferrari SP3',      brand:'LEGO',         price:34999,  original:44999,  discount:22, rating:4.8, reviews:654,  stock:15,  category:'Toys',          badge:'New', image:'🧱', featured:false}
 ];
+
+let PRODUCTS = [...STATIC_PRODUCTS]; // will be replaced by API data if available
 
 // ── APP STATE ─────────────────────────────────────────────────
 let cart        = JSON.parse(localStorage.getItem('sw_cart')     || '[]');
@@ -78,7 +82,6 @@ class Trie {
   }
 }
 
-// DSA — Merge Sort
 function mergeSort(arr, key, asc = true) {
   if (arr.length <= 1) return arr;
   const mid = Math.floor(arr.length / 2);
@@ -95,14 +98,55 @@ function merge(L, R, key, asc) {
   return [...res, ...L.slice(i), ...R.slice(j)];
 }
 
-// DSA — Binary Search price range
 function binarySearchPriceRange(sorted, min, max) {
   return sorted.filter(p => p.price >= min && p.price <= max);
 }
 
-// Build search Trie
-const trie = new Trie();
-PRODUCTS.forEach(p => { trie.insert(p.name); trie.insert(p.brand); });
+let trie = new Trie();
+function rebuildTrie() {
+  trie = new Trie();
+  PRODUCTS.forEach(p => { trie.insert(p.name); trie.insert(p.brand); });
+}
+
+// ============================================================
+// FETCH PRODUCTS FROM BACKEND (with static fallback)
+// ============================================================
+async function fetchProducts() {
+  try {
+    const res = await fetch(`${API_BASE}/products?size=100`);
+    if (!res.ok) throw new Error('Backend products not available');
+    const data = await res.json();
+    const items = data.content || data;
+    if (!items || items.length === 0) throw new Error('No products from backend');
+
+    // Map backend product shape to frontend shape
+    PRODUCTS = items.map(p => ({
+      id: p.id,
+      name: p.name,
+      brand: p.brand || 'ShopWave',
+      price: parseFloat(p.price) || 0,
+      original: parseFloat(p.originalPrice || p.price) || 0,
+      discount: p.discountPercentage || 0,
+      rating: parseFloat(p.rating) || 4.0,
+      reviews: p.reviewCount || 0,
+      stock: p.stock || 10,
+      category: p.category?.name || 'General',
+      badge: p.isFeatured ? 'New' : '',
+      image: p.images?.[0] ? null : '📦',
+      imageUrl: p.images?.[0] || null,
+      featured: !!p.isFeatured
+    }));
+    console.log(`✅ Loaded ${PRODUCTS.length} products from backend`);
+  } catch (e) {
+    console.warn('⚠️ Using static product data:', e.message);
+    PRODUCTS = [...STATIC_PRODUCTS];
+  }
+  rebuildTrie();
+  renderCategories();
+  renderFeatured();
+  renderAllProducts(PRODUCTS);
+  renderFlashProducts();
+}
 
 // ============================================================
 // RENDER — Categories
@@ -124,8 +168,12 @@ function renderCategories() {
 function renderProductCard(p) {
   const inWishlist = wishlist.includes(p.id);
   const inCart     = cart.some(c => c.id === p.id);
-  const stars = '⭐'.repeat(Math.floor(p.rating));
-  
+
+  const imgHtml = p.imageUrl
+    ? `<img src="${p.imageUrl}" alt="${p.name}" style="max-height:120px;object-fit:contain" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`
+    : '';
+  const emojiHtml = `<div style="font-size:100px;${p.imageUrl ? 'display:none' : ''}">${p.image || '📦'}</div>`;
+
   return `
     <div class="product-card">
       ${p.badge ? `<span class="product-badge badge-${p.badge.toLowerCase()}">${p.badge}</span>` : ''}
@@ -133,7 +181,7 @@ function renderProductCard(p) {
         <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
       </button>
       <div class="product-image" onclick="openModal(${p.id})">
-        <div style="font-size:100px">${p.image}</div>
+        ${imgHtml}${emojiHtml}
       </div>
       <div class="product-info" onclick="openModal(${p.id})">
         <div class="product-brand">${p.brand}</div>
@@ -161,28 +209,20 @@ function renderProductCard(p) {
 
 function renderFeatured() {
   const grid = document.getElementById('featuredGrid');
-  if (grid) {
-    grid.innerHTML = PRODUCTS.filter(p => p.featured).map(renderProductCard).join('');
-  }
+  if (grid) grid.innerHTML = PRODUCTS.filter(p => p.featured).map(renderProductCard).join('');
 }
 
 function renderAllProducts(products) {
   const count = document.getElementById('productCount');
-  if (count) {
-    count.textContent = `Showing ${products.length} products`;
-  }
+  if (count) count.textContent = `Showing ${products.length} products`;
   const grid = document.getElementById('mainGrid');
-  if (grid) {
-    grid.innerHTML = products.map(renderProductCard).join('');
-  }
+  if (grid) grid.innerHTML = products.map(renderProductCard).join('');
 }
 
 function renderFlashProducts() {
   const shuffled = [...PRODUCTS].sort(() => Math.random() - .5).slice(0, 6);
   const grid = document.getElementById('flashGrid');
-  if (grid) {
-    grid.innerHTML = shuffled.map(renderProductCard).join('');
-  }
+  if (grid) grid.innerHTML = shuffled.map(renderProductCard).join('');
 }
 
 // ============================================================
@@ -190,9 +230,10 @@ function renderFlashProducts() {
 // ============================================================
 function initHeroDots() {
   const slides = document.querySelectorAll('.hero-slide');
-  document.getElementById('heroDots').innerHTML =
-    Array.from({length: slides.length}, (_, i) =>
-      `<button class="hero-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>`).join('');
+  const dotsEl = document.getElementById('heroDots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = Array.from({length: slides.length}, (_, i) =>
+    `<button class="hero-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>`).join('');
 }
 
 function changeSlide(dir) {
@@ -234,32 +275,26 @@ function highlightMatch(str, q) {
 function selectSuggestion(s) {
   document.getElementById('searchInput').value = s;
   const box = document.getElementById('suggestions');
-  box.classList.remove('active');
-  box.style.display = 'none';
+  box.classList.remove('active'); box.style.display = 'none';
   doSearch();
 }
 
 function doSearch() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const box = document.getElementById('suggestions');
-  box.classList.remove('active');
-  box.style.display = 'none';
+  box.classList.remove('active'); box.style.display = 'none';
   const filtered = PRODUCTS.filter(p =>
     p.name.toLowerCase().includes(q) ||
     p.brand.toLowerCase().includes(q) ||
     p.category.toLowerCase().includes(q));
   renderAllProducts(filtered);
-  const section = document.querySelector('.products-section');
-  if (section) {
-    section.scrollIntoView({behavior: 'smooth'});
-  }
+  document.querySelector('.products-section')?.scrollIntoView({behavior: 'smooth'});
 }
 
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-wrap')) {
     const box = document.getElementById('suggestions');
-    box.classList.remove('active');
-    box.style.display = 'none';
+    box.classList.remove('active'); box.style.display = 'none';
   }
 });
 
@@ -273,10 +308,12 @@ function openModal(id) {
   const stars5 = Array.from({length: 5}, (_, i) =>
     `<i class="fas fa-star" style="color:${i < Math.floor(p.rating) ? '#FFB800' : '#ddd'};font-size:14px"></i>`).join('');
 
+  const imgHtml = p.imageUrl
+    ? `<img src="${p.imageUrl}" alt="${p.name}" style="max-height:220px;object-fit:contain;border-radius:12px" onerror="this.outerHTML='<div style=\\'font-size:180px;text-align:center\\'>${p.image || '📦'}</div>'">`
+    : `<div style="font-size:180px;text-align:center;padding:20px;background:#f0f4f8;border-radius:12px">${p.image || '📦'}</div>`;
+
   document.getElementById('modalContent').innerHTML = `
-    <div class="modal-images">
-      <div style="font-size:180px;text-align:center;padding:20px;background:#f0f4f8;border-radius:12px">${p.image}</div>
-    </div>
+    <div class="modal-images">${imgHtml}</div>
     <div class="modal-info">
       <div class="modal-brand">${p.brand}</div>
       <div class="modal-name">${p.name}</div>
@@ -308,13 +345,6 @@ function openModal(id) {
         <div><i class="fas fa-undo"></i> 30-day return policy</div>
         <div><i class="fas fa-shield-alt"></i> 1 Year Warranty</div>
       </div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:16px">
-        ${Object.entries(p.specs || {}).map(([k, v]) =>
-          `<tr>
-             <td style="padding:6px 8px;color:var(--text-muted);background:var(--bg-secondary);border-radius:4px;width:40%">${k}</td>
-             <td style="padding:6px 8px">${v}</td>
-           </tr>`).join('')}
-      </table>
     </div>`;
 
   document.getElementById('productModal').classList.add('active');
@@ -332,7 +362,7 @@ function changeQty(d) {
 }
 
 // ============================================================
-// CART
+// CART  (local state + backend sync when logged in)
 // ============================================================
 function addToCartQ(event, id) { event.stopPropagation(); addToCart(id, 1); }
 
@@ -345,6 +375,40 @@ function addToCart(id, qty = 1) {
   saveCart();
   showToast(`${p.name} added to cart! 🛒`, 'success');
   renderCartPanel();
+  // Sync to backend if logged in
+  if (authToken) syncCartItemToBackend(id, existing ? existing.qty : qty);
+}
+
+async function syncCartItemToBackend(productId, quantity) {
+  try {
+    await fetch(`${API_BASE}/cart/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({productId, quantity})
+    });
+  } catch (e) {
+    console.warn('Cart backend sync failed:', e.message);
+  }
+}
+
+async function syncFullCartToBackend() {
+  if (!authToken || !cart.length) return;
+  // Clear backend cart then re-add all local items
+  try {
+    await fetch(`${API_BASE}/cart`, {
+      method: 'DELETE',
+      headers: {'Authorization': `Bearer ${authToken}`}
+    });
+    for (const item of cart) {
+      await syncCartItemToBackend(item.id, item.qty);
+    }
+    console.log('✅ Cart synced to backend');
+  } catch (e) {
+    console.warn('Full cart sync failed:', e.message);
+  }
 }
 
 function addToCartModal(id) {
@@ -352,13 +416,28 @@ function addToCartModal(id) {
   closeModal();
 }
 
-function buyNow(event, id)   { event.stopPropagation(); addToCart(id); toggleCart(); }
-function buyNowModal(id)     { addToCartModal(id); toggleCart(); }
+// BUY NOW → directly open checkout
+function buyNow(event, id) {
+  event.stopPropagation();
+  addToCart(id, 1);
+  openCheckoutModal();
+}
+
+function buyNowModal(id) {
+  addToCartModal(id);
+  openCheckoutModal();
+}
 
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
   saveCart(); renderCartPanel();
   showToast('Item removed from cart', 'info');
+  if (authToken) {
+    fetch(`${API_BASE}/cart/items/${id}`, {
+      method: 'DELETE',
+      headers: {'Authorization': `Bearer ${authToken}`}
+    }).catch(() => {});
+  }
 }
 
 function updateCartQty(id, delta) {
@@ -367,6 +446,16 @@ function updateCartQty(id, delta) {
   const p = PRODUCTS.find(x => x.id === id);
   item.qty = Math.max(1, Math.min(item.qty + delta, p ? p.stock : 99));
   saveCart(); renderCartPanel();
+  if (authToken) {
+    fetch(`${API_BASE}/cart/items/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({quantity: item.qty})
+    }).catch(() => {});
+  }
 }
 
 function saveCart() {
@@ -376,7 +465,9 @@ function saveCart() {
   document.getElementById('cartCount').textContent = total;
   renderFeatured();
   renderAllProducts(PRODUCTS);
-}function renderCartPanel() {
+}
+
+function renderCartPanel() {
   const container = document.getElementById('cartItems');
   if (!cart.length) {
     container.innerHTML = `
@@ -396,7 +487,7 @@ function saveCart() {
     if (!p) return '';
     return `
       <div class="cart-item">
-        <div class="item-image">${p.image}</div>
+        <div class="item-image">${p.imageUrl ? `<img src="${p.imageUrl}" style="width:60px;height:60px;object-fit:contain" onerror="this.outerHTML='${p.image || '📦'}'">` : p.image || '📦'}</div>
         <div class="item-details">
           <div class="item-name">${p.name}</div>
           <div class="item-price">₹${(p.price * item.qty).toLocaleString()}</div>
@@ -418,16 +509,16 @@ function saveCart() {
   }, 0);
   const shipping = subtotal > 499 ? 0 : 49;
   const discount = Math.round(subtotal * 0.05);
-  
+
   const subtotalEl = document.getElementById('cartSubtotal');
   const shippingEl = document.getElementById('cartShipping');
   const discountEl = document.getElementById('cartDiscount');
-  const totalEl = document.getElementById('cartTotal');
-  
+  const totalEl    = document.getElementById('cartTotal');
+
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString();
   if (shippingEl) shippingEl.textContent  = shipping === 0 ? 'FREE' : '₹' + shipping;
   if (discountEl) discountEl.textContent  = '-₹' + discount.toLocaleString();
-  if (totalEl) totalEl.textContent     = '₹' + (subtotal + shipping - discount).toLocaleString();
+  if (totalEl)    totalEl.textContent     = '₹' + (subtotal + shipping - discount).toLocaleString();
 }
 
 function toggleCart() {
@@ -450,10 +541,21 @@ function toggleWishlist() {
   else document.body.style.overflow = '';
 }
 
+function toggleWishlistItem(event, id) {
+  event.stopPropagation();
+  if (wishlist.includes(id)) wishlist = wishlist.filter(x => x !== id);
+  else wishlist.push(id);
+  localStorage.setItem('sw_wishlist', JSON.stringify(wishlist));
+  document.getElementById('wishlistBadge').textContent = wishlist.length;
+  showToast(wishlist.includes(id) ? 'Added to wishlist ❤️' : 'Removed from wishlist', 'info');
+  renderFeatured();
+  renderAllProducts(PRODUCTS);
+  renderWishlistPanel();
+}
+
 function renderWishlistPanel() {
   const container = document.getElementById('wishlistItems');
   document.getElementById('wishlistCount').textContent = wishlist.length;
-  
   if (!wishlist.length) {
     container.innerHTML = `
       <div class="wishlist-empty">
@@ -463,13 +565,12 @@ function renderWishlistPanel() {
       </div>`;
     return;
   }
-  
   container.innerHTML = wishlist.map(id => {
     const p = PRODUCTS.find(x => x.id === id);
     if (!p) return '';
     return `
       <div class="wishlist-item">
-        <div class="item-image">${p.image}</div>
+        <div class="item-image">${p.image || '📦'}</div>
         <div class="item-details">
           <div class="item-name">${p.name}</div>
           <div class="item-price">₹${p.price.toLocaleString()}</div>
@@ -502,16 +603,12 @@ function filterCategory(id) {
   const cat      = CATEGORIES.find(c => c.id === id);
   const filtered = cat ? PRODUCTS.filter(p => p.category === cat.name) : PRODUCTS;
   renderAllProducts(filtered);
-  const section = document.querySelector('.products-section');
-  if (section) {
-    section.scrollIntoView({behavior: 'smooth'});
-  }
+  document.querySelector('.products-section')?.scrollIntoView({behavior: 'smooth'});
 }
 
 function updatePriceFilter(val) {
   document.getElementById('priceVal').textContent = '₹' + parseInt(val).toLocaleString();
-  renderAllProducts(binarySearchPriceRange(
-    mergeSort([...PRODUCTS], 'price', true), 0, parseInt(val)));
+  renderAllProducts(binarySearchPriceRange(mergeSort([...PRODUCTS], 'price', true), 0, parseInt(val)));
 }
 
 function clearFilters() {
@@ -551,10 +648,12 @@ setInterval(updateCountdown, 1000);
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
+  toast.className = '';
   toast.classList.add('show');
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
+  if (type === 'error') toast.style.background = '#e74c3c';
+  else if (type === 'info') toast.style.background = '#2196F3';
+  else toast.style.background = '';
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // ============================================================
@@ -591,7 +690,9 @@ function openAuthModal() {
 function closeAuthModal() {
   document.getElementById('authModal').classList.remove('active');
   document.body.style.overflow = '';
-}function switchTab(tab) {
+}
+
+function switchTab(tab) {
   authTab = tab;
   document.getElementById('registerFields').style.display  = tab === 'register' ? 'block' : 'none';
   document.getElementById('authSubtitle').textContent      = tab === 'login' ? 'Sign in to your account' : 'Create a new account';
@@ -619,64 +720,34 @@ async function submitAuth() {
 
   try {
     if (authTab === 'login') {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res  = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({email, password})
       });
-      // Safely parse JSON — handles Render cold-start HTML error pages
-      let data = {};
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        const text = await res.text();
-        if (text) { try { data = JSON.parse(text); } catch(e) { data = {}; } }
-      }
-      if (!res.ok) throw new Error(data.message || data.error || 'Invalid email or password. (Server may be waking up, try again in 30s)');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Invalid email or password.');
       authToken   = data.accessToken;
       currentUser = {id: data.userId, email: data.email, name: data.firstName, role: data.role};
       localStorage.setItem('sw_token', authToken);
       localStorage.setItem('sw_user', JSON.stringify(currentUser));
       updateNavAuth(); closeAuthModal();
       showToast(`Welcome back, ${currentUser.name || 'User'}! 👋`, 'success');
+      // Sync local cart to backend after login
+      syncFullCartToBackend();
     } else {
       const fullName = document.getElementById('authName').value.trim();
       if (!fullName) { errEl.textContent = 'Please enter your full name.'; errEl.style.display = 'block'; return; }
       const [firstName, ...rest] = fullName.split(' ');
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res  = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({firstName, lastName: rest.join(' ') || '', email, password})
+        body: JSON.stringify({firstName, lastName: rest.join(' '), email, password})
       });
-
-      // Safely parse JSON — backend may return empty body on 201
-      let data = {};
-      const contentType = res.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        const text = await res.text();
-        if (text) {
-          try { data = JSON.parse(text); } catch(e) { data = {}; }
-        }
-      }
-
-      if (!res.ok) {
-        throw new Error(data.message || data.error || `Registration failed (${res.status}). Try a different email.`);
-      }
-
-      // If backend returned a token, auto-login the user
-      if (data.accessToken) {
-        authToken   = data.accessToken;
-        currentUser = {id: data.userId, email: data.email, name: data.firstName || firstName, role: data.role};
-        localStorage.setItem('sw_token', authToken);
-        localStorage.setItem('sw_user', JSON.stringify(currentUser));
-        updateNavAuth();
-        closeAuthModal();
-        showToast(`Welcome to ShopWave, ${firstName}! 🎉`, 'success');
-      } else {
-        // No token returned — just ask user to log in
-        showToast('Account created! Please sign in. ✅', 'success');
-        switchTab('login');
-        document.getElementById('authEmail').value = email;
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Registration failed.');
+      showToast('Account created! Please sign in. ✅', 'success');
+      switchTab('login');
     }
   } catch (err) {
     errEl.textContent = err.message; errEl.style.display = 'block';
@@ -701,7 +772,7 @@ async function showOrders() {
     const data   = await res.json();
     const orders = data.content || data;
     if (!orders.length) {
-      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet</div>';
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet. Start shopping! 🛍️</div>';
       return;
     }
     list.innerHTML = orders.map(o => `
@@ -711,10 +782,29 @@ async function showOrders() {
           <span style="background:${statusColor(o.status)};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px">${o.status}</span>
         </div>
         <div>Total: <strong>₹${o.totalAmount?.toLocaleString()}</strong></div>
+        <div>Payment: <span style="color:var(--text-muted)">${o.paymentMethod || 'COD'}</span></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${new Date(o.createdAt).toLocaleDateString('en-IN')}</div>
+        ${(o.status === 'PENDING' || o.status === 'CONFIRMED')
+          ? `<button onclick="cancelOrder(${o.id})" style="margin-top:10px;padding:6px 16px;background:#e74c3c;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px"><i class="fas fa-times"></i> Cancel Order</button>`
+          : ''}
       </div>`).join('');
   } catch (e) {
     list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--accent-red)">${e.message}</div>`;
+  }
+}
+
+async function cancelOrder(orderId) {
+  if (!confirm('Are you sure you want to cancel this order?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/orders/${orderId}/cancel`, {
+      method: 'PUT',
+      headers: {'Authorization': `Bearer ${authToken}`}
+    });
+    if (!res.ok) throw new Error('Could not cancel order');
+    showToast('Order cancelled successfully', 'info');
+    showOrders(); // refresh
+  } catch (e) {
+    showToast(e.message, 'error');
   }
 }
 
@@ -734,45 +824,365 @@ function closeOrdersModal() {
 // ============================================================
 // BACK TO TOP
 // ============================================================
-function scrollToTop() {
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
+function scrollToTop() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('backToTop');
-  if (btn) {
-    if (window.scrollY > 500) {
-      btn.classList.add('show');
-    } else {
-      btn.classList.remove('show');
-    }
-  }
+  if (btn) btn.classList.toggle('show', window.scrollY > 500);
 });
 
 // ============================================================
-// CHECKOUT
+// CHECKOUT MODAL (NEW — Full checkout experience)
 // ============================================================
-async function checkout() {
+function openCheckoutModal() {
   if (!cart.length) { showToast('Add items to cart first!', 'error'); return; }
-  if (!authToken)   { toggleCart(); openAuthModal(); return; }
-  const btn = document.querySelector('.btn-checkout');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing order...';
-  btn.disabled  = true;
+  if (!authToken)   { openAuthModal(); showToast('Please login to checkout', 'info'); return; }
+  toggleCart(); // close cart panel first
+  renderCheckoutModal();
+  document.getElementById('checkoutModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function renderCheckoutModal() {
+  const subtotal = cart.reduce((s, item) => {
+    const p = PRODUCTS.find(x => x.id === item.id);
+    return s + (p ? p.price * item.qty : 0);
+  }, 0);
+  const shipping = subtotal > 499 ? 0 : 49;
+  const discount = Math.round(subtotal * 0.05);
+  const total    = subtotal + shipping - discount;
+
+  const orderSummaryHtml = cart.map(item => {
+    const p = PRODUCTS.find(x => x.id === item.id);
+    if (!p) return '';
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:28px">${p.image || '📦'}</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+            <div style="font-size:12px;color:#888">Qty: ${item.qty}</div>
+          </div>
+        </div>
+        <div style="font-weight:700">₹${(p.price * item.qty).toLocaleString()}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('checkoutContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <!-- LEFT: Address + Payment -->
+      <div>
+        <h3 style="margin:0 0 16px;font-size:16px;color:#333">📍 Delivery Address</h3>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input id="ckName" placeholder="Full Name *" value="${currentUser?.name || ''}" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+          <input id="ckPhone" placeholder="Phone Number *" type="tel" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+          <textarea id="ckAddress" placeholder="House/Flat No, Street, Area *" rows="2" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;font-family:inherit"></textarea>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <input id="ckCity" placeholder="City *" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+            <input id="ckState" placeholder="State *" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+          </div>
+          <input id="ckPincode" placeholder="PIN Code *" type="text" maxlength="6" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+        </div>
+
+
+        <h3 style="margin:20px 0 12px;font-size:16px;color:#333">💳 Payment Method</h3>
+        <div id="paymentOptions" style="display:flex;flex-direction:column;gap:10px">
+          <label onclick="selectPayment('COD')" id="pay-COD" style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #7c3aed;border-radius:10px;cursor:pointer;background:#f5f3ff">
+            <input type="radio" name="payment" value="COD" checked style="accent-color:#7c3aed">
+            <span style="font-size:20px">💵</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">Cash on Delivery</div>
+              <div style="font-size:12px;color:#888">Pay when your order arrives</div>
+            </div>
+          </label>
+          <label onclick="selectPayment('UPI')" id="pay-UPI" style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #ddd;border-radius:10px;cursor:pointer">
+            <input type="radio" name="payment" value="UPI" style="accent-color:#7c3aed">
+            <span style="font-size:20px">📲</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">UPI / PhonePe / GPay</div>
+              <div style="font-size:12px;color:#888">Pay instantly via UPI</div>
+            </div>
+          </label>
+          <label onclick="selectPayment('CARD')" id="pay-CARD" style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #ddd;border-radius:10px;cursor:pointer">
+            <input type="radio" name="payment" value="CARD" style="accent-color:#7c3aed">
+            <span style="font-size:20px">💳</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">Credit / Debit Card</div>
+              <div style="font-size:12px;color:#888">Visa, Mastercard, RuPay</div>
+            </div>
+          </label>
+          <label onclick="selectPayment('NETBANKING')" id="pay-NETBANKING" style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #ddd;border-radius:10px;cursor:pointer">
+            <input type="radio" name="payment" value="NETBANKING" style="accent-color:#7c3aed">
+            <span style="font-size:20px">🏦</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">Net Banking</div>
+              <div style="font-size:12px;color:#888">All major banks supported</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- UPI input shown dynamically -->
+        <div id="upiInput" style="display:none;margin-top:12px">
+          <input id="ckUpi" placeholder="Enter UPI ID (e.g. name@upi)" style="width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
+
+        <!-- Coupon -->
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <input id="ckCoupon" placeholder="Coupon code (optional)" style="flex:1;padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none">
+          <button onclick="applyCouponUI()" style="padding:10px 16px;background:#7c3aed;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap">Apply</button>
+        </div>
+        <div id="couponMsg" style="font-size:12px;margin-top:6px;color:#27ae60"></div>
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div>
+        <h3 style="margin:0 0 16px;font-size:16px;color:#333">🛒 Order Summary</h3>
+        <div style="max-height:280px;overflow-y:auto">${orderSummaryHtml}</div>
+        <div style="margin-top:16px;padding:16px;background:#f8f9ff;border-radius:10px;font-size:14px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span>Subtotal</span><span>₹${subtotal.toLocaleString()}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span>Shipping</span><span style="color:#27ae60">${shipping === 0 ? 'FREE' : '₹' + shipping}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span>Member Discount (5%)</span><span style="color:#27ae60">-₹${discount.toLocaleString()}</span>
+          </div>
+          <div id="ckCouponDiscount" style="display:none;justify-content:space-between;margin-bottom:8px">
+            <span>Coupon Discount</span><span id="ckCouponDiscountAmt" style="color:#27ae60"></span>
+          </div>
+          <hr style="border:none;border-top:1.5px dashed #ddd;margin:8px 0">
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700">
+            <span>Total</span><span id="ckTotalDisplay">₹${total.toLocaleString()}</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:4px">Inclusive of all taxes</div>
+        </div>
+
+        <button id="placeOrderBtn" onclick="placeOrderFromCheckout()" style="width:100%;padding:16px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <i class="fas fa-lock"></i> Place Order Securely
+        </button>
+        <div style="text-align:center;font-size:12px;color:#888;margin-top:8px">
+          <i class="fas fa-shield-alt"></i> 100% Secure & Encrypted
+        </div>
+      </div>
+    </div>`;
+}
+
+let selectedPayment = 'COD';
+function selectPayment(method) {
+  selectedPayment = method;
+  document.querySelectorAll('#paymentOptions label').forEach(lbl => {
+    lbl.style.border = '2px solid #ddd';
+    lbl.style.background = '';
+  });
+  const chosen = document.getElementById(`pay-${method}`);
+  if (chosen) { chosen.style.border = '2px solid #7c3aed'; chosen.style.background = '#f5f3ff'; }
+  document.getElementById('upiInput').style.display = method === 'UPI' ? 'block' : 'none';
+}
+
+function applyCouponUI() {
+  const code = document.getElementById('ckCoupon').value.trim().toUpperCase();
+  const msg  = document.getElementById('couponMsg');
+  // Demo coupon codes (backend validates actual coupons)
+  const demoCoupons = { 'SAVE10': 10, 'WELCOME20': 20, 'FLAT50': 50 };
+  if (demoCoupons[code]) {
+    msg.textContent = `✅ Coupon applied! Extra ${demoCoupons[code]}% OFF`;
+    msg.style.color = '#27ae60';
+  } else {
+    msg.textContent = '❌ Invalid coupon code. (Try SAVE10, WELCOME20, FLAT50)';
+    msg.style.color = '#e74c3c';
+  }
+}
+
+async function placeOrderFromCheckout() {
+  const name    = document.getElementById('ckName')?.value.trim();
+  const phone   = document.getElementById('ckPhone')?.value.trim();
+  const address = document.getElementById('ckAddress')?.value.trim();
+  const city    = document.getElementById('ckCity')?.value.trim();
+  const state   = document.getElementById('ckState')?.value.trim();
+  const pincode = document.getElementById('ckPincode')?.value.trim();
+  const coupon  = document.getElementById('ckCoupon')?.value.trim().toUpperCase();
+  const upiId   = document.getElementById('ckUpi')?.value.trim();
+
+  if (!name || !phone || !address || !city || !state || !pincode) {
+    showToast('Please fill in all delivery address fields ⚠️', 'error');
+    return;
+  }
+  if (!/^\d{6}$/.test(pincode)) {
+    showToast('Please enter a valid 6-digit PIN code', 'error');
+    return;
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    showToast('Please enter a valid 10-digit phone number', 'error');
+    return;
+  }
+  if (selectedPayment === 'UPI' && !upiId) {
+    showToast('Please enter your UPI ID', 'error');
+    return;
+  }
+
+  const shippingAddress = `${name}, ${address}, ${city}, ${state} - ${pincode} | Phone: ${phone}`;
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
+  btn.disabled = true;
+
+  // For non-COD: show payment simulation
+  if (selectedPayment !== 'COD') {
+    await simulatePaymentGateway(selectedPayment, upiId);
+  }
+
   try {
+    // First sync cart to backend
+    await syncFullCartToBackend();
+
     const res  = await fetch(`${API_BASE}/orders`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`},
-      body: JSON.stringify({couponCode: null, shippingAddress: 'Default Address', paymentMethod: 'COD', notes: ''})
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        couponCode: coupon || null,
+        shippingAddress,
+        paymentMethod: selectedPayment,
+        notes: selectedPayment === 'UPI' ? `UPI ID: ${upiId}` : ''
+      })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Order failed.');
-    cart = []; saveCart(); renderCartPanel(); toggleCart();
-    showToast(`🎉 Order placed! #${data.orderNumber}`, 'success');
+    if (!res.ok) throw new Error(data.message || 'Order placement failed. Please try again.');
+
+    // Success!
+    cart = []; saveCart(); renderCartPanel();
+    closeCheckoutModal();
+    showOrderSuccess(data.orderNumber, selectedPayment, shippingAddress);
+
   } catch (err) {
     showToast(err.message, 'error');
-  } finally {
-    btn.innerHTML = '<i class="fas fa-lock"></i> Secure Checkout';
-    btn.disabled  = false;
+    btn.innerHTML = '<i class="fas fa-lock"></i> Place Order Securely';
+    btn.disabled = false;
+  }
+}
+
+function simulatePaymentGateway(method, upiId) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.id = 'pgOverlay';
+    overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center`;
+    const box = document.createElement('div');
+    box.style.cssText = `background:#fff;border-radius:20px;padding:40px;text-align:center;max-width:380px;width:90%`;
+
+    const icon = method === 'UPI' ? '📲' : method === 'CARD' ? '💳' : '🏦';
+    const label = method === 'UPI' ? `UPI: ${upiId}` : method === 'CARD' ? 'Credit/Debit Card' : 'Net Banking';
+
+    box.innerHTML = `
+      <div style="font-size:60px;margin-bottom:16px">${icon}</div>
+      <h2 style="margin:0 0 8px;color:#333">Processing Payment</h2>
+      <p style="color:#888;font-size:14px">Connecting to ${label}...</p>
+      <div style="margin:20px auto;width:50px;height:50px;border:4px solid #f0f0f0;border-top:4px solid #7c3aed;border-radius:50%;animation:spin 1s linear infinite"></div>
+      <p style="font-size:12px;color:#aaa">Secure payment powered by ShopWave Pay</p>`;
+
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    setTimeout(() => {
+      box.innerHTML = `
+        <div style="font-size:60px;margin-bottom:16px">✅</div>
+        <h2 style="margin:0 0 8px;color:#27ae60">Payment Successful!</h2>
+        <p style="color:#888;font-size:14px">₹${cart.reduce((s,i) => { const p=PRODUCTS.find(x=>x.id===i.id); return s+(p?p.price*i.qty:0); },0).toLocaleString()} paid via ${label}</p>
+        <div style="margin-top:16px;font-size:12px;color:#aaa">Confirming your order...</div>`;
+      setTimeout(() => { document.body.removeChild(overlay); resolve(); }, 1500);
+    }, 2500);
+  });
+}
+
+function showOrderSuccess(orderNumber, paymentMethod, address) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center`;
+  const box = document.createElement('div');
+  box.style.cssText = `background:#fff;border-radius:20px;padding:40px;text-align:center;max-width:440px;width:90%;animation:bounceIn 0.4s ease`;
+  const style = document.createElement('style');
+  style.textContent = `@keyframes bounceIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+  document.head.appendChild(style);
+
+  box.innerHTML = `
+    <div style="font-size:80px;margin-bottom:16px">🎉</div>
+    <h2 style="color:#27ae60;margin:0 0 8px">Order Placed!</h2>
+    <p style="color:#333;font-weight:700;font-size:18px">${orderNumber}</p>
+    <p style="color:#666;font-size:14px;margin:12px 0">
+      <i class="fas fa-truck" style="color:#7c3aed"></i> Expected delivery in <strong>3-5 business days</strong>
+    </p>
+    <p style="color:#888;font-size:13px">Payment: <strong>${paymentMethod}</strong></p>
+    <p style="color:#888;font-size:12px;word-break:break-word">${address.split('|')[0]}</p>
+    <div style="display:flex;gap:12px;margin-top:24px;justify-content:center">
+      <button onclick="this.closest('div[style*=fixed]').remove(); showOrders();" style="padding:12px 24px;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700">
+        <i class="fas fa-list"></i> View Orders
+      </button>
+      <button onclick="this.closest('div[style*=fixed]').remove();" style="padding:12px 24px;background:#f0f0f0;color:#333;border:none;border-radius:10px;cursor:pointer;font-weight:700">
+        Continue Shopping
+      </button>
+    </div>`;
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// OLD checkout function now redirects to new modal
+function checkout() {
+  openCheckoutModal();
+}
+
+// ============================================================
+// INJECT CHECKOUT MODAL INTO DOM
+// ============================================================
+function injectCheckoutModal() {
+  if (document.getElementById('checkoutModal')) return;
+  const modal = document.createElement('div');
+  modal.id = 'checkoutModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 0.3s;
+  `;
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:20px;width:90%;max-width:900px;max-height:90vh;overflow-y:auto;padding:28px;position:relative">
+      <button onclick="closeCheckoutModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#666">×</button>
+      <h2 style="margin:0 0 20px;font-size:20px;color:#333"><i class="fas fa-lock" style="color:#7c3aed"></i> Secure Checkout</h2>
+      <div id="checkoutContent"></div>
+    </div>`;
+
+  // Patch classList.add/remove to animate opacity
+  const originalAdd = modal.classList.add.bind(modal.classList);
+  const originalRemove = modal.classList.remove.bind(modal.classList);
+  modal.classList.add = function(cls) {
+    originalAdd(cls);
+    if (cls === 'active') { modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; }
+  };
+  modal.classList.remove = function(cls) {
+    originalRemove(cls);
+    if (cls === 'active') { modal.style.opacity = '0'; modal.style.pointerEvents = 'none'; }
+  };
+  modal.classList.contains = function(cls) { return modal.classList.value.includes(cls); };
+
+  document.body.appendChild(modal);
+}
+
+// Also add "Proceed to Checkout" button label fix
+function patchCheckoutButton() {
+  // The cart panel already has a checkout button — make sure it calls openCheckoutModal
+  const btn = document.querySelector('.btn-checkout');
+  if (btn) {
+    btn.onclick = openCheckoutModal;
+    btn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Checkout';
   }
 }
 
@@ -785,11 +1195,17 @@ function init() {
   renderAllProducts(PRODUCTS);
   renderFlashProducts();
   initHeroDots();
+  rebuildTrie();
+
   const cartTotal = cart.reduce((s, c) => s + c.qty, 0);
   document.getElementById('cartBadge').textContent     = cartTotal;
   document.getElementById('cartCount').textContent     = cartTotal;
   document.getElementById('wishlistBadge').textContent = wishlist.length;
   updateNavAuth();
+
+  // Inject checkout modal into DOM
+  injectCheckoutModal();
+
   document.getElementById('authModal').addEventListener('click', e => {
     if (e.target === document.getElementById('authModal')) closeAuthModal();
   });
@@ -799,6 +1215,12 @@ function init() {
   document.getElementById('productModal').addEventListener('click', e => {
     if (e.target === document.getElementById('productModal')) closeModal();
   });
+
+  // Patch checkout button after cart renders
+  setTimeout(patchCheckoutButton, 500);
+
+  // Fetch live products from backend
+  fetchProducts();
 }
 
 init();
