@@ -47,11 +47,17 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Swagger & Actuator
                 .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Auth endpoints
                 .requestMatchers("/auth/**").permitAll()
+                // ✅ Static frontend files
+                .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/assets/**", "/*.ico", "/*.png").permitAll()
+                // Public API (read-only)
                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                // Everything else requires JWT
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
@@ -100,18 +106,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-
-.authorizeHttpRequests(auth -> auth
-    // Swagger & Actuator
-    .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-    .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-    // Auth endpoints
-    .requestMatchers("/auth/**").permitAll()
-    // Static frontend files — MUST add this!
-    .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/assets/**", "/*.ico", "/*.png").permitAll()
-    // Public API
-    .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
-    // Everything else needs auth
-    .anyRequest().authenticated()
-)
