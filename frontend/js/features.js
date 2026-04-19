@@ -861,3 +861,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('✅ ShopWave Features Loaded: Notifications | AI Support | Seller Portal | Recommendations | Analytics | Address Book | Advanced Search | Payment | Returns');
+ 
