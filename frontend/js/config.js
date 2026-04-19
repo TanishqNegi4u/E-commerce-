@@ -107,3 +107,4 @@ const toggleTheme = () => {
 // Apply saved theme on load
 const savedTheme = localStorage.getItem('sw_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 document.documentElement.setAttribute('data-theme', savedTheme);
+ 
