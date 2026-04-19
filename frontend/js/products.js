@@ -72,7 +72,7 @@ const productCardHtml = (p, isFlash = false) => {
 // ── Render product grid ───────────────────────────────────
 const PAGE_SIZE = 16;
 const renderProducts = (products, page = 0) => {
-  const grid  = document.getElementById('productGrid');
+  const grid  = document.getElementById('productsGrid');
   const start = page * PAGE_SIZE;
   const slice = products.slice(start, start + PAGE_SIZE);
 
@@ -97,7 +97,7 @@ const renderProducts = (products, page = 0) => {
       }, i * 35));
     });
   }
-  document.getElementById('productsCount').textContent =
+  document.getElementById('resultsCount').textContent =
     `${products.length.toLocaleString('en-IN')} product${products.length !== 1 ? 's' : ''}`;
   renderPagination(products.length, page);
 };
@@ -122,7 +122,7 @@ const renderPagination = (total, page) => {
 const goPage = p => {
   currentPage = p;
   renderProducts(filteredProducts, p);
-  document.getElementById('products-section').scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('productsSection').scrollIntoView({ behavior:'smooth', block:'start' });
 };
 
 // ── Filters ───────────────────────────────────────────────
@@ -156,7 +156,7 @@ const applyFilters = () => {
 };
 
 const renderActiveFilters = () => {
-  const el = document.getElementById('activeFilters');
+  const el = document.getElementById('activeFilters') || {innerHTML:''};
   const tags = [];
   const minP = document.getElementById('minPrice').value;
   const maxP = document.getElementById('maxPrice').value;
@@ -207,7 +207,7 @@ const toggleFilters = () => {
 // ── Load brands into sidebar ──────────────────────────────
 const loadBrands = () => {
   const brands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))].sort();
-  const el = document.getElementById('brandFilter');
+  const el = document.getElementById('brandFilters');
   el.innerHTML = brands.length
     ? brands.map(b => `<label class="check-label"><input type="checkbox" class="brand-check" value="${b}" onchange="applyFilters()"> ${b}</label>`).join('')
     : '<p class="no-brands">No brands available</p>';
@@ -233,7 +233,7 @@ const loadProducts = async () => {
     loadBrands();
     applyFilters();
     renderFlashDeals();
-    document.getElementById('productsCount').textContent = `${allProducts.length} products (demo)`;
+    document.getElementById('resultsCount').textContent = `${allProducts.length} products (demo)`;
   }
 };
 
@@ -275,7 +275,7 @@ const catBarClick = (btn, cat) => {
 };
 
 const scrollToProducts = () => {
-  document.getElementById('products-section').scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('productsSection').scrollIntoView({ behavior:'smooth', block:'start' });
 };
 
 // ── Flash deals ───────────────────────────────────────────
@@ -448,6 +448,36 @@ const submitReview = productId => {
   showToast('Review submitted! Thank you ⭐', 'success');
   document.getElementById('writeReviewForm').innerHTML = '<p style="color:var(--accent-green);font-weight:700;padding:10px">✓ Review submitted! It will appear after moderation.</p>';
   _pickedStar = 0;
+};
+
+// ── Load More (pagination via button) ────────────────────
+const loadMoreProducts = () => {
+  const nextPage = currentPage + 1;
+  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+  if (nextPage >= totalPages) {
+    const btn = document.getElementById('loadMoreBtn');
+    if (btn) { btn.textContent = 'No more products'; btn.disabled = true; }
+    return;
+  }
+  currentPage = nextPage;
+  const grid = document.getElementById('productsGrid');
+  const slice = filteredProducts.slice(nextPage * PAGE_SIZE, (nextPage + 1) * PAGE_SIZE);
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = slice.map(p => productCardHtml(p)).join('');
+  tempDiv.querySelectorAll('.product-card').forEach((c, i) => {
+    c.style.opacity = '0'; c.style.transform = 'translateY(12px)';
+    requestAnimationFrame(() => setTimeout(() => {
+      c.style.transition = 'opacity .28s ease, transform .28s ease';
+      c.style.opacity = '1'; c.style.transform = 'none';
+    }, i * 35));
+    grid.appendChild(c);
+  });
+  const btn = document.getElementById('loadMoreBtn');
+  if (btn) {
+    const remaining = filteredProducts.length - (currentPage + 1) * PAGE_SIZE;
+    if (remaining <= 0) { btn.textContent = 'No more products'; btn.disabled = true; }
+    else btn.disabled = false;
+  }
 };
 
 // Close search suggestions on outside click
