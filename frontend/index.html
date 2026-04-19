@@ -592,219 +592,42 @@
   <button class="ai-fab" type="button" onclick="openAISupport()" title="AI Support">🤖</button>
 
   <script>
-    const PRODUCTS = [
-      {id:1,name:'MacBook Air M3 13-inch Laptop',brand:'Apple',price:114999,mrp:129999,rating:4.8,emoji:'💻',cat:'Electronics',badge:'Deal'},
-      {id:2,name:'Sony WH-1000XM5 Wireless Headphones',brand:'Sony',price:24999,mrp:34999,rating:4.7,emoji:'🎧',cat:'Electronics',badge:'Deal'},
-      {id:3,name:'Samsung Galaxy S24 256GB 5G',brand:'Samsung',price:64999,mrp:79999,rating:4.6,emoji:'📱',cat:'Electronics',badge:''},
-      {id:4,name:'Nike Air Max Running Shoes',brand:'Nike',price:5499,mrp:8999,rating:4.4,emoji:'👟',cat:'Fashion',badge:'New'},
-      {id:5,name:'Puma Men Casual Hoodie',brand:'Puma',price:1299,mrp:2499,rating:4.2,emoji:'🧥',cat:'Fashion',badge:''},
-      {id:6,name:'Levis Slim Fit Jeans Blue',brand:'Levis',price:2199,mrp:3999,rating:4.3,emoji:'👖',cat:'Fashion',badge:'New'},
-      {id:7,name:'Philips Mixer Grinder 750W',brand:'Philips',price:2799,mrp:4499,rating:4.2,emoji:'🍲',cat:'Home',badge:'Deal'},
-      {id:8,name:'Ergonomic Office Chair',brand:'Green Soul',price:8999,mrp:13999,rating:4.5,emoji:'🪑',cat:'Home',badge:''},
-      {id:9,name:'Nivia Football Training Kit',brand:'Nivia',price:1499,mrp:2199,rating:4.0,emoji:'⚽',cat:'Sports',badge:''},
-      {id:10,name:'Mamaearth Vitamin C Serum',brand:'Mamaearth',price:499,mrp:799,rating:4.1,emoji:'🧴',cat:'Beauty',badge:'New'},
-      {id:11,name:'Java Programming Complete Guide',brand:'Pearson',price:699,mrp:999,rating:4.7,emoji:'📚',cat:'Books',badge:''},
-      {id:12,name:'Spring Boot in Action',brand:'Manning',price:849,mrp:1299,rating:4.6,emoji:'📗',cat:'Books',badge:'New'},
-    ];
+    // ── Bridge: map HTML onclick calls to external JS functions ──
+    // config.js + app.js + cart.js + auth.js + products.js + features.js handle everything.
+    // These wrappers let inline HTML onclick attributes work before external scripts load.
 
-    let cart = [], wishlist = [], activeCategory = 'All', slideIndex = 0;
-
-    const ₹ = v => '₹' + Number(v).toLocaleString('en-IN');
-    const stars = r => '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
-    const pct = (p, m) => Math.round((1 - p/m) * 100);
-
-    function productCard(p) {
-      const inCart = cart.some(i => i.id === p.id);
-      const inWish = wishlist.some(i => i.id === p.id);
-      return `<article class="product-card" style="position:relative;">
-        ${p.badge ? `<div class="product-badge ${p.badge==='New'?'new-badge':''}">${p.badge}</div>` : ''}
-        <div class="product-img">${p.emoji}</div>
-        <div class="product-brand">${p.brand}</div>
-        <div class="product-name">${p.name}</div>
-        <div class="product-rating"><span class="stars">${stars(p.rating)}</span> ${p.rating}</div>
-        <div class="product-price-row">
-          <span class="product-price">${₹(p.price)}</span>
-          <span class="product-mrp">${₹(p.mrp)}</span>
-          <span class="product-discount">${pct(p.price,p.mrp)}% off</span>
-        </div>
-        <div class="product-actions">
-          <button class="btn-add-cart ${inCart?'in-cart':''}" type="button" onclick="addToCart(${p.id})">${inCart?'✓ Added':'Add to Cart'}</button>
-          <button class="btn-wishlist ${inWish?'active':''}" type="button" onclick="toggleWishlist(${p.id})" title="Wishlist">${inWish?'❤️':'🤍'}</button>
-        </div>
-      </article>`;
-    }
-
-    function getFiltered() {
-      let list = PRODUCTS.filter(p => activeCategory === 'All' || p.cat === activeCategory);
-      const sort = document.getElementById('sortSelect').value;
-      if (sort === 'price-asc') list.sort((a,b) => a.price - b.price);
-      if (sort === 'price-desc') list.sort((a,b) => b.price - a.price);
-      if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
-      return list;
-    }
-
-    function renderAll() {
-      const list = getFiltered();
-      document.getElementById('productsGrid').innerHTML = list.map(productCard).join('');
-      document.getElementById('dealProducts').innerHTML = PRODUCTS.slice(0,5).map(productCard).join('');
-      document.getElementById('resultsCount').textContent = `${list.length} results`;
-      document.getElementById('brandFilters').innerHTML = [...new Set(PRODUCTS.map(p=>p.brand))].map(b=>`<label class="check-filter"><input type="checkbox"> ${b}</label>`).join('');
-    }
-
-    function addToCart(id) {
-      const p = PRODUCTS.find(x=>x.id===id);
-      const found = cart.find(x=>x.id===id);
-      if (found) found.qty++; else cart.push({...p, qty:1});
-      updateCartUI(); renderAll(); showToast('Added to cart 🛒');
-    }
-
-    function removeFromCart(id) {
-      cart = cart.filter(i => i.id !== id);
-      updateCartUI(); renderAll(); showToast('Removed from cart');
-    }
-
-    function toggleWishlist(id) {
-      const p = PRODUCTS.find(x=>x.id===id);
-      const idx = wishlist.findIndex(x=>x.id===id);
-      if (idx > -1) { wishlist.splice(idx,1); showToast('Removed from wishlist'); }
-      else { wishlist.push(p); showToast('Added to wishlist ❤️'); }
-      renderAll(); renderWishlist();
-    }
-
-    function updateCartUI() {
-      const total = cart.reduce((s,i)=>s+i.qty,0);
-      const amount = cart.reduce((s,i)=>s+i.price*i.qty,0);
-      document.getElementById('cartBadge').textContent = total;
-      document.getElementById('cartCount').textContent = total;
-      document.getElementById('cartSubtotal').textContent = ₹(amount);
-      document.getElementById('cartBody').innerHTML = cart.length
-        ? cart.map(item=>`<div class="cart-item">
-            <div class="cart-thumb">${item.emoji}</div>
-            <div>
-              <div class="cart-item-title">${item.name}</div>
-              <div class="cart-item-price">${₹(item.price)} × ${item.qty}</div>
-            </div>
-            <button class="qty-btn" type="button" onclick="removeFromCart(${item.id})" title="Remove">✕</button>
-          </div>`).join('')
-        : '<p style="color:var(--text-2);padding:16px;">Your cart is empty.</p>';
-    }
-
-    function renderWishlist() {
-      document.getElementById('wishlistBody').innerHTML = wishlist.length
-        ? wishlist.map(p=>`<div class="wishlist-item"><strong>${p.name}</strong><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-weight:700;">${₹(p.price)}</span><button class="btn-primary" style="padding:6px 12px;font-size:12px;" onclick="addToCart(${p.id});closeWishlist();">Add to Cart</button></div></div>`).join('')
-        : '<p style="color:var(--text-2);">Your wishlist is empty.</p>';
-    }
-
-    function toggleCart(open) {
-      document.getElementById('cartDrawer').classList.toggle('open', open);
-      document.getElementById('cartOverlay').classList.toggle('open', open);
-    }
-
+    // Category filter — calls into products.js catBarClick after it loads
     function setCategory(cat, el) {
-      activeCategory = cat;
-      document.querySelectorAll('.cat-link').forEach(x => x.classList.remove('active'));
-      if (el) el.classList.add('active');
-      else document.querySelectorAll('.cat-link').forEach(b => { if(b.textContent.includes(cat)) b.classList.add('active'); });
-      renderAll();
-      document.querySelector('.products-section').scrollIntoView({behavior:'smooth', block:'start'});
+      if (typeof catBarClick === 'function') {
+        catBarClick(el || null, cat);
+      }
     }
 
-    function clearFilters() {
-      document.getElementById('minPrice').value=''; document.getElementById('maxPrice').value='';
-      document.getElementById('priceSlider').value=200000; document.getElementById('inStockOnly').checked=false;
-      document.getElementById('sortSelect').value='default'; renderAll(); showToast('Filters cleared');
+    // Cart toggle
+    function toggleCart(open) {
+      if (typeof window.toggleCart === 'function') window.toggleCart(open);
     }
 
-    function openAuth(){ document.getElementById('authOverlay').classList.add('open'); }
-    function closeAuth(){ document.getElementById('authOverlay').classList.remove('open'); }
-    function openNotifications(){ document.getElementById('notifOverlay').classList.add('open'); }
-    function closeNotifications(){ document.getElementById('notifOverlay').classList.remove('open'); }
-    function openWishlist(){ renderWishlist(); document.getElementById('wishlistOverlay').classList.add('open'); }
-    function closeWishlist(){ document.getElementById('wishlistOverlay').classList.remove('open'); }
-    function openAddressBook(){ document.getElementById('addressOverlay').classList.add('open'); }
-    function closeAddressBook(){ document.getElementById('addressOverlay').classList.remove('open'); }
-    function openAISupport(){ document.getElementById('aiSupportOverlay').classList.add('open'); }
-    function closeAISupport(){ document.getElementById('aiSupportOverlay').classList.remove('open'); }
-
-    const AI_REPLIES = {
-      'Track my order': '📦 Your last order is Out for Delivery! Expected today by 8 PM.',
-      'Show best deals': '🔥 Top deals today: MacBook Air 80% off, Sony Headphones 29% off!',
-      'How to return?': '🔄 Go to Orders → Select item → Click Return. Easy 30-day policy!',
-      'Payment help': '💳 We support UPI, Cards, Net Banking, EMI and COD. Need more help?',
+    // Countdown timer (self-contained, no conflict)
+    let _secs = 4*3600+47*60+23;
+    const _cdTick = () => {
+      _secs = Math.max(0, _secs - 1);
+      const h = document.getElementById('cdH'), m = document.getElementById('cdM'), s = document.getElementById('cdS');
+      if (h) h.textContent = String(Math.floor(_secs/3600)).padStart(2,'0');
+      if (m) m.textContent = String(Math.floor((_secs%3600)/60)).padStart(2,'0');
+      if (s) s.textContent = String(_secs%60).padStart(2,'0');
     };
-    function sendAIMessage(text) {
-      const box = document.getElementById('aiChatMessages');
-      box.insertAdjacentHTML('beforeend', `<div class="ai-msg user"><div class="ai-msg-avatar">🙂</div><div class="ai-bubble">${text}</div></div>`);
-      setTimeout(() => {
-        const reply = AI_REPLIES[text] || 'I can help with that! For detailed assistance, please contact support.';
-        box.insertAdjacentHTML('beforeend', `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-bubble">${reply}</div></div>`);
-        box.scrollTop = box.scrollHeight;
-      }, 600);
-      box.scrollTop = box.scrollHeight;
-    }
-    function sendAIFromInput() {
-      const inp = document.getElementById('aiInput');
-      const val = inp.value.trim();
-      if (!val) return;
-      sendAIMessage(val); inp.value = '';
-    }
-
-    function showToast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg; el.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => el.classList.remove('show'), 2000);
-    }
-
-    // Hero slider
-    function shiftSlide(step) {
-      const slides = document.querySelectorAll('.hero-slide');
-      slideIndex = (slideIndex + step + slides.length) % slides.length;
-      slides.forEach((s,i) => s.classList.toggle('active', i===slideIndex));
-      document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===slideIndex));
-    }
-    function initDots() {
-      const n = document.querySelectorAll('.hero-slide').length;
-      document.getElementById('heroDots').innerHTML = Array.from({length:n},(_,i) =>
-        `<button class="hero-dot ${i===0?'active':''}" type="button" onclick="shiftSlide(${i-slideIndex})"></button>`).join('');
-    }
-
-    // Countdown
-    let secs = 4*3600+47*60+23;
-    setInterval(() => {
-      secs = Math.max(0, secs-1);
-      document.getElementById('cdH').textContent = String(Math.floor(secs/3600)).padStart(2,'0');
-      document.getElementById('cdM').textContent = String(Math.floor((secs%3600)/60)).padStart(2,'0');
-      document.getElementById('cdS').textContent = String(secs%60).padStart(2,'0');
-    }, 1000);
-
-    // Search
-    document.getElementById('searchInput').addEventListener('input', function() {
-      const val = this.value.toLowerCase().trim();
-      const box = document.getElementById('searchSuggs');
-      if (!val) { box.classList.remove('show'); box.innerHTML=''; return; }
-      const hits = PRODUCTS.filter(p => p.name.toLowerCase().includes(val)||p.brand.toLowerCase().includes(val)).slice(0,5);
-      box.innerHTML = hits.length
-        ? hits.map(p=>`<div class="sugg-item" onclick="document.getElementById('searchInput').value='${p.name.replace(/'/g,"&#39;")}';document.getElementById('searchSuggs').classList.remove('show');">${p.emoji} ${p.name}</div>`).join('')
-        : '<div class="sugg-item">No results found</div>';
-      box.classList.add('show');
-    });
-    document.addEventListener('click', e => { if(!e.target.closest('.nav-search')) document.getElementById('searchSuggs').classList.remove('show'); });
-    document.getElementById('sortSelect').addEventListener('change', renderAll);
-
-    // INIT
-    renderAll();
-    updateCartUI();
-    initDots();
-    setInterval(() => shiftSlide(1), 5000);
+    setInterval(_cdTick, 1000);
   </script>
 
 
-  <!-- Scripts — ORDER MATTER KARTA HAI -->
+  <!-- Scripts — ORDER MATTERS -->
+  <script src="js/config.js"></script>
   <script src="js/app.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/products.js"></script>
+  <script src="js/features.js"></script>
 </body>
 </html>
 
