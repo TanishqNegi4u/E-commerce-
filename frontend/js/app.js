@@ -6,6 +6,7 @@
 // ============================================================
 
 // ── API CONFIG ───────────────────────────────────────────────
+// ✅ CORRECT — with local fallback
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8080/api'
   : 'https://shopwave-backend-mb3a.onrender.com/api';
