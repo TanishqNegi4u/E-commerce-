@@ -6,73 +6,103 @@
 <title>ShopWave — India's #1 Online Shopping Destination</title>
 <meta name="description" content="Shop electronics, fashion, home & more at ShopWave. Best prices guaranteed.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amazon+Ember:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/features.css">
 </head>
 <body>
 
 <!-- ═══════════════════════════════════ NAVBAR ═══════════════════════════════════ -->
 <header id="navbar" class="navbar">
   <div class="nav-inner">
-    <!-- Logo -->
     <a class="nav-logo" href="#">
-      <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2874F0"/><path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="2.5" fill="#F7C600"/></svg>
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#FF9900"/><path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="2.5" fill="#fff"/></svg>
       <span class="logo-text">ShopWave</span>
       <span class="logo-tag">India's Own</span>
     </a>
 
-    <!-- Search -->
     <div class="nav-search" role="search">
       <form onsubmit="handleSearch(event)" autocomplete="off">
         <div class="search-box">
+          <select class="search-cat-select" id="searchCatSelect">
+            <option value="">All</option>
+            <option>Electronics</option><option>Fashion</option>
+            <option>Home & Kitchen</option><option>Sports</option>
+            <option>Beauty</option><option>Books</option>
+          </select>
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input id="searchInput" type="text" placeholder="Search for products, brands and more…"
+          <input id="searchInput" type="text" placeholder="Search products, brands and more…"
             oninput="handleSearchInput(this.value)" onfocus="this.closest('.search-box').classList.add('focused')"
             onblur="setTimeout(()=>this.closest('.search-box').classList.remove('focused'),200)"
             aria-label="Search products">
-          <button type="submit" class="search-btn">Search</button>
+          <button type="submit" class="search-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
         </div>
       </form>
       <div id="searchSuggs" class="search-suggs" role="listbox"></div>
     </div>
 
-    <!-- Nav Actions -->
     <nav class="nav-actions" aria-label="User actions">
       <button id="authBtn" class="nav-btn auth-btn" onclick="openAuth()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span id="authLabel">Login</span>
-        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        <div class="auth-text">
+          <span class="auth-greeting">Hello, Sign in</span>
+          <span class="auth-sub" id="authLabel">Account & Lists <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
         <div class="nav-dropdown">
-          <div class="dropdown-header" id="dropdownUser">New Customer? <a onclick="openAuth();return false;" href="#">Sign Up</a></div>
+          <div class="dropdown-header" id="dropdownUser">New Customer? <a onclick="openAuth();return false;" href="#">Start here.</a></div>
+          <div class="dropdown-actions">
+            <button class="dropdown-sign-btn" onclick="openAuth()">Sign in</button>
+          </div>
           <hr>
-          <a onclick="showOrders()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> My Orders</a>
-          <a onclick="openWishlist()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wishlist</a>
-          <a id="logoutBtn" onclick="doLogout()" style="display:none; color:#e74c3c"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</a>
+          <div class="dropdown-section">
+            <strong>Your Account</strong>
+            <a onclick="showOrders()">📦 My Orders</a>
+            <a onclick="openWishlist()">❤️ Wishlist</a>
+            <a onclick="openAddressBook()">📍 Address Book</a>
+            <a onclick="openNotifications()">🔔 Notifications</a>
+            <a onclick="openAnalytics()">📊 Analytics</a>
+          </div>
+          <hr>
+          <div class="dropdown-section">
+            <strong>Sell on ShopWave</strong>
+            <a onclick="openSellerPortal()">🏪 Seller Portal</a>
+          </div>
+          <hr>
+          <a id="logoutBtn" onclick="doLogout()" style="display:none; color:#c0392b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </a>
         </div>
       </button>
 
-      <button class="nav-btn" onclick="openWishlist()" aria-label="Wishlist">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span>Wishlist</span>
-        <span id="wishlistBadge" class="badge" aria-label="Wishlist items">0</span>
+      <button class="nav-btn orders-nav-btn" onclick="showOrders()" aria-label="Orders">
+        <div class="nav-btn-text">
+          <span class="nav-top">Returns</span>
+          <span class="nav-bot">& Orders</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" onclick="openNotifications()" aria-label="Notifications" style="position:relative">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="notifBadge" class="badge" style="display:none">3</span>
       </button>
 
       <button class="nav-btn cart-nav-btn" onclick="toggleCart(true)" aria-label="Shopping cart">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Cart</span>
-        <span id="cartBadge" class="badge" aria-label="Cart items">0</span>
-      </button>
-
-      <button class="nav-btn theme-btn" onclick="toggleTheme()" aria-label="Toggle theme" data-theme-toggle>
-        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <div class="nav-btn-text">
+          <span id="cartBadge" class="cart-count">0</span>
+          <span class="nav-bot">Cart</span>
+        </div>
       </button>
     </nav>
   </div>
 
-  <!-- Category bar -->
   <div class="cat-bar">
     <div class="cat-bar-inner">
-      <button class="cat-link active" onclick="catBarClick(this,'')">All</button>
+      <button class="cat-link" onclick="openSellerPortal()">🏪 Sell</button>
+      <button class="cat-link active" onclick="catBarClick(this,'')">☰ All</button>
       <button class="cat-link" onclick="catBarClick(this,'Electronics')">📱 Electronics</button>
       <button class="cat-link" onclick="catBarClick(this,'Fashion')">👗 Fashion</button>
       <button class="cat-link" onclick="catBarClick(this,'Home & Kitchen')">🏠 Home</button>
@@ -81,6 +111,8 @@
       <button class="cat-link" onclick="catBarClick(this,'Books')">📚 Books</button>
       <button class="cat-link" onclick="catBarClick(this,'Toys')">🧸 Toys</button>
       <button class="cat-link" onclick="catBarClick(this,'Automotive')">🚗 Automotive</button>
+      <button class="cat-link" onclick="openAdvancedSearch()">🔍 Advanced Search</button>
+      <button class="cat-link" onclick="openAnalytics()">📊 Dashboard</button>
     </div>
   </div>
 </header>
@@ -88,30 +120,30 @@
 <!-- ═══════════════════════════════════ HERO BANNER ═══════════════════════════════ -->
 <section class="hero" aria-label="Featured promotions">
   <div class="hero-track" id="heroTrack">
-    <div class="hero-slide active" style="--bg1:#0f2044;--bg2:#1a3a7a">
+    <div class="hero-slide active" style="background:linear-gradient(135deg,#131921 60%,#232f3e)">
       <div class="slide-content">
-        <div class="slide-tag">BIGGEST SALE OF THE YEAR</div>
+        <div class="slide-tag">🔥 BIGGEST SALE OF THE YEAR</div>
         <h1>Up to <span class="slide-highlight">80% OFF</span><br>on Electronics</h1>
         <p>MacBooks, Phones, Headphones & more</p>
-        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(2)'),'Electronics')">Shop Now →</button>
+        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(3)'),'Electronics')">Shop Now →</button>
       </div>
       <div class="slide-visual">💻📱🎧</div>
     </div>
-    <div class="hero-slide" style="--bg1:#7c2d8f;--bg2:#4a1a6e">
+    <div class="hero-slide" style="background:linear-gradient(135deg,#1a6b3c 60%,#0d4f2c)">
       <div class="slide-content">
-        <div class="slide-tag">FASHION FIESTA</div>
+        <div class="slide-tag">✨ FASHION FIESTA</div>
         <h1>Trending Styles<br>from <span class="slide-highlight">₹199</span></h1>
         <p>Top brands. New arrivals daily.</p>
-        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(3)'),'Fashion')">Explore →</button>
+        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(4)'),'Fashion')">Explore →</button>
       </div>
       <div class="slide-visual">👗👟👜</div>
     </div>
-    <div class="hero-slide" style="--bg1:#0d4f3c;--bg2:#083b2c">
+    <div class="hero-slide" style="background:linear-gradient(135deg,#8B0000 60%,#5c0000)">
       <div class="slide-content">
-        <div class="slide-tag">FLASH DEAL — ENDS IN</div>
+        <div class="slide-tag">⚡ FLASH DEAL</div>
         <h1>Home Essentials<br><span class="slide-highlight">50% OFF</span></h1>
         <p>Upgrade your living space today!</p>
-        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(4)'),'Home & Kitchen')">Grab Now →</button>
+        <button class="slide-cta" onclick="catBarClick(document.querySelector('.cat-link:nth-child(5)'),'Home & Kitchen')">Grab Now →</button>
       </div>
       <div class="slide-visual">🏠🍳🛋️</div>
     </div>
@@ -127,330 +159,402 @@
   <div class="trust-item"><span>🔄</span><div><strong>Easy Returns</strong><small>30-day policy</small></div></div>
   <div class="trust-item"><span>🔒</span><div><strong>Secure Payment</strong><small>100% encrypted</small></div></div>
   <div class="trust-item"><span>⭐</span><div><strong>Top Rated</strong><small>4.8/5 by 2M+ users</small></div></div>
-  <div class="trust-item"><span>📞</span><div><strong>24/7 Support</strong><small>Always here for you</small></div></div>
+  <div class="trust-item"><span>🤖</span><div><strong>AI Support</strong><small>24/7 smart help</small></div></div>
 </div>
 
 <!-- ═══════════════════════════════════ CATEGORY GRID ════════════════════════════ -->
 <section class="section cat-section">
   <div class="section-header"><h2 class="section-title">Shop by Category</h2></div>
   <div class="cat-grid" id="categoryGrid">
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[1],'Electronics')">
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[2],'Electronics')">
       <div class="cat-icon">📱</div><div class="cat-name">Electronics</div><div class="cat-count">124 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[2],'Fashion')">
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[3],'Fashion')">
       <div class="cat-icon">👗</div><div class="cat-name">Fashion</div><div class="cat-count">89 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[3],'Home & Kitchen')">
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[4],'Home & Kitchen')">
       <div class="cat-icon">🏠</div><div class="cat-name">Home & Kitchen</div><div class="cat-count">67 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[4],'Sports')">
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[5],'Sports')">
       <div class="cat-icon">⚽</div><div class="cat-name">Sports</div><div class="cat-count">45 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[5],'Beauty')">
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[6],'Beauty')">
       <div class="cat-icon">💄</div><div class="cat-name">Beauty</div><div class="cat-count">38 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[6],'Books')">
-      <div class="cat-icon">📚</div><div class="cat-name">Books</div><div class="cat-count">230 Products</div>
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[7],'Books')">
+      <div class="cat-icon">📚</div><div class="cat-name">Books</div><div class="cat-count">210 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[7],'Toys')">
-      <div class="cat-icon">🧸</div><div class="cat-name">Toys</div><div class="cat-count">56 Products</div>
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[8],'Toys')">
+      <div class="cat-icon">🧸</div><div class="cat-name">Toys</div><div class="cat-count">54 Products</div>
     </div>
-    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[8],'Automotive')">
-      <div class="cat-icon">🚗</div><div class="cat-name">Automotive</div><div class="cat-count">29 Products</div>
+    <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[9],'Automotive')">
+      <div class="cat-icon">🚗</div><div class="cat-name">Automotive</div><div class="cat-count">32 Products</div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════ FLASH DEALS ══════════════════════════════ -->
-<section class="section flash-section">
-  <div class="section-header flash-header">
-    <div class="flash-left">
-      <span class="flash-icon">⚡</span>
-      <h2 class="section-title">Flash Deals</h2>
-      <div class="countdown">
-        Ends in: <span class="cd-box" id="cdH">04</span>:<span class="cd-box" id="cdM">47</span>:<span class="cd-box" id="cdS">23</span>
+<!-- ═══════════════════════════════════ DEAL COUNTDOWN ══════════════════════════ -->
+<section class="section deal-section">
+  <div class="deal-header">
+    <h2 class="section-title">⚡ Deal of the Day</h2>
+    <div class="countdown">
+      <span>Ends in:</span>
+      <span class="cd-box"><span id="cdH">04</span>h</span>
+      <span class="cd-box"><span id="cdM">47</span>m</span>
+      <span class="cd-box"><span id="cdS">23</span>s</span>
+    </div>
+  </div>
+  <div id="dealProducts" class="products-grid"></div>
+</section>
+
+<!-- ═══════════════════════════════════ AI RECOMMENDATIONS ══════════════════════ -->
+<section class="section" id="recommendSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">🤖 Recommended For You</h2>
+    <span class="ai-badge">AI Powered</span>
+  </div>
+  <div id="recommendGrid" class="products-grid"></div>
+</section>
+
+<!-- ═══════════════════════════════════ MAIN PRODUCTS ══════════════════════════ -->
+<section class="section products-section" id="productsSection">
+  <div class="section-header">
+    <h2 class="section-title" id="productsSectionTitle">All Products</h2>
+    <div class="sort-row">
+      <span class="results-count" id="resultsCount"></span>
+      <div class="sort-group">
+        <label>Sort by</label>
+        <select id="sortSelect" onchange="applySortFilter()">
+          <option value="default">Relevance</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Avg. Customer Review</option>
+          <option value="new">Newest Arrivals</option>
+        </select>
       </div>
     </div>
-    <a class="view-all" onclick="scrollToProducts()">View All →</a>
   </div>
-  <div class="flash-scroll" id="flashScroll" role="list"></div>
-</section>
-
-<!-- ═══════════════════════════════════ PRODUCTS ═════════════════════════════════ -->
-<section class="section products-section" id="products-section">
   <div class="products-layout">
-
-    <!-- Sidebar Filters -->
-    <aside class="filters-sidebar" id="filtersSidebar" aria-label="Product filters">
+    <aside class="filters-sidebar" id="filtersSidebar">
       <div class="filter-header">
         <h3>Filters</h3>
-        <button class="clear-filters" onclick="clearFilters()">Clear All</button>
+        <button onclick="clearAllFilters()" class="filter-clear-btn">Clear All</button>
       </div>
-
-      <!-- Active filters -->
-      <div id="activeFilters" class="active-filters"></div>
-
-      <!-- Price -->
       <div class="filter-group">
-        <div class="filter-group-title">Price Range</div>
-        <div class="price-inputs">
-          <input type="number" id="minPrice" placeholder="Min ₹" oninput="applyFilters()" min="0">
-          <span>–</span>
-          <input type="number" id="maxPrice" placeholder="Max ₹" oninput="applyFilters()" min="0">
+        <h4>Price Range</h4>
+        <div class="price-range-inputs">
+          <input type="number" id="minPrice" placeholder="Min ₹" oninput="applyPriceFilter()">
+          <span>to</span>
+          <input type="number" id="maxPrice" placeholder="Max ₹" oninput="applyPriceFilter()">
         </div>
-        <div class="price-presets">
-          <button class="preset" onclick="setPrice(0,500)">Under ₹500</button>
-          <button class="preset" onclick="setPrice(500,2000)">₹500–2K</button>
-          <button class="preset" onclick="setPrice(2000,10000)">₹2K–10K</button>
-          <button class="preset" onclick="setPrice(10000,0)">₹10K+</button>
+        <input type="range" id="priceSlider" min="0" max="200000" value="200000" oninput="syncPriceSlider(this.value)" class="price-slider">
+      </div>
+      <div class="filter-group">
+        <h4>Avg. Customer Reviews</h4>
+        <div class="star-filter-group">
+          <label class="star-filter"><input type="radio" name="rating" value="4" onchange="applyRatingFilter(4)"> ⭐⭐⭐⭐ & Up</label>
+          <label class="star-filter"><input type="radio" name="rating" value="3" onchange="applyRatingFilter(3)"> ⭐⭐⭐ & Up</label>
+          <label class="star-filter"><input type="radio" name="rating" value="2" onchange="applyRatingFilter(2)"> ⭐⭐ & Up</label>
+          <label class="star-filter"><input type="radio" name="rating" value="0" onchange="applyRatingFilter(0)"> All</label>
         </div>
       </div>
-
-      <!-- Rating -->
       <div class="filter-group">
-        <div class="filter-group-title">Customer Rating</div>
-        <label class="radio-label"><input type="radio" name="rating" value="0" checked onchange="applyFilters()"> Any Rating</label>
-        <label class="radio-label"><input type="radio" name="rating" value="4" onchange="applyFilters()"> ★★★★ & above</label>
-        <label class="radio-label"><input type="radio" name="rating" value="3" onchange="applyFilters()"> ★★★ & above</label>
+        <h4>Brand</h4>
+        <div id="brandFilters" class="brand-filters"></div>
       </div>
-
-      <!-- Availability -->
       <div class="filter-group">
-        <div class="filter-group-title">Availability</div>
-        <label class="check-label"><input type="checkbox" id="inStockOnly" onchange="applyFilters()"> In Stock Only</label>
-        <label class="check-label"><input type="checkbox" id="freeShipOnly" onchange="applyFilters()"> Free Shipping</label>
+        <h4>Availability</h4>
+        <label class="check-filter"><input type="checkbox" id="inStockOnly" onchange="applyStockFilter()"> In Stock Only</label>
       </div>
-
-      <!-- Brands -->
       <div class="filter-group">
-        <div class="filter-group-title">Brand</div>
-        <div id="brandFilter"><p class="no-brands">Loading...</p></div>
+        <h4>Discount</h4>
+        <label class="star-filter"><input type="radio" name="discount" value="50" onchange="applyDiscountFilter(50)"> 50% or more</label>
+        <label class="star-filter"><input type="radio" name="discount" value="30" onchange="applyDiscountFilter(30)"> 30% or more</label>
+        <label class="star-filter"><input type="radio" name="discount" value="10" onchange="applyDiscountFilter(10)"> 10% or more</label>
+        <label class="star-filter"><input type="radio" name="discount" value="0" onchange="applyDiscountFilter(0)"> All</label>
       </div>
     </aside>
-
-    <!-- Products Main -->
     <div class="products-main">
-      <!-- Toolbar -->
-      <div class="products-toolbar">
-        <div class="toolbar-left">
-          <button class="filter-toggle" onclick="toggleFilters()" aria-label="Toggle filters">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-            Filters
-          </button>
-          <span id="productsCount" class="products-count">Loading...</span>
-        </div>
-        <div class="toolbar-right">
-          <select class="sort-select" onchange="handleSort(this.value)" aria-label="Sort products">
-            <option value="createdAt,desc">Newest First</option>
-            <option value="price,asc">Price: Low to High</option>
-            <option value="price,desc">Price: High to Low</option>
-            <option value="averageRating,desc">Top Rated</option>
-            <option value="name,asc">A – Z</option>
-          </select>
-          <div class="view-btns" role="group" aria-label="View mode">
-            <button id="gridViewBtn" class="view-btn active" onclick="setView('grid')" aria-label="Grid view">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            </button>
-            <button id="listViewBtn" class="view-btn" onclick="setView('list')" aria-label="List view">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
+      <div id="productsGrid" class="products-grid"></div>
+      <div id="loadMoreContainer" class="load-more-wrap">
+        <button id="loadMoreBtn" class="load-more-btn" onclick="loadMoreProducts()">Load More Products</button>
       </div>
-
-      <!-- Product Grid -->
-      <div class="product-grid" id="productGrid" role="list" aria-label="Products">
-        <!-- Skeleton loading cards -->
-        <div class="product-card skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel skel-line"></div><div class="skel skel-line short"></div><div class="skel skel-line"></div></div></div>
-        <div class="product-card skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel skel-line"></div><div class="skel skel-line short"></div><div class="skel skel-line"></div></div></div>
-        <div class="product-card skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel skel-line"></div><div class="skel skel-line short"></div><div class="skel skel-line"></div></div></div>
-        <div class="product-card skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel skel-line"></div><div class="skel skel-line short"></div><div class="skel skel-line"></div></div></div>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination" id="pagination" role="navigation" aria-label="Pagination"></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════ FOOTER ═══════════════════════════════════ -->
+<!-- ═══════════════════════════════════ FOOTER ════════════════════════════════════ -->
 <footer class="footer">
-  <div class="footer-inner">
+  <div class="footer-top">
     <div class="footer-col">
-      <div class="footer-logo">
-        <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2874F0"/><path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="2.5" fill="#F7C600"/></svg>
-        ShopWave
-      </div>
-      <p class="footer-desc">India's fastest growing e-commerce platform with 10M+ happy customers.</p>
-      <div class="social-links">
-        <a href="#" aria-label="Facebook">f</a>
-        <a href="#" aria-label="Twitter">𝕏</a>
-        <a href="#" aria-label="Instagram">📸</a>
-        <a href="#" aria-label="YouTube">▶</a>
-      </div>
+      <h4>Get to Know Us</h4>
+      <a href="#">About ShopWave</a><a href="#">Careers</a>
+      <a href="#">Press Releases</a><a href="#">Investor Relations</a>
     </div>
     <div class="footer-col">
-      <h4>Company</h4>
-      <a href="#">About Us</a><a href="#">Careers</a><a href="#">Blog</a><a href="#">Press</a>
+      <h4>Make Money with Us</h4>
+      <a onclick="openSellerPortal()">Sell on ShopWave</a>
+      <a href="#">Become an Affiliate</a><a href="#">Advertise Your Products</a>
     </div>
     <div class="footer-col">
-      <h4>Help</h4>
-      <a href="#">Payments</a><a href="#">Shipping</a><a href="#">Cancellation</a><a href="#">FAQ</a>
+      <h4>Payment Products</h4>
+      <a href="#">ShopWave Pay</a><a href="#">EMI on ShopWave</a>
+      <a href="#">Gift Cards</a><a href="#">Reload Balance</a>
     </div>
     <div class="footer-col">
-      <h4>Policy</h4>
-      <a href="#">Return Policy</a><a href="#">Terms of Use</a><a href="#">Privacy Policy</a>
-    </div>
-    <div class="footer-col">
-      <h4>Download App</h4>
-      <div class="app-btns">
-        <button class="app-btn">📱 App Store</button>
-        <button class="app-btn">🤖 Google Play</button>
-      </div>
-      <div class="payment-icons">Accepted: 💳 🏦 📲 💵</div>
+      <h4>Let Us Help You</h4>
+      <a onclick="showOrders()">Your Orders</a>
+      <a onclick="openReturnPortal()">Returns & Replacements</a>
+      <a onclick="openAISupport()">AI Customer Support</a>
+      <a onclick="openAddressBook()">Manage Address Book</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2026 ShopWave Pvt. Ltd. — Made with ❤️ in India</p>
+    <div class="footer-logo">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#FF9900"/><path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>ShopWave</span>
+    </div>
+    <p>© 2026 ShopWave India. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookie Preferences</a>
+    </div>
   </div>
 </footer>
 
-<!-- Back to top -->
-<button id="backToTop" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+<!-- ════════════════════ MODALS ZONE ════════════════════ -->
 
-<!-- Toast -->
-<div id="toast" class="toast" role="alert" aria-live="polite"></div>
-
-<!-- ═══════════════════════════════════ CART SIDEBAR ══════════════════════════════ -->
-<div id="cartOverlay" class="overlay" onclick="toggleCart(false)"></div>
-<div id="cartSidebar" class="cart-sidebar" role="dialog" aria-label="Shopping Cart">
-  <div class="cart-header">
-    <h2>My Cart <span id="cartBadgeSidebar" class="cart-count-badge">0</span></h2>
-    <button class="close-btn" onclick="toggleCart(false)" aria-label="Close cart">×</button>
-  </div>
-  <div class="cart-items-wrap" id="cartItems">
-    <div class="cart-empty-state"><div class="empty-icon">🛒</div><p>Your cart is empty</p><button class="btn-primary" onclick="toggleCart(false)">Start Shopping</button></div>
-  </div>
-  <div class="cart-footer" id="cartFooter" style="display:none">
-    <div class="cart-summary">
-      <div class="cart-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
-      <div class="cart-row"><span>Shipping</span><span id="cartShipping" class="green">Free</span></div>
-      <div class="cart-row total"><span>Total</span><span id="cartTotal">₹0</span></div>
-    </div>
-    <button class="btn-checkout" onclick="openCheckout()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Proceed to Checkout
-    </button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ WISHLIST SIDEBAR ══════════════════════════ -->
-<div id="wishlistOverlay" class="overlay" onclick="closeWishlist()"></div>
-<div id="wishlistSidebar" class="cart-sidebar wishlist-sidebar" role="dialog" aria-label="Wishlist">
-  <div class="cart-header">
-    <h2>Wishlist <span id="wishlistBadge" class="cart-count-badge">0</span></h2>
-    <button class="close-btn" onclick="closeWishlist()" aria-label="Close wishlist">×</button>
-  </div>
-  <div class="cart-items-wrap" id="wishlistItems">
-    <div class="cart-empty-state"><div class="empty-icon">♡</div><p>Your wishlist is empty</p></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ AUTH MODAL ════════════════════════════════ -->
-<div id="authOverlay" class="modal-overlay" onclick="if(event.target===this)closeAuth()">
-  <div class="auth-modal">
-    <div class="auth-left">
-      <div class="auth-promo">
-        <div class="auth-promo-logo">
-          <svg width="40" height="40" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/><path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="2.5" fill="#F7C600"/></svg>
-          <span>ShopWave</span>
+<!-- Auth Modal -->
+<div id="authOverlay" class="overlay" onclick="if(event.target===this)closeAuth()">
+  <div class="modal auth-modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="auth-container">
+      <div class="auth-header">
+        <h2 id="authTitle">Sign in</h2>
+        <p id="authSubtitle">Get access to your Orders, Wishlist and Recommendations</p>
+      </div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div id="regFields" style="display:none">
+          <input class="form-input" type="text" id="regName" placeholder="Full Name" required>
         </div>
-        <h3>Login & Get Access to</h3>
-        <ul class="auth-perks">
-          <li>✓ Exclusive member discounts</li>
-          <li>✓ Track orders in real-time</li>
-          <li>✓ Wishlist & save for later</li>
-          <li>✓ Fast checkout experience</li>
-          <li>✓ Priority customer support</li>
-        </ul>
+        <input class="form-input" type="email" id="authEmail" placeholder="Email" required>
+        <input class="form-input" type="password" id="authPassword" placeholder="Password" required>
+        <div id="regFields2" style="display:none">
+          <input class="form-input" type="tel" id="regPhone" placeholder="Mobile Number">
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="authSubmitBtn">Continue</button>
+      </form>
+      <p class="auth-switch">
+        <span id="authSwitchText">New to ShopWave?</span>
+        <a onclick="toggleAuthMode()" id="authSwitchLink">Create account</a>
+      </p>
+      <p class="auth-terms">By continuing, you agree to ShopWave's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Orders Modal -->
+<div id="ordersOverlay" class="overlay" onclick="if(event.target===this)closeOrders()">
+  <div class="modal orders-modal">
+    <div class="modal-header">
+      <h2>📦 Your Orders</h2>
+      <button class="modal-close" onclick="closeOrders()">✕</button>
+    </div>
+    <div id="ordersList" class="orders-list"></div>
+  </div>
+</div>
+
+<!-- Cart Drawer -->
+<div id="cartOverlay" class="overlay" onclick="if(event.target===this)toggleCart(false)"></div>
+<aside id="cartDrawer" class="cart-drawer">
+  <div class="cart-header">
+    <h2>🛒 Shopping Cart</h2>
+    <button onclick="toggleCart(false)" class="modal-close">✕</button>
+  </div>
+  <div id="cartBody" class="cart-body"></div>
+  <div id="cartFooter" class="cart-footer" style="display:none">
+    <div class="cart-subtotal">
+      <span>Subtotal (<span id="cartItemCount">0</span> items):</span>
+      <strong id="cartSubtotalAmt">₹0</strong>
+    </div>
+    <button class="btn-primary btn-full" onclick="openCheckout()">Proceed to Checkout</button>
+    <p class="cart-secure"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secure checkout</p>
+  </div>
+</aside>
+
+<!-- Product Detail Modal -->
+<div id="productOverlay" class="overlay" onclick="if(event.target===this)closeProduct()">
+  <div class="modal product-modal">
+    <button class="modal-close" onclick="closeProduct()">✕</button>
+    <div id="productDetail"></div>
+  </div>
+</div>
+
+<!-- Wishlist Modal -->
+<div id="wishlistOverlay" class="overlay" onclick="if(event.target===this)closeWishlist()">
+  <div class="modal wishlist-modal">
+    <div class="modal-header">
+      <h2>❤️ Your Wishlist</h2>
+      <button class="modal-close" onclick="closeWishlist()">✕</button>
+    </div>
+    <div id="wishlistBody" class="wishlist-body"></div>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="checkoutOverlay" class="overlay" onclick="if(event.target===this)closeCheckout()">
+  <div class="modal checkout-modal">
+    <div class="modal-header">
+      <h2>🔒 Secure Checkout</h2>
+      <button class="modal-close" onclick="closeCheckout()">✕</button>
+    </div>
+    <div id="checkoutBody" class="checkout-body"></div>
+  </div>
+</div>
+
+<!-- Order Success Modal -->
+<div id="orderSuccessOverlay" class="overlay">
+  <div class="modal order-success-modal">
+    <div class="success-icon">✅</div>
+    <h2>Order Placed Successfully!</h2>
+    <p id="orderSuccessMsg">Your order has been placed and will be delivered soon.</p>
+    <div id="orderTimeline" class="order-timeline"></div>
+    <button class="btn-primary" onclick="closeOrderSuccess()">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- ═══════ FEATURE MODALS (loaded from js/features.js) ═══════ -->
+
+<!-- Notifications Modal -->
+<div id="notifOverlay" class="overlay" onclick="if(event.target===this)closeNotifications()">
+  <div class="modal notif-modal">
+    <div class="modal-header">
+      <h2>🔔 Notifications</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="markAllRead()" class="link-btn">Mark all read</button>
+        <button class="modal-close" onclick="closeNotifications()">✕</button>
       </div>
     </div>
-    <div class="auth-right">
-      <button class="close-btn auth-close" onclick="closeAuth()" aria-label="Close">×</button>
-      <div class="auth-tabs">
-        <button id="loginTab" class="auth-tab active" onclick="switchTab('login')">Login</button>
-        <button id="registerTab" class="auth-tab" onclick="switchTab('register')">Sign Up</button>
+    <div class="notif-tabs">
+      <button class="notif-tab active" onclick="switchNotifTab('all',this)">All</button>
+      <button class="notif-tab" onclick="switchNotifTab('orders',this)">Orders</button>
+      <button class="notif-tab" onclick="switchNotifTab('offers',this)">Offers</button>
+      <button class="notif-tab" onclick="switchNotifTab('returns',this)">Returns</button>
+    </div>
+    <div id="notifList" class="notif-list"></div>
+  </div>
+</div>
+
+<!-- AI Customer Support Modal -->
+<div id="aiSupportOverlay" class="overlay" onclick="if(event.target===this)closeAISupport()">
+  <div class="modal ai-support-modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ai-avatar">🤖</div>
+        <div>
+          <h2>ShopWave AI Assistant</h2>
+          <span class="ai-status">● Online</span>
+        </div>
       </div>
-
-      <!-- Login -->
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" required>
-        </div>
-        <div class="form-group">
-          <label>Password <button type="button" class="toggle-pwd" onclick="togglePwd('loginPassword')">Show</button></label>
-          <input type="password" id="loginPassword" placeholder="Enter password" required>
-        </div>
-        <div class="form-error" id="loginError" hidden></div>
-        <button type="submit" class="btn-auth" id="loginBtn">Sign In</button>
-        <p class="auth-switch">New here? <a onclick="switchTab('register')">Create account →</a></p>
-      </form>
-
-      <!-- Register -->
-      <form id="registerForm" onsubmit="handleRegister(event)" style="display:none">
-        <div class="form-row">
-          <div class="form-group"><label>First Name</label><input type="text" id="regFirst" placeholder="First name" required></div>
-          <div class="form-group"><label>Last Name</label><input type="text" id="regLast" placeholder="Last name" required></div>
-        </div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="Your email" required></div>
-        <div class="form-group">
-          <label>Password <button type="button" class="toggle-pwd" onclick="togglePwd('regPassword')">Show</button></label>
-          <input type="password" id="regPassword" placeholder="Create password (min. 6 chars)" required minlength="6">
-        </div>
-        <div class="form-group"><label>Phone <span class="optional">(Optional)</span></label><input type="tel" id="regPhone" placeholder="10-digit mobile number"></div>
-        <div class="form-error" id="registerError" hidden></div>
-        <button type="submit" class="btn-auth" id="registerBtn">Create Account</button>
-        <p class="auth-switch">Already a member? <a onclick="switchTab('login')">Sign in →</a></p>
-      </form>
+      <button class="modal-close" onclick="closeAISupport()">✕</button>
+    </div>
+    <div id="aiChatMessages" class="ai-chat-messages"></div>
+    <div class="ai-quick-actions" id="aiQuickActions">
+      <button onclick="sendAIMessage('Track my order')">📦 Track Order</button>
+      <button onclick="sendAIMessage('How to return a product?')">🔄 Returns</button>
+      <button onclick="sendAIMessage('Payment issues')">💳 Payment Help</button>
+      <button onclick="sendAIMessage('Show recommended products')">🤖 Recommendations</button>
+    </div>
+    <div class="ai-input-row">
+      <input id="aiInput" type="text" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendAIFromInput()">
+      <button onclick="sendAIFromInput()" class="ai-send-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════ QUICK VIEW MODAL ══════════════════════════ -->
-<div id="qvOverlay" class="modal-overlay" onclick="if(event.target===this)closeQV()">
-  <div class="qv-modal">
-    <button class="close-btn qv-close" onclick="closeQV()" aria-label="Close">×</button>
-    <div id="qvContent"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ ORDERS MODAL ══════════════════════════════ -->
-<div id="ordersOverlay" class="modal-overlay" onclick="if(event.target===this)closeOrders()">
-  <div class="orders-modal">
-    <div class="orders-header">
-      <h2>📦 My Orders</h2>
-      <button class="close-btn" onclick="closeOrders()" aria-label="Close">×</button>
+<!-- Seller Portal Modal -->
+<div id="sellerOverlay" class="overlay" onclick="if(event.target===this)closeSellerPortal()">
+  <div class="modal seller-modal">
+    <div class="modal-header">
+      <h2>🏪 Seller Portal</h2>
+      <button class="modal-close" onclick="closeSellerPortal()">✕</button>
     </div>
-    <div id="ordersList" class="orders-list"><div class="loading-state"><div class="spinner"></div><p>Loading orders...</p></div></div>
+    <div class="seller-body" id="sellerBody"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════ CHECKOUT MODAL ════════════════════════════ -->
-<div id="checkoutOverlay" class="modal-overlay" onclick="if(event.target===this)closeCheckout()">
-  <div class="checkout-modal">
-    <div class="checkout-header">
-      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secure Checkout</h2>
-      <button class="close-btn" onclick="closeCheckout()" aria-label="Close">×</button>
+<!-- Analytics Dashboard Modal -->
+<div id="analyticsOverlay" class="overlay" onclick="if(event.target===this)closeAnalytics()">
+  <div class="modal analytics-modal">
+    <div class="modal-header">
+      <h2>📊 Analytics Dashboard</h2>
+      <button class="modal-close" onclick="closeAnalytics()">✕</button>
     </div>
-    <div class="checkout-body" id="checkoutBody"></div>
+    <div class="analytics-body" id="analyticsBody"></div>
   </div>
 </div>
 
+<!-- Address Book Modal -->
+<div id="addressOverlay" class="overlay" onclick="if(event.target===this)closeAddressBook()">
+  <div class="modal address-modal">
+    <div class="modal-header">
+      <h2>📍 Address Book</h2>
+      <button class="modal-close" onclick="closeAddressBook()">✕</button>
+    </div>
+    <div id="addressBody" class="address-body"></div>
+  </div>
+</div>
+
+<!-- Return Portal Modal -->
+<div id="returnOverlay" class="overlay" onclick="if(event.target===this)closeReturnPortal()">
+  <div class="modal return-modal">
+    <div class="modal-header">
+      <h2>🔄 Returns & Refunds</h2>
+      <button class="modal-close" onclick="closeReturnPortal()">✕</button>
+    </div>
+    <div id="returnBody" class="return-body"></div>
+  </div>
+</div>
+
+<!-- Advanced Search Modal -->
+<div id="advSearchOverlay" class="overlay" onclick="if(event.target===this)closeAdvancedSearch()">
+  <div class="modal adv-search-modal">
+    <div class="modal-header">
+      <h2>🔍 Advanced Search & Filters</h2>
+      <button class="modal-close" onclick="closeAdvancedSearch()">✕</button>
+    </div>
+    <div class="adv-search-body" id="advSearchBody"></div>
+  </div>
+</div>
+
+<!-- Payment Processing Modal -->
+<div id="paymentOverlay" class="overlay">
+  <div class="modal payment-modal">
+    <div class="modal-header">
+      <h2>💳 Secure Payment</h2>
+    </div>
+    <div id="paymentBody" class="payment-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ GLOBAL UI ═══════════════════ -->
+<div id="toast" class="toast"></div>
+
+<!-- Floating AI Support Button -->
+<button class="ai-fab" onclick="openAISupport()" aria-label="AI Customer Support">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  <span class="ai-fab-pulse"></span>
+</button>
+
+<!-- Scripts -->
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/products.js"></script>
 <script src="js/app.js"></script>
+<script src="js/features.js"></script>
 </body>
 </html>
