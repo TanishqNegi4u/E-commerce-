@@ -1,135 +1,310 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopWave — India's #1 Online Shopping Destination</title>
-  <meta name="description" content="Shop electronics, fashion, home & more at ShopWave. Best prices guaranteed.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopWave Fixed</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/feature.css">
+  <style>
+    :root {
+      --primary: #ff9900; --primary-dark: #e68900; --primary-light: #fff3e0;
+      --nav-bg: #131921; --accent-red: #c0392b; --accent-green: #067d62;
+      --bg: #eaeded; --surface: #ffffff; --surface-2: #f7f8f8;
+      --border: #dddddd; --text-1: #0f1111; --text-2: #565959; --text-muted: #767676;
+      --shadow-sm: 0 2px 5px rgba(15,17,17,.1); --shadow-md: 0 2px 10px rgba(15,17,17,.12);
+      --shadow-lg: 0 4px 20px rgba(15,17,17,.18);
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --nav-h: 60px; --cat-h: 40px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; min-width: 0; }
+    html { scroll-behavior: smooth; }
+    body { min-height: 100vh; font-family: var(--font); background: var(--bg); color: var(--text-1); line-height: 1.5; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    img, svg { display: block; max-width: 100%; }
+    :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .skip-link { position: absolute; left: -9999px; top: 8px; z-index: 5000; padding: 8px 12px; color: #fff; background: var(--nav-bg); border-radius: 4px; }
+    .skip-link:focus { left: 8px; }
+    .navbar { position: sticky; top: 0; z-index: 1200; background: var(--nav-bg); box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .nav-inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; max-width: 1400px; min-height: var(--nav-h); margin: 0 auto; padding: 10px 16px; }
+    .nav-logo { display: flex; flex-shrink: 0; align-items: center; gap: 6px; }
+    .logo-text { color: #fff; font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+    .logo-tag { align-self: flex-end; margin-bottom: 2px; color: var(--primary); font-size: 10px; font-weight: 700; }
+    .nav-search { position: relative; flex: 1 1 460px; max-width: 700px; z-index: 1300; }
+    .search-box { display: flex; align-items: stretch; min-height: 40px; background: #fff; border: 2px solid transparent; border-radius: var(--radius-sm); overflow: hidden; }
+    .search-box:focus-within { border-color: var(--primary); }
+    .search-cat-select { min-width: 82px; padding: 0 8px; font-size: 12px; background: #f3f3f3; border: 0; border-right: 1px solid #ccc; outline: none; }
+    .search-icon { flex-shrink: 0; align-self: center; margin: 0 8px; color: var(--text-muted); }
+    .nav-search input { flex: 1; padding: 8px 4px; border: 0; outline: none; font-size: 14px; }
+    .search-btn { display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0 16px; color: #fff; background: var(--primary); }
+    .search-btn:hover { background: var(--primary-dark); }
+    .search-suggs { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1301; display: none; max-height: 280px; overflow-y: auto; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); }
+    .search-suggs.show { display: block; }
+    .sugg-item { padding: 10px 14px; font-size: 14px; cursor: pointer; }
+    .sugg-item:hover { background: var(--bg); }
+    .nav-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
+    .nav-btn { position: relative; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 8px; color: #fff; background: transparent; border-radius: var(--radius-sm); }
+    .nav-btn:hover { background: rgba(255,255,255,.1); outline: 1px solid rgba(255,255,255,.35); }
+    .auth-menu { position: relative; z-index: 1300; }
+    .auth-text, .nav-btn-text { display: flex; flex-direction: column; }
+    .auth-greeting, .nav-top { color: #ccc; font-size: 11px; }
+    .auth-sub, .nav-bot { display: flex; align-items: center; gap: 2px; color: #fff; font-size: 13px; font-weight: 700; }
+    .orders-nav-btn { flex-direction: column; align-items: flex-start; gap: 0; }
+    .cart-count { color: var(--primary); font-size: 20px; font-weight: 800; line-height: 1; }
+    .badge { position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; padding: 0 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; background: var(--primary); border-radius: 9px; }
+    .nav-dropdown { position: absolute; top: calc(100% + 8px); left: 0; display: none; min-width: 260px; padding: 12px 0; color: var(--text-1); background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); z-index: 1302; }
+    .auth-menu:hover .nav-dropdown, .auth-menu:focus-within .nav-dropdown { display: block; }
+    .dropdown-header, .dropdown-actions, .dropdown-section a, .dropdown-section strong { padding-inline: 16px; }
+    .dropdown-header { padding-block: 8px; color: var(--text-2); font-size: 13px; }
+    .dropdown-sign-btn, .btn-primary, .btn-add-cart, .btn-buy-now, .slide-cta { background: var(--primary); color: #131921; font-weight: 700; border-radius: var(--radius-sm); }
+    .dropdown-sign-btn, .btn-primary { color: #fff; }
+    .dropdown-sign-btn, .btn-primary { padding: 10px 12px; }
+    .dropdown-section strong { display: block; padding-top: 8px; padding-bottom: 6px; color: var(--text-muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+    .dropdown-section a { display: flex; align-items: center; gap: 8px; padding-block: 8px; font-size: 13px; }
+    .dropdown-section a:hover { background: var(--bg); }
+    .nav-dropdown hr { margin: 4px 0; border: 0; border-top: 1px solid var(--border); }
+    .cat-bar { background: #232f3e; overflow-x: auto; position: relative; z-index: 1100; }
+    .cat-bar::-webkit-scrollbar { height: 0; }
+    .cat-bar-inner { display: flex; align-items: center; gap: 2px; max-width: 1400px; min-height: var(--cat-h); margin: 0 auto; padding: 0 16px; }
+    .cat-link { padding: 5px 12px; color: #fff; font-size: 13px; font-weight: 500; white-space: nowrap; background: transparent; border-radius: var(--radius-sm); }
+    .cat-link:hover, .cat-link.active { background: rgba(255,255,255,.15); outline: 1px solid #fff; }
+    .hero { position: relative; min-height: 360px; overflow: hidden; }
+    .hero-track { position: relative; width: 100%; height: 100%; }
+    .hero-slide { position: absolute; inset: 0; display: none; align-items: center; padding: 48px 64px; }
+    .hero-slide.active { display: flex; }
+    .slide-content { position: relative; z-index: 2; max-width: 520px; }
+    .slide-tag { margin-bottom: 12px; color: var(--primary); font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+    .hero-slide h1, .hero-slide h2 { margin-bottom: 12px; color: #fff; font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .slide-highlight { color: var(--primary); }
+    .hero-slide p { margin-bottom: 24px; color: rgba(255,255,255,.82); font-size: 16px; }
+    .slide-cta, .btn-buy-now, .btn-add-cart { padding: 12px 20px; font-size: 14px; transition: background .15s, transform .15s; }
+    .slide-cta:hover, .btn-buy-now:hover, .btn-add-cart:hover, .btn-primary:hover { background: var(--primary-dark); }
+    .slide-cta:hover { transform: translateY(-1px); }
+    .slide-visual { position: absolute; top: 50%; right: 80px; transform: translateY(-50%); font-size: 100px; letter-spacing: 8px; opacity: .25; max-width: 40%; pointer-events: none; }
+    .hero-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #fff; font-size: 22px; background: rgba(255,255,255,.15); border-radius: 50%; }
+    .hero-arrow:hover { background: rgba(255,255,255,.28); }
+    .hero-arrow.prev { left: 16px; } .hero-arrow.next { right: 16px; }
+    .hero-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+    .hero-dot { width: 8px; height: 8px; background: rgba(255,255,255,.4); border-radius: 50%; }
+    .hero-dot.active { width: 20px; background: #fff; border-radius: 4px; }
+    .trust-bar { display: flex; flex-wrap: wrap; background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .trust-item { display: flex; flex: 1 1 220px; align-items: center; gap: 10px; padding: 14px 20px; border-right: 1px solid var(--border); }
+    .trust-item:last-child { border-right: 0; }
+    .trust-item span { font-size: 24px; }
+    .trust-item strong { display: block; font-size: 13px; }
+    .trust-item small { color: var(--text-2); font-size: 11px; }
+    .section { max-width: 1400px; margin: 0 auto; padding: 24px 16px; }
+    .cat-section, .deal-section, .products-section { margin-top: 16px; background: #fff; border-radius: var(--radius-md); }
+    .section-header, .deal-header, .modal-header, .cart-header, .sort-row, .filter-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .section-header, .deal-header { margin-bottom: 16px; }
+    .section-title { font-size: 20px; font-weight: 700; }
+    .ai-badge { padding: 3px 10px; color: #fff; font-size: 11px; font-weight: 700; background: linear-gradient(135deg,#667eea,#764ba2); border-radius: 20px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 12px; }
+    .cat-card { padding: 16px 8px; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+    .cat-card:hover { border-color: #aaa; box-shadow: var(--shadow-md); }
+    .cat-icon { margin-bottom: 8px; font-size: 32px; }
+    .cat-name { margin-bottom: 2px; font-size: 12px; font-weight: 700; }
+    .cat-count { color: var(--text-muted); font-size: 11px; }
+    .countdown { display: flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 14px; }
+    .cd-box { padding: 4px 10px; color: #fff; background: var(--text-1); border-radius: var(--radius-sm); font-weight: 800; }
+    .products-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+    .filters-sidebar { position: sticky; top: calc(var(--nav-h) + var(--cat-h) + 16px); height: fit-content; max-height: calc(100vh - var(--nav-h) - var(--cat-h) - 32px); overflow-y: auto; padding: 16px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .filter-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .filter-group { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .filter-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+    .filter-group h4 { margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+    .price-range-inputs { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .price-range-inputs input, .sort-group select, .form-input, .ai-input-row input { padding: 8px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; }
+    .price-range-inputs input { width: 80px; }
+    .price-slider { width: 100%; accent-color: var(--primary); }
+    .star-filter, .check-filter, .brand-filters label, .sort-group, .results-count { color: var(--text-2); font-size: 13px; }
+    .star-filter, .check-filter, .brand-filters label { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+    .brand-filters { display: flex; flex-direction: column; gap: 6px; }
+    .products-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; }
+    .product-card { display: flex; flex-direction: column; height: 100%; padding: 12px; background: #fff; border: 1px solid transparent; border-radius: var(--radius-sm); transition: box-shadow .15s, border-color .15s; }
+    .product-card:hover { border-color: #ccc; box-shadow: var(--shadow-md); }
+    .product-img { display: flex; align-items: center; justify-content: center; height: 140px; margin-bottom: 10px; padding: 16px 0; font-size: 72px; background: var(--bg); border-radius: var(--radius-sm); }
+    .product-badge { position: absolute; top: 8px; left: 8px; padding: 2px 7px; color: #fff; font-size: 10px; font-weight: 700; background: var(--accent-red); border-radius: 3px; }
+    .product-badge.new-badge { background: var(--accent-green); }
+    .product-brand { margin-bottom: 3px; color: var(--text-muted); font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
+    .product-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; min-height: 38px; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+    .product-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; color: var(--text-2); font-size: 12px; }
+    .stars { color: var(--primary); }
+    .product-price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; row-gap: 4px; margin-bottom: 10px; }
+    .product-price { font-size: 18px; font-weight: 700; }
+    .product-mrp { color: var(--text-muted); font-size: 12px; text-decoration: line-through; }
+    .product-discount { color: var(--accent-red); font-size: 12px; font-weight: 700; }
+    .product-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+    .btn-add-cart { flex: 1 1 120px; padding: 10px 12px; font-size: 13px; }
+    .btn-add-cart.in-cart { background: var(--accent-green); color: #fff; }
+    .btn-wishlist { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .load-more-wrap { padding: 24px 0; text-align: center; }
+    .load-more-btn, .btn-secondary { padding: 10px 24px; font-size: 14px; font-weight: 600; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .load-more-btn:hover, .btn-secondary:hover { background: var(--bg); }
+    .overlay { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.55); backdrop-filter: blur(2px); }
+    .overlay.open { display: flex; }
+    .modal { position: relative; z-index: 2100; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+    .modal-header { position: sticky; top: 0; z-index: 1; padding: 16px 20px; background: #fff; border-bottom: 1px solid var(--border); }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: #ddd; }
+    .auth-modal { max-width: 400px; }
+    .auth-container, .cart-body, .wishlist-body, .address-body, .notif-list, .ai-chat-messages { padding: 20px; }
+    .form-input { width: 100%; margin-bottom: 12px; }
+    .btn-full { width: 100%; }
+    .auth-switch, .auth-terms { color: var(--text-2); font-size: 13px; text-align: center; }
+    .auth-switch { margin-top: 16px; }
+    .auth-terms { margin-top: 10px; }
+    .cart-drawer { position: fixed; top: 0; right: -420px; z-index: 2200; width: 420px; max-width: 100%; height: 100vh; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,.18); transition: right .25s ease; display: flex; flex-direction: column; }
+    .cart-drawer.open { right: 0; }
+    .cart-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 12px 20px; }
+    .cart-item { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .cart-thumb { width: 64px; height: 64px; display: grid; place-items: center; background: var(--bg); border-radius: 8px; font-size: 30px; }
+    .cart-item-title { font-size: 13px; font-weight: 600; }
+    .cart-item-price { color: var(--text-2); font-size: 13px; }
+    .qty-btn { padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+    .cart-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .cart-subtotal { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+    .notif-modal, .ai-support-modal, .wishlist-modal, .address-modal { max-width: 520px; }
+    .notif-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid var(--border); }
+    .notif-tab { padding: 10px 16px; background: transparent; color: var(--text-2); border: 0; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .notif-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .notif-list { max-height: 65vh; overflow-y: auto; padding: 0; }
+    .notif-item { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .notif-item.unread { background: #fffbf0; }
+    .notif-icon { width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: var(--bg); font-size: 24px; }
+    .notif-title { font-size: 13px; font-weight: 600; }
+    .notif-body, .notif-time { color: var(--text-2); font-size: 12px; }
+    .notif-time { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+    .ai-support-modal { display: flex; flex-direction: column; }
+    .ai-chat-messages { display: flex; flex-direction: column; gap: 12px; min-height: 320px; max-height: 50vh; overflow-y: auto; background: var(--surface-2); padding: 16px; }
+    .ai-msg { display: flex; gap: 8px; max-width: 85%; }
+    .ai-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .ai-avatar, .ai-msg-avatar { display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg,#667eea,#764ba2); flex-shrink: 0; }
+    .ai-avatar { width: 36px; height: 36px; font-size: 18px; }
+    .ai-msg-avatar { width: 28px; height: 28px; font-size: 14px; }
+    .ai-bubble { padding: 10px 14px; font-size: 13px; line-height: 1.5; background: #fff; border-radius: 16px; box-shadow: var(--shadow-sm); }
+    .ai-msg.user .ai-bubble { color: #fff; background: var(--primary); border-radius: 16px 4px 16px 16px; }
+    .ai-quick-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; border-top: 1px solid var(--border); }
+    .ai-quick-actions button { padding: 5px 10px; font-size: 12px; background: #fff; border: 1px solid var(--border); border-radius: 16px; cursor: pointer; }
+    .ai-quick-actions button:hover { background: var(--primary-light); border-color: var(--primary); }
+    .ai-input-row { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); background: #fff; }
+    .ai-input-row input { flex: 1; border-radius: 20px; }
+    .ai-send-btn { width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; color: #fff; background: var(--primary); border-radius: 50%; font-size: 16px; }
+    .wishlist-list, .address-grid { display: grid; gap: 12px; }
+    .wishlist-item, .address-card { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); z-index: 3000; padding: 10px 20px; color: #fff; background: #1f2937; border-radius: 999px; opacity: 0; pointer-events: none; transition: .25s ease; font-size: 14px; font-weight: 500; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .ai-fab { position: fixed; right: 20px; bottom: 20px; z-index: 1000; width: 58px; height: 58px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#667eea,#764ba2); border-radius: 50%; box-shadow: 0 10px 24px rgba(102,126,234,.35); font-size: 26px; }
+    footer { background: #131921; color: #fff; padding: 40px 16px 20px; margin-top: 32px; }
+    .footer-inner { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 32px; }
+    .footer-col h4 { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+    .footer-col a { display: block; color: #aaa; font-size: 13px; margin-bottom: 8px; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { max-width: 1400px; margin: 0 auto; padding-top: 20px; border-top: 1px solid #2a3441; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom p { color: #aaa; font-size: 13px; }
+    @media (max-width: 1100px) {
+      .nav-search { order: 3; width: 100%; max-width: 100%; }
+      .products-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .cat-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .hero-slide { padding: 32px 24px; }
+      .slide-visual { right: 24px; font-size: 72px; }
+      .footer-inner { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .products-layout { grid-template-columns: 1fr; }
+      .filters-sidebar { position: static; top: auto; max-height: none; }
+      .trust-item { flex: 1 1 calc(50% - 12px); }
+    }
+    @media (max-width: 640px) {
+      .nav-actions { width: 100%; justify-content: space-between; }
+      .nav-btn { flex: 1 1 auto; justify-content: center; }
+      .auth-btn { flex: 1 1 100%; justify-content: flex-start; }
+      .products-grid, .cat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .hero { min-height: 320px; }
+      .hero-slide { padding: 24px 18px 48px; }
+      .hero-slide h1, .hero-slide h2 { font-size: 26px; }
+      .slide-visual { display: none; }
+      .trust-item { flex: 1 1 100%; min-width: 100%; border-right: 0; }
+      .cart-drawer { width: 100%; }
+      .btn-add-cart, .btn-buy-now, .btn-primary, .load-more-btn { width: 100%; }
+      .product-actions { flex-direction: column; }
+      .btn-wishlist { width: 100%; }
+      .footer-inner { grid-template-columns: 1fr; gap: 20px; }
+    }
+    @media (max-width: 420px) {
+      .products-grid, .cat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
-  <header id="navbar" class="navbar">
+  <header class="navbar">
     <div class="nav-inner">
       <a class="nav-logo" href="#" aria-label="ShopWave home">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <rect width="32" height="32" rx="8" fill="#FF9900"></rect>
-          <path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          <circle cx="16" cy="22" r="2.5" fill="#fff"></circle>
+          <rect width="32" height="32" rx="8" fill="#FF9900"/>
+          <path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="22" r="2.5" fill="#fff"/>
         </svg>
         <span class="logo-text">ShopWave</span>
         <span class="logo-tag">India's Own</span>
       </a>
 
-      <div class="nav-search" role="search" aria-label="Site search">
-        <form onsubmit="handleSearch(event)" autocomplete="off">
-          <div class="search-box">
-            <label for="searchCatSelect" class="sr-only">Select search category</label>
-            <select class="search-cat-select" id="searchCatSelect">
-              <option value="">All</option>
-              <option>Electronics</option>
-              <option>Fashion</option>
-              <option>Home &amp; Kitchen</option>
-              <option>Sports</option>
-              <option>Beauty</option>
-              <option>Books</option>
-            </select>
-            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="Search products, brands and more…"
-              oninput="handleSearchInput(this.value)"
-              onfocus="this.closest('.search-box').classList.add('focused')"
-              onblur="setTimeout(()=>this.closest('.search-box').classList.remove('focused'),200)"
-              aria-label="Search products"
-            >
-            <button type="submit" class="search-btn" aria-label="Submit search">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-            </button>
-          </div>
-        </form>
-        <div id="searchSuggs" class="search-suggs" role="listbox" aria-label="Search suggestions"></div>
+      <div class="nav-search" role="search">
+        <div class="search-box">
+          <select class="search-cat-select" id="searchCatSelect">
+            <option>All</option><option>Electronics</option><option>Fashion</option>
+            <option>Home</option><option>Sports</option><option>Beauty</option><option>Books</option>
+          </select>
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="searchInput" type="text" placeholder="Search products, brands and more…" aria-label="Search">
+          <button type="button" class="search-btn" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+        </div>
+        <div id="searchSuggs" class="search-suggs"></div>
       </div>
 
-      <nav class="nav-actions" aria-label="User actions">
-        <div class="auth-menu" style="position:relative;">
-          <button id="authBtn" class="nav-btn auth-btn" type="button" onclick="openAuth()" aria-label="Account and lists">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
+      <nav class="nav-actions">
+        <div class="auth-menu">
+          <button class="nav-btn auth-btn" type="button" onclick="openAuth()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <div class="auth-text">
               <span class="auth-greeting">Hello, Sign in</span>
-              <span class="auth-sub" id="authLabel">
-                Account &amp; Lists
-                <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-                  <path d="m6 9 6 6 6-6"></path>
-                </svg>
-              </span>
+              <span class="auth-sub">Account &amp; Lists</span>
             </div>
           </button>
-
-          <div class="nav-dropdown" aria-label="Account menu">
-            <div class="dropdown-header" id="dropdownUser">
-              New Customer? <a href="#" onclick="openAuth(); return false;">Start here.</a>
-            </div>
-            <div class="dropdown-actions">
-              <button class="dropdown-sign-btn" type="button" onclick="openAuth()">Sign in</button>
-            </div>
+          <div class="nav-dropdown">
+            <div class="dropdown-header">New Customer? <a href="#" onclick="openAuth();return false;" style="color:var(--primary);font-weight:600;">Start here.</a></div>
+            <div class="dropdown-actions"><button class="dropdown-sign-btn" type="button" onclick="openAuth()">Sign in</button></div>
             <hr>
             <div class="dropdown-section">
               <strong>Your Account</strong>
-              <a href="#" onclick="showOrders(); return false;">📦 My Orders</a>
-              <a href="#" onclick="openWishlist(); return false;">❤️ Wishlist</a>
-              <a href="#" onclick="openAddressBook(); return false;">📍 Address Book</a>
-              <a href="#" onclick="openNotifications(); return false;">🔔 Notifications</a>
-              <a href="#" onclick="openAnalytics(); return false;">📊 Analytics</a>
+              <a href="#" onclick="openWishlist();return false;">❤️ Wishlist</a>
+              <a href="#" onclick="openNotifications();return false;">🔔 Notifications</a>
+              <a href="#" onclick="openAddressBook();return false;">📍 Address Book</a>
             </div>
-            <hr>
-            <div class="dropdown-section">
-              <strong>Sell on ShopWave</strong>
-              <a href="#" onclick="openSellerPortal(); return false;">🏪 Seller Portal</a>
-            </div>
-            <hr>
-            <a id="logoutBtn" href="#" onclick="doLogout(); return false;" style="display:none; color:#c0392b; padding:8px 16px;">
-              Sign Out
-            </a>
           </div>
         </div>
 
-        <button class="nav-btn orders-nav-btn" type="button" onclick="showOrders()" aria-label="Orders">
-          <div class="nav-btn-text">
-            <span class="nav-top">Returns</span>
-            <span class="nav-bot">&amp; Orders</span>
-          </div>
+        <button class="nav-btn orders-nav-btn" type="button" onclick="showToast('Orders coming soon!')">
+          <div class="nav-btn-text"><span class="nav-top">Returns</span><span class="nav-bot">&amp; Orders</span></div>
         </button>
 
-        <button class="nav-btn" type="button" onclick="openNotifications()" aria-label="Notifications" style="position:relative;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-          <span id="notifBadge" class="badge" style="display:none;">3</span>
+        <button class="nav-btn" type="button" onclick="openNotifications()" style="position:relative;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge">3</span>
         </button>
 
-        <button class="nav-btn cart-nav-btn" type="button" onclick="toggleCart(true)" aria-label="Shopping cart">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
+        <button class="nav-btn" type="button" onclick="toggleCart(true)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <div class="nav-btn-text">
             <span id="cartBadge" class="cart-count">0</span>
             <span class="nav-bot">Cart</span>
@@ -138,107 +313,86 @@
       </nav>
     </div>
 
-    <nav class="cat-bar" aria-label="Product categories">
+    <nav class="cat-bar">
       <div class="cat-bar-inner">
-        <button class="cat-link" type="button" onclick="openSellerPortal()">🏪 Sell</button>
-        <button class="cat-link active" type="button" onclick="catBarClick(this,'')">☰ All</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Electronics')">📱 Electronics</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Fashion')">👗 Fashion</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Home & Kitchen')">🏠 Home</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Sports')">⚽ Sports</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Beauty')">💄 Beauty</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Books')">📚 Books</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Toys')">🧸 Toys</button>
-        <button class="cat-link" type="button" onclick="catBarClick(this,'Automotive')">🚗 Automotive</button>
-        <button class="cat-link" type="button" onclick="openAdvancedSearch()">🔍 Advanced Search</button>
-        <button class="cat-link" type="button" onclick="openAnalytics()">📊 Dashboard</button>
+        <button class="cat-link active" type="button" onclick="setCategory('All',this)">☰ All</button>
+        <button class="cat-link" type="button" onclick="setCategory('Electronics',this)">📱 Electronics</button>
+        <button class="cat-link" type="button" onclick="setCategory('Fashion',this)">👗 Fashion</button>
+        <button class="cat-link" type="button" onclick="setCategory('Home',this)">🏠 Home</button>
+        <button class="cat-link" type="button" onclick="setCategory('Sports',this)">⚽ Sports</button>
+        <button class="cat-link" type="button" onclick="setCategory('Beauty',this)">💄 Beauty</button>
+        <button class="cat-link" type="button" onclick="setCategory('Books',this)">📚 Books</button>
       </div>
     </nav>
   </header>
 
   <main id="mainContent">
-    <section class="hero" aria-label="Featured promotions">
+    <!-- HERO -->
+    <section class="hero">
       <div class="hero-track" id="heroTrack">
         <div class="hero-slide active" style="background:linear-gradient(135deg,#131921 60%,#232f3e)">
           <div class="slide-content">
             <div class="slide-tag">🔥 BIGGEST SALE OF THE YEAR</div>
             <h1>Up to <span class="slide-highlight">80% OFF</span><br>on Electronics</h1>
             <p>MacBooks, Phones, Headphones &amp; more</p>
-            <button class="slide-cta" type="button" onclick="catBarClick(document.querySelector('.cat-link:nth-child(3)'),'Electronics')">Shop Now →</button>
+            <button class="slide-cta" type="button" onclick="setCategory('Electronics')">Shop Now →</button>
           </div>
           <div class="slide-visual" aria-hidden="true">💻📱🎧</div>
         </div>
-
         <div class="hero-slide" style="background:linear-gradient(135deg,#1a6b3c 60%,#0d4f2c)">
           <div class="slide-content">
             <div class="slide-tag">✨ FASHION FIESTA</div>
             <h2>Trending Styles<br>from <span class="slide-highlight">₹199</span></h2>
             <p>Top brands. New arrivals daily.</p>
-            <button class="slide-cta" type="button" onclick="catBarClick(document.querySelector('.cat-link:nth-child(4)'),'Fashion')">Explore →</button>
+            <button class="slide-cta" type="button" onclick="setCategory('Fashion')">Explore →</button>
           </div>
           <div class="slide-visual" aria-hidden="true">👗👟👜</div>
         </div>
-
         <div class="hero-slide" style="background:linear-gradient(135deg,#8B0000 60%,#5c0000)">
           <div class="slide-content">
             <div class="slide-tag">⚡ FLASH DEAL</div>
             <h2>Home Essentials<br><span class="slide-highlight">50% OFF</span></h2>
             <p>Upgrade your living space today!</p>
-            <button class="slide-cta" type="button" onclick="catBarClick(document.querySelector('.cat-link:nth-child(5)'),'Home & Kitchen')">Grab Now →</button>
+            <button class="slide-cta" type="button" onclick="setCategory('Home')">Grab Now →</button>
           </div>
           <div class="slide-visual" aria-hidden="true">🏠🍳🛋️</div>
         </div>
       </div>
-      <button class="hero-arrow prev" type="button" onclick="shiftSlide(-1)" aria-label="Previous slide">‹</button>
-      <button class="hero-arrow next" type="button" onclick="shiftSlide(1)" aria-label="Next slide">›</button>
+      <button class="hero-arrow prev" type="button" onclick="shiftSlide(-1)">‹</button>
+      <button class="hero-arrow next" type="button" onclick="shiftSlide(1)">›</button>
       <div class="hero-dots" id="heroDots"></div>
     </section>
 
-    <section class="trust-bar" aria-label="ShopWave benefits">
-      <div class="trust-item"><span aria-hidden="true">🚚</span><div><strong>Free Delivery</strong><small>On orders ₹500+</small></div></div>
-      <div class="trust-item"><span aria-hidden="true">🔄</span><div><strong>Easy Returns</strong><small>30-day policy</small></div></div>
-      <div class="trust-item"><span aria-hidden="true">🔒</span><div><strong>Secure Payment</strong><small>100% encrypted</small></div></div>
-      <div class="trust-item"><span aria-hidden="true">⭐</span><div><strong>Top Rated</strong><small>4.8/5 by 2M+ users</small></div></div>
-      <div class="trust-item"><span aria-hidden="true">🤖</span><div><strong>AI Support</strong><small>24/7 smart help</small></div></div>
+    <!-- TRUST BAR -->
+    <section class="trust-bar">
+      <div class="trust-item"><span>🚚</span><div><strong>Free Delivery</strong><small>On orders ₹500+</small></div></div>
+      <div class="trust-item"><span>🔄</span><div><strong>Easy Returns</strong><small>30-day policy</small></div></div>
+      <div class="trust-item"><span>🔒</span><div><strong>Secure Payment</strong><small>100% encrypted</small></div></div>
+      <div class="trust-item"><span>⭐</span><div><strong>Top Rated</strong><small>4.8/5 by users</small></div></div>
+      <div class="trust-item"><span>🤖</span><div><strong>AI Support</strong><small>24/7 smart help</small></div></div>
     </section>
 
-    <section class="section cat-section" aria-labelledby="shopByCategoryTitle">
-      <div class="section-header">
-        <h2 class="section-title" id="shopByCategoryTitle">Shop by Category</h2>
-      </div>
-      <div class="cat-grid" id="categoryGrid">
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[2],'Electronics')">
-          <div class="cat-icon" aria-hidden="true">📱</div><div class="cat-name">Electronics</div><div class="cat-count">124 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[3],'Fashion')">
-          <div class="cat-icon" aria-hidden="true">👗</div><div class="cat-name">Fashion</div><div class="cat-count">89 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[4],'Home & Kitchen')">
-          <div class="cat-icon" aria-hidden="true">🏠</div><div class="cat-name">Home &amp; Kitchen</div><div class="cat-count">67 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[5],'Sports')">
-          <div class="cat-icon" aria-hidden="true">⚽</div><div class="cat-name">Sports</div><div class="cat-count">45 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[6],'Beauty')">
-          <div class="cat-icon" aria-hidden="true">💄</div><div class="cat-name">Beauty</div><div class="cat-count">38 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[7],'Books')">
-          <div class="cat-icon" aria-hidden="true">📚</div><div class="cat-name">Books</div><div class="cat-count">210 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[8],'Toys')">
-          <div class="cat-icon" aria-hidden="true">🧸</div><div class="cat-name">Toys</div><div class="cat-count">54 Products</div>
-        </div>
-        <div class="cat-card" onclick="catBarClick(document.querySelectorAll('.cat-link')[9],'Automotive')">
-          <div class="cat-icon" aria-hidden="true">🚗</div><div class="cat-name">Automotive</div><div class="cat-count">32 Products</div>
-        </div>
+    <!-- CATEGORIES -->
+    <section class="section cat-section">
+      <div class="section-header"><h2 class="section-title">Shop by Category</h2></div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="setCategory('Electronics')"><div class="cat-icon">📱</div><div class="cat-name">Electronics</div><div class="cat-count">124 Products</div></div>
+        <div class="cat-card" onclick="setCategory('Fashion')"><div class="cat-icon">👗</div><div class="cat-name">Fashion</div><div class="cat-count">89 Products</div></div>
+        <div class="cat-card" onclick="setCategory('Home')"><div class="cat-icon">🏠</div><div class="cat-name">Home</div><div class="cat-count">67 Products</div></div>
+        <div class="cat-card" onclick="setCategory('Sports')"><div class="cat-icon">⚽</div><div class="cat-name">Sports</div><div class="cat-count">45 Products</div></div>
+        <div class="cat-card" onclick="setCategory('Beauty')"><div class="cat-icon">💄</div><div class="cat-name">Beauty</div><div class="cat-count">38 Products</div></div>
+        <div class="cat-card" onclick="setCategory('Books')"><div class="cat-icon">📚</div><div class="cat-name">Books</div><div class="cat-count">210 Products</div></div>
+        <div class="cat-card" onclick="setCategory('All')"><div class="cat-icon">🎁</div><div class="cat-name">Offers</div><div class="cat-count">73 Deals</div></div>
+        <div class="cat-card" onclick="setCategory('All')"><div class="cat-icon">🧸</div><div class="cat-name">More</div><div class="cat-count">98 Products</div></div>
       </div>
     </section>
 
-    <section class="section deal-section" aria-labelledby="dealTitle">
+    <!-- DEAL OF THE DAY -->
+    <section class="section deal-section">
       <div class="deal-header">
-        <h2 class="section-title" id="dealTitle">⚡ Deal of the Day</h2>
-        <div class="countdown" aria-live="polite">
-          <span>Ends in:</span>
+        <h2 class="section-title">⚡ Deal of the Day</h2>
+        <div class="countdown">
+          Ends in:
           <span class="cd-box"><span id="cdH">04</span>h</span>
           <span class="cd-box"><span id="cdM">47</span>m</span>
           <span class="cd-box"><span id="cdS">23</span>s</span>
@@ -247,359 +401,402 @@
       <div id="dealProducts" class="products-grid"></div>
     </section>
 
-    <section class="section" id="recommendSection" style="display:none;" aria-labelledby="recommendTitle">
+    <!-- ALL PRODUCTS -->
+    <section class="section products-section">
       <div class="section-header">
-        <h2 class="section-title" id="recommendTitle">🤖 Recommended For You</h2>
-        <span class="ai-badge">AI Powered</span>
-      </div>
-      <div id="recommendGrid" class="products-grid"></div>
-    </section>
-
-    <section class="section products-section" id="productsSection" aria-labelledby="productsSectionTitle">
-      <div class="section-header">
-        <h2 class="section-title" id="productsSectionTitle">All Products</h2>
+        <h2 class="section-title">All Products</h2>
         <div class="sort-row">
           <span class="results-count" id="resultsCount"></span>
           <div class="sort-group">
             <label for="sortSelect">Sort by</label>
-            <select id="sortSelect" onchange="applySortFilter()">
+            <select id="sortSelect">
               <option value="default">Relevance</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="rating">Avg. Customer Review</option>
-              <option value="new">Newest Arrivals</option>
             </select>
           </div>
         </div>
       </div>
-
       <div class="products-layout">
-        <aside class="filters-sidebar" id="filtersSidebar" aria-label="Product filters">
-          <div class="filter-header">
-            <h3>Filters</h3>
-            <button type="button" onclick="clearAllFilters()" class="filter-clear-btn">Clear All</button>
-          </div>
-
+        <aside class="filters-sidebar">
+          <div class="filter-header"><h3>Filters</h3><button class="btn-secondary" type="button" onclick="clearFilters()">Clear</button></div>
           <div class="filter-group">
             <h4>Price Range</h4>
             <div class="price-range-inputs">
-              <label for="minPrice" class="sr-only">Minimum price</label>
-              <input type="number" id="minPrice" placeholder="Min ₹" oninput="applyPriceFilter()">
+              <input type="number" id="minPrice" placeholder="Min ₹">
               <span>to</span>
-              <label for="maxPrice" class="sr-only">Maximum price</label>
-              <input type="number" id="maxPrice" placeholder="Max ₹" oninput="applyPriceFilter()">
+              <input type="number" id="maxPrice" placeholder="Max ₹">
             </div>
-            <label for="priceSlider" class="sr-only">Maximum price slider</label>
-            <input type="range" id="priceSlider" min="0" max="200000" value="200000" oninput="syncPriceSlider(this.value)" class="price-slider">
+            <input type="range" id="priceSlider" class="price-slider" min="0" max="200000" value="200000">
           </div>
-
-          <div class="filter-group">
-            <h4>Avg. Customer Reviews</h4>
-            <div class="star-filter-group">
-              <label class="star-filter"><input type="radio" name="rating" value="4" onchange="applyRatingFilter(4)"> ⭐⭐⭐⭐ &amp; Up</label>
-              <label class="star-filter"><input type="radio" name="rating" value="3" onchange="applyRatingFilter(3)"> ⭐⭐⭐ &amp; Up</label>
-              <label class="star-filter"><input type="radio" name="rating" value="2" onchange="applyRatingFilter(2)"> ⭐⭐ &amp; Up</label>
-              <label class="star-filter"><input type="radio" name="rating" value="0" onchange="applyRatingFilter(0)"> All</label>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <h4>Brand</h4>
-            <div id="brandFilters" class="brand-filters"></div>
-          </div>
-
           <div class="filter-group">
             <h4>Availability</h4>
-            <label class="check-filter"><input type="checkbox" id="inStockOnly" onchange="applyStockFilter()"> In Stock Only</label>
+            <label class="check-filter"><input type="checkbox" id="inStockOnly"> In Stock Only</label>
           </div>
-
           <div class="filter-group">
-            <h4>Discount</h4>
-            <label class="star-filter"><input type="radio" name="discount" value="50" onchange="applyDiscountFilter(50)"> 50% or more</label>
-            <label class="star-filter"><input type="radio" name="discount" value="30" onchange="applyDiscountFilter(30)"> 30% or more</label>
-            <label class="star-filter"><input type="radio" name="discount" value="10" onchange="applyDiscountFilter(10)"> 10% or more</label>
-            <label class="star-filter"><input type="radio" name="discount" value="0" onchange="applyDiscountFilter(0)"> All</label>
+            <h4>Brand</h4>
+            <div class="brand-filters" id="brandFilters"></div>
           </div>
         </aside>
-
         <div class="products-main">
           <div id="productsGrid" class="products-grid"></div>
-          <div id="loadMoreContainer" class="load-more-wrap">
-            <button id="loadMoreBtn" class="load-more-btn" type="button" onclick="loadMoreProducts()">Load More Products</button>
+          <div class="load-more-wrap">
+            <button class="load-more-btn" type="button" onclick="showToast('All products loaded!')">Load More</button>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-top">
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
       <div class="footer-col">
         <h4>Get to Know Us</h4>
         <a href="#">About ShopWave</a>
         <a href="#">Careers</a>
         <a href="#">Press Releases</a>
-        <a href="#">Investor Relations</a>
       </div>
       <div class="footer-col">
         <h4>Make Money with Us</h4>
-        <a href="#" onclick="openSellerPortal(); return false;">Sell on ShopWave</a>
+        <a href="#">Sell on ShopWave</a>
         <a href="#">Become an Affiliate</a>
-        <a href="#">Advertise Your Products</a>
+        <a href="#">Advertise</a>
       </div>
       <div class="footer-col">
-        <h4>Payment Products</h4>
+        <h4>Payment</h4>
         <a href="#">ShopWave Pay</a>
-        <a href="#">EMI on ShopWave</a>
+        <a href="#">EMI Options</a>
         <a href="#">Gift Cards</a>
-        <a href="#">Reload Balance</a>
       </div>
       <div class="footer-col">
         <h4>Let Us Help You</h4>
-        <a href="#" onclick="showOrders(); return false;">Your Orders</a>
-        <a href="#" onclick="openReturnPortal(); return false;">Returns &amp; Replacements</a>
-        <a href="#" onclick="openAISupport(); return false;">AI Customer Support</a>
-        <a href="#" onclick="openAddressBook(); return false;">Manage Address Book</a>
+        <a href="#" onclick="showToast('Orders demo');return false;">Your Orders</a>
+        <a href="#" onclick="openAISupport();return false;">AI Support</a>
+        <a href="#" onclick="openAddressBook();return false;">Address Book</a>
       </div>
     </div>
-
     <div class="footer-bottom">
-      <div class="footer-logo">
-        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <rect width="32" height="32" rx="8" fill="#FF9900"></rect>
-          <path d="M8 10h6l4 8 4-8h6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-        <span>ShopWave</span>
-      </div>
       <p>© 2026 ShopWave India. All rights reserved.</p>
-      <div class="footer-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Cookie Preferences</a>
+      <div style="display:flex;gap:16px;">
+        <a href="#" style="color:#aaa;font-size:13px;">Privacy</a>
+        <a href="#" style="color:#aaa;font-size:13px;">Terms</a>
       </div>
     </div>
   </footer>
 
+  <!-- AUTH MODAL -->
   <div id="authOverlay" class="overlay" onclick="if(event.target===this)closeAuth()">
-    <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-      <button class="modal-close" type="button" onclick="closeAuth()" aria-label="Close authentication modal">✕</button>
+    <div class="modal auth-modal">
+      <button class="modal-close" type="button" onclick="closeAuth()">✕</button>
       <div class="auth-container">
-        <div class="auth-header">
-          <h2 id="authTitle">Sign in</h2>
-          <p id="authSubtitle">Get access to your Orders, Wishlist and Recommendations</p>
+        <h2 style="margin-bottom:8px;">Sign in</h2>
+        <p style="color:var(--text-2);margin-bottom:20px;">Access orders, wishlist and more.</p>
+        <input class="form-input" type="email" placeholder="Email">
+        <input class="form-input" type="password" placeholder="Password">
+        <button class="btn-primary btn-full" type="button" onclick="closeAuth();showToast('Signed in ✓')">Continue</button>
+        <p class="auth-switch">New? <a href="#" style="color:var(--primary);font-weight:600;">Create account</a></p>
+        <p class="auth-terms">By continuing, you agree to ShopWave's terms.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS MODAL -->
+  <div id="notifOverlay" class="overlay" onclick="if(event.target===this)closeNotifications()">
+    <div class="modal notif-modal">
+      <div class="modal-header"><h2>🔔 Notifications</h2><button class="modal-close" type="button" onclick="closeNotifications()">✕</button></div>
+      <div class="notif-tabs">
+        <button class="notif-tab active" type="button">All</button>
+        <button class="notif-tab" type="button">Orders</button>
+        <button class="notif-tab" type="button">Offers</button>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item unread"><div class="notif-icon">📦</div><div><div class="notif-title">Order shipped!</div><div class="notif-body">Your headphones order is on the way.</div><div class="notif-time">2 hours ago</div></div></div>
+        <div class="notif-item"><div class="notif-icon">🔥</div><div><div class="notif-title">Flash Offer</div><div class="notif-body">Extra 10% off Electronics today only.</div><div class="notif-time">5 hours ago</div></div></div>
+        <div class="notif-item unread"><div class="notif-icon">✅</div><div><div class="notif-title">Order delivered</div><div class="notif-body">Your previous order has been delivered.</div><div class="notif-time">Yesterday</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WISHLIST MODAL -->
+  <div id="wishlistOverlay" class="overlay" onclick="if(event.target===this)closeWishlist()">
+    <div class="modal wishlist-modal">
+      <div class="modal-header"><h2>❤️ Wishlist</h2><button class="modal-close" type="button" onclick="closeWishlist()">✕</button></div>
+      <div class="wishlist-body"><div id="wishlistBody" class="wishlist-list"></div></div>
+    </div>
+  </div>
+
+  <!-- ADDRESS MODAL -->
+  <div id="addressOverlay" class="overlay" onclick="if(event.target===this)closeAddressBook()">
+    <div class="modal address-modal">
+      <div class="modal-header"><h2>📍 Address Book</h2><button class="modal-close" type="button" onclick="closeAddressBook()">✕</button></div>
+      <div class="address-body">
+        <div class="address-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="address-card"><strong style="color:var(--primary);">HOME</strong><div style="color:var(--text-2);font-size:13px;margin-top:6px;">Dehradun, Uttarakhand<br>PIN 248001</div></div>
+          <div class="address-card"><strong style="color:var(--primary);">HOSTEL</strong><div style="color:var(--text-2);font-size:13px;margin-top:6px;">Near college campus<br>PIN 248002</div></div>
         </div>
-        <form id="authForm" onsubmit="handleAuth(event)">
-          <div id="regFields" style="display:none;">
-            <label for="regName" class="sr-only">Full name</label>
-            <input class="form-input" type="text" id="regName" placeholder="Full Name" required>
-          </div>
-          <label for="authEmail" class="sr-only">Email</label>
-          <input class="form-input" type="email" id="authEmail" placeholder="Email" required>
-          <label for="authPassword" class="sr-only">Password</label>
-          <input class="form-input" type="password" id="authPassword" placeholder="Password" required>
-          <div id="regFields2" style="display:none;">
-            <label for="regPhone" class="sr-only">Mobile number</label>
-            <input class="form-input" type="tel" id="regPhone" placeholder="Mobile Number">
-          </div>
-          <button type="submit" class="btn-primary btn-full" id="authSubmitBtn">Continue</button>
-        </form>
-        <p class="auth-switch">
-          <span id="authSwitchText">New to ShopWave?</span>
-          <a href="#" onclick="toggleAuthMode(); return false;" id="authSwitchLink">Create account</a>
-        </p>
-        <p class="auth-terms">By continuing, you agree to ShopWave's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a></p>
+        <button class="btn-primary" style="margin-top:16px;" type="button" onclick="showToast('Add address feature coming soon')">+ Add New Address</button>
       </div>
     </div>
   </div>
 
-  <div id="ordersOverlay" class="overlay" onclick="if(event.target===this)closeOrders()">
-    <div class="modal orders-modal" role="dialog" aria-modal="true" aria-labelledby="ordersModalTitle">
+  <!-- AI CHAT MODAL -->
+  <div id="aiSupportOverlay" class="overlay" onclick="if(event.target===this)closeAISupport()">
+    <div class="modal ai-support-modal">
       <div class="modal-header">
-        <h2 id="ordersModalTitle">📦 Your Orders</h2>
-        <button class="modal-close" type="button" onclick="closeOrders()" aria-label="Close orders modal">✕</button>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="ai-avatar">🤖</div>
+          <div>
+            <h2 style="font-size:16px;">ShopWave AI Assistant</h2>
+            <div style="color:var(--accent-green);font-size:12px;font-weight:600;">● Online</div>
+          </div>
+        </div>
+        <button class="modal-close" type="button" onclick="closeAISupport()">✕</button>
       </div>
-      <div id="ordersList" class="orders-list"></div>
+      <div id="aiChatMessages" class="ai-chat-messages">
+        <div class="ai-msg bot">
+          <div class="ai-msg-avatar">🤖</div>
+          <div class="ai-bubble">Hi Tanishq! 👋 I'm ShopWave AI. How can I help you today?</div>
+        </div>
+      </div>
+      <div class="ai-quick-actions">
+        <button type="button" onclick="sendAIMessage('Track my order')">📦 Track Order</button>
+        <button type="button" onclick="sendAIMessage('Show best deals')">🔥 Best Deals</button>
+        <button type="button" onclick="sendAIMessage('How to return?')">🔄 Returns</button>
+        <button type="button" onclick="sendAIMessage('Payment help')">💳 Payment</button>
+      </div>
+      <div class="ai-input-row">
+        <input id="aiInput" type="text" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendAIFromInput()">
+        <button type="button" class="ai-send-btn" onclick="sendAIFromInput()">➤</button>
+      </div>
     </div>
   </div>
 
-  <div id="cartOverlay" class="overlay" onclick="if(event.target===this)toggleCart(false)"></div>
-  <aside id="cartDrawer" class="cart-drawer" aria-label="Shopping cart">
+  <!-- CART DRAWER -->
+  <div id="cartOverlay" class="overlay" onclick="toggleCart(false)"></div>
+  <aside id="cartDrawer" class="cart-drawer">
     <div class="cart-header">
       <h2>🛒 Shopping Cart</h2>
-      <button type="button" onclick="toggleCart(false)" class="modal-close" aria-label="Close cart">✕</button>
+      <button class="modal-close" type="button" onclick="toggleCart(false)">✕</button>
     </div>
     <div id="cartBody" class="cart-body"></div>
-    <div id="cartFooter" class="cart-footer" style="display:none;">
-      <div class="cart-subtotal">
-        <span>Subtotal (<span id="cartItemCount">0</span> items):</span>
-        <strong id="cartSubtotalAmt">₹0</strong>
-      </div>
-      <button class="btn-primary btn-full" type="button" onclick="openCheckout()">Proceed to Checkout</button>
-      <p class="cart-secure">Secure checkout</p>
+    <div class="cart-footer">
+      <div class="cart-subtotal"><span>Subtotal (<span id="cartCount">0</span> items)</span><strong id="cartSubtotal">₹0</strong></div>
+      <button class="btn-primary btn-full" type="button" onclick="showToast('Proceeding to checkout…')">Proceed to Checkout →</button>
     </div>
   </aside>
 
-  <div id="productOverlay" class="overlay" onclick="if(event.target===this)closeProduct()">
-    <div class="modal product-modal" role="dialog" aria-modal="true" aria-label="Product details">
-      <button class="modal-close" type="button" onclick="closeProduct()" aria-label="Close product details">✕</button>
-      <div id="productDetail"></div>
-    </div>
-  </div>
+  <!-- TOAST & FAB -->
+  <div id="toast" class="toast"></div>
+  <button class="ai-fab" type="button" onclick="openAISupport()" title="AI Support">🤖</button>
 
-  <div id="wishlistOverlay" class="overlay" onclick="if(event.target===this)closeWishlist()">
-    <div class="modal wishlist-modal" role="dialog" aria-modal="true" aria-labelledby="wishlistTitle">
-      <div class="modal-header">
-        <h2 id="wishlistTitle">❤️ Your Wishlist</h2>
-        <button class="modal-close" type="button" onclick="closeWishlist()" aria-label="Close wishlist">✕</button>
-      </div>
-      <div id="wishlistBody" class="wishlist-body"></div>
-    </div>
-  </div>
+  <script>
+    const PRODUCTS = [
+      {id:1,name:'MacBook Air M3 13-inch Laptop',brand:'Apple',price:114999,mrp:129999,rating:4.8,emoji:'💻',cat:'Electronics',badge:'Deal'},
+      {id:2,name:'Sony WH-1000XM5 Wireless Headphones',brand:'Sony',price:24999,mrp:34999,rating:4.7,emoji:'🎧',cat:'Electronics',badge:'Deal'},
+      {id:3,name:'Samsung Galaxy S24 256GB 5G',brand:'Samsung',price:64999,mrp:79999,rating:4.6,emoji:'📱',cat:'Electronics',badge:''},
+      {id:4,name:'Nike Air Max Running Shoes',brand:'Nike',price:5499,mrp:8999,rating:4.4,emoji:'👟',cat:'Fashion',badge:'New'},
+      {id:5,name:'Puma Men Casual Hoodie',brand:'Puma',price:1299,mrp:2499,rating:4.2,emoji:'🧥',cat:'Fashion',badge:''},
+      {id:6,name:'Levis Slim Fit Jeans Blue',brand:'Levis',price:2199,mrp:3999,rating:4.3,emoji:'👖',cat:'Fashion',badge:'New'},
+      {id:7,name:'Philips Mixer Grinder 750W',brand:'Philips',price:2799,mrp:4499,rating:4.2,emoji:'🍲',cat:'Home',badge:'Deal'},
+      {id:8,name:'Ergonomic Office Chair',brand:'Green Soul',price:8999,mrp:13999,rating:4.5,emoji:'🪑',cat:'Home',badge:''},
+      {id:9,name:'Nivia Football Training Kit',brand:'Nivia',price:1499,mrp:2199,rating:4.0,emoji:'⚽',cat:'Sports',badge:''},
+      {id:10,name:'Mamaearth Vitamin C Serum',brand:'Mamaearth',price:499,mrp:799,rating:4.1,emoji:'🧴',cat:'Beauty',badge:'New'},
+      {id:11,name:'Java Programming Complete Guide',brand:'Pearson',price:699,mrp:999,rating:4.7,emoji:'📚',cat:'Books',badge:''},
+      {id:12,name:'Spring Boot in Action',brand:'Manning',price:849,mrp:1299,rating:4.6,emoji:'📗',cat:'Books',badge:'New'},
+    ];
 
-  <div id="checkoutOverlay" class="overlay" onclick="if(event.target===this)closeCheckout()">
-    <div class="modal checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
-      <div class="modal-header">
-        <h2 id="checkoutTitle">🔒 Secure Checkout</h2>
-        <button class="modal-close" type="button" onclick="closeCheckout()" aria-label="Close checkout">✕</button>
-      </div>
-      <div id="checkoutBody" class="checkout-body"></div>
-    </div>
-  </div>
+    let cart = [], wishlist = [], activeCategory = 'All', slideIndex = 0;
 
-  <div id="orderSuccessOverlay" class="overlay">
-    <div class="modal order-success-modal" role="dialog" aria-modal="true" aria-labelledby="orderSuccessTitle">
-      <div class="success-icon" aria-hidden="true">✅</div>
-      <h2 id="orderSuccessTitle">Order Placed Successfully!</h2>
-      <p id="orderSuccessMsg">Your order has been placed and will be delivered soon.</p>
-      <div id="orderTimeline" class="order-timeline"></div>
-      <button class="btn-primary" type="button" onclick="closeOrderSuccess()">Continue Shopping</button>
-    </div>
-  </div>
+    const ₹ = v => '₹' + Number(v).toLocaleString('en-IN');
+    const stars = r => '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
+    const pct = (p, m) => Math.round((1 - p/m) * 100);
 
-  <div id="notifOverlay" class="overlay" onclick="if(event.target===this)closeNotifications()">
-    <div class="modal notif-modal" role="dialog" aria-modal="true" aria-labelledby="notifTitle">
-      <div class="modal-header">
-        <h2 id="notifTitle">🔔 Notifications</h2>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button type="button" onclick="markAllRead()" class="link-btn">Mark all read</button>
-          <button class="modal-close" type="button" onclick="closeNotifications()" aria-label="Close notifications">✕</button>
+    function productCard(p) {
+      const inCart = cart.some(i => i.id === p.id);
+      const inWish = wishlist.some(i => i.id === p.id);
+      return `<article class="product-card" style="position:relative;">
+        ${p.badge ? `<div class="product-badge ${p.badge==='New'?'new-badge':''}">${p.badge}</div>` : ''}
+        <div class="product-img">${p.emoji}</div>
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-rating"><span class="stars">${stars(p.rating)}</span> ${p.rating}</div>
+        <div class="product-price-row">
+          <span class="product-price">${₹(p.price)}</span>
+          <span class="product-mrp">${₹(p.mrp)}</span>
+          <span class="product-discount">${pct(p.price,p.mrp)}% off</span>
         </div>
-      </div>
-      <div class="notif-tabs">
-        <button class="notif-tab active" type="button" onclick="switchNotifTab('all',this)">All</button>
-        <button class="notif-tab" type="button" onclick="switchNotifTab('orders',this)">Orders</button>
-        <button class="notif-tab" type="button" onclick="switchNotifTab('offers',this)">Offers</button>
-        <button class="notif-tab" type="button" onclick="switchNotifTab('returns',this)">Returns</button>
-      </div>
-      <div id="notifList" class="notif-list"></div>
-    </div>
-  </div>
-
-  <div id="aiSupportOverlay" class="overlay" onclick="if(event.target===this)closeAISupport()">
-    <div class="modal ai-support-modal" role="dialog" aria-modal="true" aria-labelledby="aiSupportTitle">
-      <div class="modal-header">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="ai-avatar" aria-hidden="true">🤖</div>
-          <div>
-            <h2 id="aiSupportTitle">ShopWave AI Assistant</h2>
-            <span class="ai-status">● Online</span>
-          </div>
+        <div class="product-actions">
+          <button class="btn-add-cart ${inCart?'in-cart':''}" type="button" onclick="addToCart(${p.id})">${inCart?'✓ Added':'Add to Cart'}</button>
+          <button class="btn-wishlist ${inWish?'active':''}" type="button" onclick="toggleWishlist(${p.id})" title="Wishlist">${inWish?'❤️':'🤍'}</button>
         </div>
-        <button class="modal-close" type="button" onclick="closeAISupport()" aria-label="Close AI support">✕</button>
-      </div>
-      <div id="aiChatMessages" class="ai-chat-messages"></div>
-      <div class="ai-quick-actions" id="aiQuickActions">
-        <button type="button" onclick="sendAIMessage('Track my order')">📦 Track Order</button>
-        <button type="button" onclick="sendAIMessage('How to return a product?')">🔄 Returns</button>
-        <button type="button" onclick="sendAIMessage('Payment issues')">💳 Payment Help</button>
-        <button type="button" onclick="sendAIMessage('Show recommended products')">🤖 Recommendations</button>
-      </div>
-      <div class="ai-input-row">
-        <label for="aiInput" class="sr-only">Ask the AI assistant</label>
-        <input id="aiInput" type="text" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendAIFromInput()">
-        <button type="button" onclick="sendAIFromInput()" class="ai-send-btn" aria-label="Send AI message">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
+      </article>`;
+    }
 
-  <div id="sellerOverlay" class="overlay" onclick="if(event.target===this)closeSellerPortal()">
-    <div class="modal seller-modal" role="dialog" aria-modal="true" aria-labelledby="sellerTitle">
-      <div class="modal-header">
-        <h2 id="sellerTitle">🏪 Seller Portal</h2>
-        <button class="modal-close" type="button" onclick="closeSellerPortal()" aria-label="Close seller portal">✕</button>
-      </div>
-      <div class="seller-body" id="sellerBody"></div>
-    </div>
-  </div>
+    function getFiltered() {
+      let list = PRODUCTS.filter(p => activeCategory === 'All' || p.cat === activeCategory);
+      const sort = document.getElementById('sortSelect').value;
+      if (sort === 'price-asc') list.sort((a,b) => a.price - b.price);
+      if (sort === 'price-desc') list.sort((a,b) => b.price - a.price);
+      if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+      return list;
+    }
 
-  <div id="analyticsOverlay" class="overlay" onclick="if(event.target===this)closeAnalytics()">
-    <div class="modal analytics-modal" role="dialog" aria-modal="true" aria-labelledby="analyticsTitle">
-      <div class="modal-header">
-        <h2 id="analyticsTitle">📊 Analytics Dashboard</h2>
-        <button class="modal-close" type="button" onclick="closeAnalytics()" aria-label="Close analytics">✕</button>
-      </div>
-      <div class="analytics-body" id="analyticsBody"></div>
-    </div>
-  </div>
+    function renderAll() {
+      const list = getFiltered();
+      document.getElementById('productsGrid').innerHTML = list.map(productCard).join('');
+      document.getElementById('dealProducts').innerHTML = PRODUCTS.slice(0,5).map(productCard).join('');
+      document.getElementById('resultsCount').textContent = `${list.length} results`;
+      document.getElementById('brandFilters').innerHTML = [...new Set(PRODUCTS.map(p=>p.brand))].map(b=>`<label class="check-filter"><input type="checkbox"> ${b}</label>`).join('');
+    }
 
-  <div id="addressOverlay" class="overlay" onclick="if(event.target===this)closeAddressBook()">
-    <div class="modal address-modal" role="dialog" aria-modal="true" aria-labelledby="addressTitle">
-      <div class="modal-header">
-        <h2 id="addressTitle">📍 Address Book</h2>
-        <button class="modal-close" type="button" onclick="closeAddressBook()" aria-label="Close address book">✕</button>
-      </div>
-      <div id="addressBody" class="address-body"></div>
-    </div>
-  </div>
+    function addToCart(id) {
+      const p = PRODUCTS.find(x=>x.id===id);
+      const found = cart.find(x=>x.id===id);
+      if (found) found.qty++; else cart.push({...p, qty:1});
+      updateCartUI(); renderAll(); showToast('Added to cart 🛒');
+    }
 
-  <div id="returnOverlay" class="overlay" onclick="if(event.target===this)closeReturnPortal()">
-    <div class="modal return-modal" role="dialog" aria-modal="true" aria-labelledby="returnTitle">
-      <div class="modal-header">
-        <h2 id="returnTitle">🔄 Returns &amp; Refunds</h2>
-        <button class="modal-close" type="button" onclick="closeReturnPortal()" aria-label="Close return portal">✕</button>
-      </div>
-      <div id="returnBody" class="return-body"></div>
-    </div>
-  </div>
+    function removeFromCart(id) {
+      cart = cart.filter(i => i.id !== id);
+      updateCartUI(); renderAll(); showToast('Removed from cart');
+    }
 
-  <div id="advSearchOverlay" class="overlay" onclick="if(event.target===this)closeAdvancedSearch()">
-    <div class="modal adv-search-modal" role="dialog" aria-modal="true" aria-labelledby="advSearchTitle">
-      <div class="modal-header">
-        <h2 id="advSearchTitle">🔍 Advanced Search &amp; Filters</h2>
-        <button class="modal-close" type="button" onclick="closeAdvancedSearch()" aria-label="Close advanced search">✕</button>
-      </div>
-      <div class="adv-search-body" id="advSearchBody"></div>
-    </div>
-  </div>
+    function toggleWishlist(id) {
+      const p = PRODUCTS.find(x=>x.id===id);
+      const idx = wishlist.findIndex(x=>x.id===id);
+      if (idx > -1) { wishlist.splice(idx,1); showToast('Removed from wishlist'); }
+      else { wishlist.push(p); showToast('Added to wishlist ❤️'); }
+      renderAll(); renderWishlist();
+    }
 
-  <div id="paymentOverlay" class="overlay">
-    <div class="modal payment-modal" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
-      <div class="modal-header">
-        <h2 id="paymentTitle">💳 Secure Payment</h2>
-      </div>
-      <div id="paymentBody" class="payment-body"></div>
-    </div>
-  </div>
+    function updateCartUI() {
+      const total = cart.reduce((s,i)=>s+i.qty,0);
+      const amount = cart.reduce((s,i)=>s+i.price*i.qty,0);
+      document.getElementById('cartBadge').textContent = total;
+      document.getElementById('cartCount').textContent = total;
+      document.getElementById('cartSubtotal').textContent = ₹(amount);
+      document.getElementById('cartBody').innerHTML = cart.length
+        ? cart.map(item=>`<div class="cart-item">
+            <div class="cart-thumb">${item.emoji}</div>
+            <div>
+              <div class="cart-item-title">${item.name}</div>
+              <div class="cart-item-price">${₹(item.price)} × ${item.qty}</div>
+            </div>
+            <button class="qty-btn" type="button" onclick="removeFromCart(${item.id})" title="Remove">✕</button>
+          </div>`).join('')
+        : '<p style="color:var(--text-2);padding:16px;">Your cart is empty.</p>';
+    }
 
-  <div id="toast" class="toast" aria-live="polite"></div>
+    function renderWishlist() {
+      document.getElementById('wishlistBody').innerHTML = wishlist.length
+        ? wishlist.map(p=>`<div class="wishlist-item"><strong>${p.name}</strong><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-weight:700;">${₹(p.price)}</span><button class="btn-primary" style="padding:6px 12px;font-size:12px;" onclick="addToCart(${p.id});closeWishlist();">Add to Cart</button></div></div>`).join('')
+        : '<p style="color:var(--text-2);">Your wishlist is empty.</p>';
+    }
 
-  <button class="ai-fab" type="button" onclick="openAISupport()" aria-label="AI Customer Support">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-    </svg>
-    <span class="ai-fab-pulse"></span>
-  </button>
+    function toggleCart(open) {
+      document.getElementById('cartDrawer').classList.toggle('open', open);
+      document.getElementById('cartOverlay').classList.toggle('open', open);
+    }
 
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/products.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/features.js"></script>
+    function setCategory(cat, el) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-link').forEach(x => x.classList.remove('active'));
+      if (el) el.classList.add('active');
+      else document.querySelectorAll('.cat-link').forEach(b => { if(b.textContent.includes(cat)) b.classList.add('active'); });
+      renderAll();
+      document.querySelector('.products-section').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function clearFilters() {
+      document.getElementById('minPrice').value=''; document.getElementById('maxPrice').value='';
+      document.getElementById('priceSlider').value=200000; document.getElementById('inStockOnly').checked=false;
+      document.getElementById('sortSelect').value='default'; renderAll(); showToast('Filters cleared');
+    }
+
+    function openAuth(){ document.getElementById('authOverlay').classList.add('open'); }
+    function closeAuth(){ document.getElementById('authOverlay').classList.remove('open'); }
+    function openNotifications(){ document.getElementById('notifOverlay').classList.add('open'); }
+    function closeNotifications(){ document.getElementById('notifOverlay').classList.remove('open'); }
+    function openWishlist(){ renderWishlist(); document.getElementById('wishlistOverlay').classList.add('open'); }
+    function closeWishlist(){ document.getElementById('wishlistOverlay').classList.remove('open'); }
+    function openAddressBook(){ document.getElementById('addressOverlay').classList.add('open'); }
+    function closeAddressBook(){ document.getElementById('addressOverlay').classList.remove('open'); }
+    function openAISupport(){ document.getElementById('aiSupportOverlay').classList.add('open'); }
+    function closeAISupport(){ document.getElementById('aiSupportOverlay').classList.remove('open'); }
+
+    const AI_REPLIES = {
+      'Track my order': '📦 Your last order is Out for Delivery! Expected today by 8 PM.',
+      'Show best deals': '🔥 Top deals today: MacBook Air 80% off, Sony Headphones 29% off!',
+      'How to return?': '🔄 Go to Orders → Select item → Click Return. Easy 30-day policy!',
+      'Payment help': '💳 We support UPI, Cards, Net Banking, EMI and COD. Need more help?',
+    };
+    function sendAIMessage(text) {
+      const box = document.getElementById('aiChatMessages');
+      box.insertAdjacentHTML('beforeend', `<div class="ai-msg user"><div class="ai-msg-avatar">🙂</div><div class="ai-bubble">${text}</div></div>`);
+      setTimeout(() => {
+        const reply = AI_REPLIES[text] || 'I can help with that! For detailed assistance, please contact support.';
+        box.insertAdjacentHTML('beforeend', `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-bubble">${reply}</div></div>`);
+        box.scrollTop = box.scrollHeight;
+      }, 600);
+      box.scrollTop = box.scrollHeight;
+    }
+    function sendAIFromInput() {
+      const inp = document.getElementById('aiInput');
+      const val = inp.value.trim();
+      if (!val) return;
+      sendAIMessage(val); inp.value = '';
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    // Hero slider
+    function shiftSlide(step) {
+      const slides = document.querySelectorAll('.hero-slide');
+      slideIndex = (slideIndex + step + slides.length) % slides.length;
+      slides.forEach((s,i) => s.classList.toggle('active', i===slideIndex));
+      document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===slideIndex));
+    }
+    function initDots() {
+      const n = document.querySelectorAll('.hero-slide').length;
+      document.getElementById('heroDots').innerHTML = Array.from({length:n},(_,i) =>
+        `<button class="hero-dot ${i===0?'active':''}" type="button" onclick="shiftSlide(${i-slideIndex})"></button>`).join('');
+    }
+
+    // Countdown
+    let secs = 4*3600+47*60+23;
+    setInterval(() => {
+      secs = Math.max(0, secs-1);
+      document.getElementById('cdH').textContent = String(Math.floor(secs/3600)).padStart(2,'0');
+      document.getElementById('cdM').textContent = String(Math.floor((secs%3600)/60)).padStart(2,'0');
+      document.getElementById('cdS').textContent = String(secs%60).padStart(2,'0');
+    }, 1000);
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const val = this.value.toLowerCase().trim();
+      const box = document.getElementById('searchSuggs');
+      if (!val) { box.classList.remove('show'); box.innerHTML=''; return; }
+      const hits = PRODUCTS.filter(p => p.name.toLowerCase().includes(val)||p.brand.toLowerCase().includes(val)).slice(0,5);
+      box.innerHTML = hits.length
+        ? hits.map(p=>`<div class="sugg-item" onclick="document.getElementById('searchInput').value='${p.name.replace(/'/g,"&#39;")}';document.getElementById('searchSuggs').classList.remove('show');">${p.emoji} ${p.name}</div>`).join('')
+        : '<div class="sugg-item">No results found</div>';
+      box.classList.add('show');
+    });
+    document.addEventListener('click', e => { if(!e.target.closest('.nav-search')) document.getElementById('searchSuggs').classList.remove('show'); });
+    document.getElementById('sortSelect').addEventListener('change', renderAll);
+
+    // INIT
+    renderAll();
+    updateCartUI();
+    initDots();
+    setInterval(() => shiftSlide(1), 5000);
+  </script>
 </body>
 </html>
