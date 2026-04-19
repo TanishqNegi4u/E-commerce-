@@ -1,12 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   ShopWave — config.js
-   Single source of truth: API base, helpers, auth state
-   ═══════════════════════════════════════════════════════ */
-
-// ── API Base (auto-detects local vs production) ─────────
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:8080/api'
-  : 'https://shopwave-backend-mb3a.onrender.com/api';
+  ? 'http://localhost:8080'
+  : 'https://shopwave-backend-mb3a.onrender.com';
 
 console.log('🚀 ShopWave | API:', API_BASE);
 
@@ -27,11 +21,10 @@ const clearAuth = () => {
   localStorage.removeItem('sw_user');
 };
 
-// ── Authenticated fetch helper ───────────────────────────
 const apiFetch = async (path, options = {}) => {
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (_token) headers['Authorization'] = 'Bearer ' + _token;
-  const res = await fetch(API_BASE + path, { ...options, headers });
+  const res = await fetch(API_BASE + '/api' + path, { ...options, headers });
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
