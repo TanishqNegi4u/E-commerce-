@@ -1,5 +1,6 @@
 package com.shopwave.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -51,6 +52,7 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
     
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id")
     private User seller;
