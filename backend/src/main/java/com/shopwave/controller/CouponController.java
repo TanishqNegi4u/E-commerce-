@@ -5,7 +5,7 @@ import com.shopwave.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDateTime;
+
 import java.util.Map;
 
 @RestController
@@ -17,13 +17,20 @@ public class CouponController {
 
     @GetMapping("/validate")
     public ResponseEntity<?> validate(@RequestParam String code) {
-        return couponRepository.findByCode(code.toUpperCase())
-            .filter(Coupon::isActive)
-            .filter(c -> c.getExpiryDate() == null || c.getExpiryDate().isAfter(LocalDateTime.now()))
-            .map(c -> ResponseEntity.ok(Map.of(
-                "code", c.getCode(),
-                "discountPercent", c.getDiscountPercent()
-            )))
+        return couponRepository.findByCodeAndActiveTrue(code.toUpperCase())
+            .filter(Coupon::isValid)
+            .map(c -> {
+                double discountPercent = 0;
+                if (c.getDiscountType() == Coupon.DiscountType.PERCENTAGE && c.getDiscountValue() != null) {
+                    discountPercent = c.getDiscountValue().doubleValue();
+                }
+                return ResponseEntity.ok(Map.of(
+                    "code",            c.getCode(),
+                    "discountPercent", discountPercent,
+                    "discountType",    c.getDiscountType().name(),
+                    "discountValue",   c.getDiscountValue() != null ? c.getDiscountValue() : 0
+                ));
+            })
             .orElse(ResponseEntity.notFound().build());
     }
 }
