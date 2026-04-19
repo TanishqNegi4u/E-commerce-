@@ -1225,26 +1225,29 @@ function init() {
 
 init();
 
-
 // =============================================
-// SHOPWAVE CONFIG — Update API_BASE to your Render URL
+// SHOPWAVE CONFIG
+// Same origin — frontend served by Spring Boot
 // =============================================
-const API_BASE = 'https://e-commerce-1dyu.onrender.com';
+const API_BASE = '/api';
 
-// Helpers
+// Currency formatter
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
+
+// Toast notification
 const showToast = (msg, duration = 3000) => {
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), duration);
 };
 
-// Token storage (in-memory only — Render iframe safe)
+// In-memory auth (no localStorage — Render iframe safe)
 let _token = null, _user = null;
-const getToken = () => _token;
-const getUser  = () => _user;
-const setAuth  = (token, user) => { _token = token; _user = user; };
+const getToken  = () => _token;
+const getUser   = () => _user;
+const setAuth   = (token, user) => { _token = token; _user = user; };
 const clearAuth = () => { _token = null; _user = null; };
 
 // Authenticated fetch helper
@@ -1258,25 +1261,23 @@ const apiFetch = async (path, options = {}) => {
   return data;
 };
 
-// Stars HTML
+// Stars HTML helper
 const starsHtml = (rating, max = 5) => {
-  const r = Math.round(rating * 2) / 2;
-  return Array.from({ length: max }, (_, i) => {
-    const filled = i + 1 <= r;
-    return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
-  }).join('');
+  const r = Math.round((rating || 0) * 2) / 2;
+  return Array.from({ length: max }, (_, i) =>
+    `<span class="star ${i + 1 <= r ? '' : 'empty'}">★</span>`
+  ).join('');
 };
 
-// Emoji placeholder by category
+// Emoji by category
 const catEmoji = (cat) => {
   const map = {
     electronics: '📱', mobiles: '📱', phones: '📱',
-    laptops: '💻', computers: '💻',
-    audio: '🎧', headphones: '🎧',
-    watches: '⌚', fashion: '👗', clothing: '👕',
-    shoes: '👟', bags: '👜', beauty: '💄',
-    home: '🏠', kitchen: '🍳', sports: '⚽',
-    books: '📚', toys: '🧸', food: '🍕',
+    laptops: '💻', computers: '💻', audio: '🎧',
+    headphones: '🎧', watches: '⌚', fashion: '👗',
+    clothing: '👕', shoes: '👟', bags: '👜',
+    beauty: '💄', home: '🏠', kitchen: '🍳',
+    sports: '⚽', books: '📚', toys: '🧸',
     cameras: '📷', tv: '📺',
   };
   if (!cat) return '📦';
