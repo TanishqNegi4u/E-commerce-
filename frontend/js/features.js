@@ -792,10 +792,10 @@ const clearAllFilters = () => {
 // Piggyback on products.js renderProducts to apply filters
 // We patch it via event listener on sort
 const applySortFilter = () => {
-  if (typeof renderProducts === 'function') renderProducts();
+  if (typeof renderProducts === "function" && typeof filteredProducts !== "undefined") renderProducts(filteredProducts, typeof currentPage !== "undefined" ? currentPage : 0); else if (typeof renderProducts === "function") renderProducts();
 };
 const applyAllFilters = () => {
-  if (typeof renderProducts === 'function') renderProducts();
+  if (typeof renderProducts === "function" && typeof filteredProducts !== "undefined") renderProducts(filteredProducts, typeof currentPage !== "undefined" ? currentPage : 0); else if (typeof renderProducts === "function") renderProducts();
 };
 
 
