@@ -1,72 +1,9 @@
+
 /* ═══════════════════════════════════════════════════════
    ShopWave — app.js
    Hero slider, countdown, checkout, orders, init
+   (config.js must load first — provides API_BASE, apiFetch, auth helpers, fmt, showToast, etc.)
    ═══════════════════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════════════════
-   ShopWave — api.js
-   Base URL, Auth state, apiFetch helper
-   ═══════════════════════════════════════════════════════ */
-
-
-
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:8080/api'
-  : 'https://shopwave-backend-mb3a.onrender.com/api';
-
-// ── Auth state ────────────────────────────────────────────
-let _token = localStorage.getItem('sw_token') || null;
-let _user  = (() => { try { return JSON.parse(localStorage.getItem('sw_user')); } catch { return null; } })();
-
-const getToken = () => _token;
-const getUser  = () => _user;
-const setAuth  = (token, user) => {
-  _token = token; _user = user;
-  localStorage.setItem('sw_token', token);
-  localStorage.setItem('sw_user', JSON.stringify(user));
-};
-const clearAuth = () => {
-  _token = null; _user = null;
-  localStorage.removeItem('sw_token');
-  localStorage.removeItem('sw_user');
-};
-
-// ── apiFetch ──────────────────────────────────────────────
-const apiFetch = async (path, options = {}) => {
-  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-  if (_token) headers['Authorization'] = `Bearer ${_token}`;
-  const res = await fetch(API_BASE + path, { ...options, headers });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || `HTTP ${res.status}`);
-  }
-  return res.status === 204 ? null : res.json();
-};
-
-// ── Toast notification ────────────────────────────────────
-const fmt = n => '₹' + Number(n).toLocaleString('en-IN');
-const showToast = (msg, type = 'success') => {
-  const t = Object.assign(document.createElement('div'), {
-    className: `toast toast-${type}`, textContent: msg
-  });
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('show'));
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
-};
-const starsHtml = r => {
-  const full = Math.floor(r), half = r % 1 >= 0.5;
-  return Array.from({length:5},(_,i) =>
-    `<span class="${i<full?'star-full':i===full&&half?'star-half':'star-empty'}">★</span>`
-  ).join('');
-};
-const catEmoji = name => {
-  const map = { 'Electronics':'⚡','Mobiles & Tablets':'📱','Laptops & Computers':'💻',
-    'Audio & Headphones':'🎧','Cameras & Photography':'📷','TV & Home Theatre':'📺',
-    'Fashion & Clothing':'👕','Footwear':'👟','Watches & Accessories':'⌚',
-    'Home & Kitchen':'🏠','Beauty & Skincare':'💄','Sports & Fitness':'🏋️',
-    'Books':'📚','Toys & Games':'🎮','Automotive':'🚗' };
-  return map[name] || '🛍️';
-};
 
 
 
