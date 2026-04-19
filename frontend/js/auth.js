@@ -106,3 +106,4 @@ const handleRegister = async e => {
     btn.disabled = false; btn.textContent = 'Create Account';
   }
 };
+ 
