@@ -1,550 +1,313 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopWave — Premium E-Commerce Experience</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- App Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopWave — Premium Shopping</title>
+  <meta name="description" content="ShopWave — Discover amazing products at unbeatable prices." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    :root {
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+  </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     TOP BAR
-════════════════════════════════════════════════════════════ -->
-<div class="topbar">
-  <div class="container-topbar">
-    <div class="topbar-offer">
-      <span class="flash-badge">🔥 FLASH SALE</span>
-      <span class="topbar-text">Up to <strong>80% OFF</strong> on Premium Brands! Use Code: <strong class="promo-code">WAVE80</strong></span>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- AUTH MODAL -->
+<div id="authOverlay" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-panel auth-panel">
+    <button class="modal-close" onclick="closeAuth()" aria-label="Close">×</button>
+    <div class="auth-header">
+      <div class="auth-logo-wrap">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="8" fill="var(--color-primary)"/>
+          <path d="M8 14h4l2 8 3-6 3 6 2-8h4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="14" cy="25" r="1.5" fill="white"/>
+          <circle cx="22" cy="25" r="1.5" fill="white"/>
+        </svg>
+      </div>
+      <h2>Welcome to ShopWave</h2>
+      <p class="auth-sub">Sign in or create your account</p>
     </div>
-    <div class="topbar-links">
-      <a href="#"><i class="fas fa-store"></i> Become a Seller</a>
-      <a href="#"><i class="fas fa-gift"></i> Gift Cards</a>
-      <a href="#"><i class="fas fa-headset"></i> 24/7 Support</a>
-      <a href="#"><i class="fas fa-truck"></i> Track Order</a>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Create Account</button>
     </div>
+    <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="loginEmail">Email address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="loginPassword" placeholder="Your password" required autocomplete="current-password" />
+          <button type="button" class="pwd-toggle" onclick="togglePwd('loginPassword')" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div id="loginError" class="form-error" hidden></div>
+      <button type="submit" id="loginBtn" class="btn-primary btn-full">Sign In</button>
+      <p class="auth-switch">No account? <button type="button" class="link-btn" onclick="switchTab('register')">Create one</button></p>
+    </form>
+    <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="regFirst">First Name</label>
+          <input type="text" id="regFirst" placeholder="Tanishq" required autocomplete="given-name" />
+        </div>
+        <div class="form-group">
+          <label for="regLast">Last Name</label>
+          <input type="text" id="regLast" placeholder="Negi" required autocomplete="family-name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Email address</label>
+        <input type="email" id="regEmail" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="regPhone">Phone (optional)</label>
+        <input type="tel" id="regPhone" placeholder="+91 98765 43210" autocomplete="tel" />
+      </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="regPassword" placeholder="Min. 8 characters" required autocomplete="new-password" minlength="8" />
+          <button type="button" class="pwd-toggle" onclick="togglePwd('regPassword')" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div id="registerError" class="form-error" hidden></div>
+      <button type="submit" id="registerBtn" class="btn-primary btn-full">Create Account</button>
+      <p class="auth-switch">Have an account? <button type="button" class="link-btn" onclick="switchTab('login')">Sign in</button></p>
+    </form>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     NAVBAR
-════════════════════════════════════════════════════════════ -->
-<nav class="navbar">
-  <div class="nav-container">
-    <a class="nav-logo" href="#" onclick="renderAllProducts(PRODUCTS);return false;">
-      <div class="logo-icon">
-        <i class="fas fa-wave-square"></i>
-      </div>
-      <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
-    </a>
+<!-- QUICK VIEW MODAL -->
+<div id="qvOverlay" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-panel qv-panel">
+    <button class="modal-close" onclick="closeQV()" aria-label="Close">×</button>
+    <div id="qvContent"></div>
+  </div>
+</div>
 
-    <!-- Search -->
-    <div class="search-wrap">
-      <div class="search-category">
-        <select id="catFilter" class="category-select">
-          <option>All Categories</option>
-          <option>Electronics</option>
-          <option>Fashion</option>
-          <option>Home & Kitchen</option>
-          <option>Sports</option>
-          <option>Beauty</option>
-          <option>Books</option>
-          <option>Toys</option>
-          <option>Automotive</option>
-        </select>
-      </div>
-      <input
-        type="text"
-        id="searchInput"
-        class="search-input"
-        placeholder="Search for products, brands and more..."
-        oninput="handleSearch(this.value)"
-        onkeydown="if(event.key==='Enter') doSearch()">
-      <button class="search-btn" onclick="doSearch()">
-        <i class="fas fa-search"></i>
-        <span>Search</span>
-      </button>
-      <div class="suggestions" id="suggestions"></div>
+<!-- CART SIDEBAR -->
+<div id="cartOverlay" class="sidebar-overlay" onclick="toggleCart(false)"></div>
+<aside id="cartSidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h2>🛒 Cart <span class="badge" id="cartBadgeSidebar">0</span></h2>
+    <button class="icon-btn" onclick="toggleCart(false)" aria-label="Close">✕</button>
+  </div>
+  <div class="sidebar-body" id="cartItems">
+    <div class="cart-empty-state">
+      <div class="empty-icon">🛒</div>
+      <p>Your cart is empty</p>
+      <button class="btn-primary" onclick="toggleCart(false)">Continue Shopping</button>
     </div>
+  </div>
+  <div class="sidebar-footer" id="cartFooter" style="display:none">
+    <div class="cart-totals">
+      <div class="cart-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+      <div class="cart-row"><span>Shipping</span><span id="cartShipping">₹49</span></div>
+      <div class="cart-row cart-total-row"><span>Total</span><span id="cartTotal">₹0</span></div>
+    </div>
+    <button class="btn-primary btn-full" onclick="proceedCheckout()" style="padding:0.85rem">Checkout →</button>
+    <button class="btn-ghost btn-full" onclick="toggleCart(false)">Continue Shopping</button>
+  </div>
+</aside>
 
-    <!-- Nav Actions -->
-    <div class="nav-actions">
-      <button class="nav-btn" onclick="toggleWishlist()">
-        <i class="fas fa-heart"></i>
-        <span class="nav-label">Wishlist</span>
-        <span class="nav-badge wishlist-badge" id="wishlistBadge">0</span>
+<!-- NAVBAR -->
+<header id="navbar" class="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">
+      <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="8" fill="var(--color-primary)"/>
+        <path d="M8 14h4l2 8 3-6 3 6 2-8h4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="25" r="1.5" fill="white"/>
+        <circle cx="22" cy="25" r="1.5" fill="white"/>
+      </svg>
+      <span>ShopWave</span>
+    </a>
+    <div class="nav-search">
+      <form class="search-form" onsubmit="handleSearch(event)">
+        <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="searchInput" class="search-input" placeholder="Search products…" autocomplete="off" oninput="handleSearchInput(this.value)" />
+        <div id="searchSuggs" class="search-suggestions" style="display:none"></div>
+      </form>
+    </div>
+    <nav class="nav-actions">
+      <button data-theme-toggle class="icon-btn" aria-label="Toggle theme" style="width:40px;height:40px;border-radius:var(--radius-md);font-size:18px">🌙</button>
+      <button id="authBtn" class="icon-btn" onclick="openAuth()" style="flex-direction:column;padding:var(--space-2) var(--space-3)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label" id="authLabel">Sign In</span>
       </button>
-      <button class="nav-btn" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart"></i>
+      <button class="icon-btn cart-nav-btn" onclick="toggleCart(true)" style="flex-direction:column;padding:var(--space-2) var(--space-3)">
+        <span style="position:relative;display:inline-flex">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="badge cart-badge" id="cartBadge">0</span>
+        </span>
         <span class="nav-label">Cart</span>
-        <span class="nav-badge cart-badge" id="cartBadge">0</span>
       </button>
-      <button class="nav-btn nav-btn-user" onclick="showProfile()">
-        <i class="fas fa-user-circle"></i>
-        <span class="nav-label" id="loginBtnText">Sign In</span>
-      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <p class="hero-eyebrow">✦ New Arrivals Every Week</p>
+        <h1 class="hero-heading">Shop <em>Smarter,</em><br>Live Better</h1>
+        <p class="hero-body">Discover thousands of curated products across electronics, fashion, home &amp; more — at prices that make sense.</p>
+        <div class="hero-ctas">
+          <button class="btn-primary hero-cta" onclick="document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Shop Now →</button>
+          <button class="btn-ghost hero-cta" onclick="openAuth()">Join Free</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong>50K+</strong><span>Products</span></div>
+          <div class="hero-sep"></div>
+          <div class="hero-stat"><strong>4.8★</strong><span>Avg Rating</span></div>
+          <div class="hero-sep"></div>
+          <div class="hero-stat"><strong>Free</strong><span>Delivery ₹500+</span></div>
+        </div>
+      </div>
+      <div class="hero-cards" aria-hidden="true">
+        <div class="hcard float-1"><span class="hcard-emoji">📱</span><div><p>Best Seller</p><strong>Smartphones</strong></div></div>
+        <div class="hcard float-2"><span class="hcard-emoji">🎧</span><div><p>Up to 40% off</p><strong>Audio Gear</strong></div></div>
+        <div class="hcard float-3"><span class="hcard-emoji">💻</span><div><p>New Arrivals</p><strong>Laptops</strong></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<nav class="cats-section">
+  <div class="container">
+    <div class="cats-scroll" id="catsScroll">
+      <button class="cat-chip active" onclick="filterByCategory(this,'')">All Products</button>
     </div>
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CATEGORY BAR
-════════════════════════════════════════════════════════════ -->
-<div class="cat-bar">
-  <div class="cat-container">
-    <a href="#" class="cat-btn active" onclick="renderAllProducts(PRODUCTS);return false;">
-      <i class="fas fa-home"></i> All Products
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(1);return false;">
-      <i class="fas fa-mobile-alt"></i> Electronics
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(2);return false;">
-      <i class="fas fa-tshirt"></i> Fashion
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(3);return false;">
-      <i class="fas fa-couch"></i> Home & Kitchen
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(5);return false;">
-      <i class="fas fa-spa"></i> Beauty
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(4);return false;">
-      <i class="fas fa-futbol"></i> Sports
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(6);return false;">
-      <i class="fas fa-book"></i> Books
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(8);return false;">
-      <i class="fas fa-car"></i> Automotive
-    </a>
-    <a href="#" class="cat-btn" onclick="filterCategory(7);return false;">
-      <i class="fas fa-gamepad"></i> Toys
-    </a>
+<!-- PRODUCTS -->
+<main id="products-section" class="products-section">
+  <div class="container">
+    <div class="products-header">
+      <div>
+        <h2 class="section-title">Our Products</h2>
+        <p class="section-sub" id="productsCount">Loading...</p>
+      </div>
+      <div class="products-controls">
+        <button class="btn-ghost icon-btn filter-btn" onclick="toggleFilters()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          Filters
+        </button>
+        <select class="sort-select" onchange="handleSort(this.value)">
+          <option value="createdAt,desc">Newest First</option>
+          <option value="price,asc">Price: Low → High</option>
+          <option value="price,desc">Price: High → Low</option>
+          <option value="averageRating,desc">Top Rated</option>
+          <option value="name,asc">Name A–Z</option>
+        </select>
+        <div class="view-btns">
+          <button id="gridViewBtn" class="view-btn active" onclick="setView('grid')" aria-label="Grid view">⊞</button>
+          <button id="listViewBtn" class="view-btn" onclick="setView('list')" aria-label="List view">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="activeFilters" class="active-filters"></div>
+
+    <div class="products-layout">
+      <!-- FILTERS -->
+      <aside id="filtersSidebar" class="filters-sidebar">
+        <div class="filter-block">
+          <h3 class="filter-title">💰 Price Range</h3>
+          <div class="price-inputs">
+            <div class="form-group"><label for="minPrice">Min ₹</label><input type="number" id="minPrice" placeholder="0" min="0" onchange="applyFilters()" /></div>
+            <span style="padding-top:28px;color:var(--color-text-muted)">–</span>
+            <div class="form-group"><label for="maxPrice">Max ₹</label><input type="number" id="maxPrice" placeholder="Any" min="0" onchange="applyFilters()" /></div>
+          </div>
+          <div class="price-presets">
+            <button class="preset" onclick="setPrice(0,500)">Under ₹500</button>
+            <button class="preset" onclick="setPrice(500,2000)">₹500–2K</button>
+            <button class="preset" onclick="setPrice(2000,10000)">₹2K–10K</button>
+            <button class="preset" onclick="setPrice(10000,0)">₹10K+</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3 class="filter-title">⭐ Min Rating</h3>
+          <div class="rating-opts">
+            <label class="radio-label"><input type="radio" name="rating" value="0" checked onchange="applyFilters()" /> All ratings</label>
+            <label class="radio-label"><input type="radio" name="rating" value="4" onchange="applyFilters()" /> ★★★★☆ 4+</label>
+            <label class="radio-label"><input type="radio" name="rating" value="3" onchange="applyFilters()" /> ★★★☆☆ 3+</label>
+            <label class="radio-label"><input type="radio" name="rating" value="2" onchange="applyFilters()" /> ★★☆☆☆ 2+</label>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3 class="filter-title">🏷️ Availability</h3>
+          <label class="check-label"><input type="checkbox" id="inStockOnly" onchange="applyFilters()" /> In Stock Only</label>
+          <label class="check-label" style="margin-top:var(--space-2)"><input type="checkbox" id="freeShipOnly" onchange="applyFilters()" /> Free Shipping</label>
+        </div>
+        <div class="filter-block">
+          <h3 class="filter-title">🏭 Brand</h3>
+          <div class="brand-opts" id="brandFilter"><p style="font-size:var(--text-xs);color:var(--color-text-muted)">Loading…</p></div>
+        </div>
+        <button class="btn-ghost btn-full" onclick="clearFilters()">✕ Clear All Filters</button>
+      </aside>
+
+      <!-- GRID -->
+      <div>
+        <div id="productGrid" class="product-grid" role="list">
+          <div class="product-card skel-card"><div class="skeleton skel-img"></div><div class="skel-body"><div class="skeleton skel-line"></div><div class="skeleton skel-line w60"></div><div class="skeleton skel-line w40"></div></div></div>
+          <div class="product-card skel-card"><div class="skeleton skel-img"></div><div class="skel-body"><div class="skeleton skel-line"></div><div class="skeleton skel-line w60"></div><div class="skeleton skel-line w40"></div></div></div>
+          <div class="product-card skel-card"><div class="skeleton skel-img"></div><div class="skel-body"><div class="skeleton skel-line"></div><div class="skeleton skel-line w60"></div><div class="skeleton skel-line w40"></div></div></div>
+          <div class="product-card skel-card"><div class="skeleton skel-img"></div><div class="skel-body"><div class="skeleton skel-line"></div><div class="skeleton skel-line w60"></div><div class="skeleton skel-line w40"></div></div></div>
+        </div>
+        <nav id="pagination" class="pagination"></nav>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════════════════════ -->
-<main>
-
-  <!-- ── HERO BANNER ────────────────────────────────────── -->
-  <section class="hero">
-    <div class="hero-content-wrapper">
-      <div class="hero-slider" id="heroSlider">
-
-        <!-- Slide 1 -->
-        <div class="hero-slide active" style="background:linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);">
-          <div class="hero-content">
-            <span class="hero-tag">⚡ NEW ARRIVAL</span>
-            <h1 class="hero-title">MacBook Pro<br>M3 Max</h1>
-            <p class="hero-subtitle">Blazing performance. All-day battery. Remarkably thin design.</p>
-            <div class="hero-price">Starting at <strong>₹2,49,990</strong></div>
-            <a href="#" class="hero-cta" onclick="filterCategory(1);return false;">
-              Shop Now <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div class="hero-image">
-            <div class="hero-emoji">💻</div>
-          </div>
-        </div>
-
-        <!-- Slide 2 -->
-        <div class="hero-slide" style="background:linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2c3e50 100%);">
-          <div class="hero-content">
-            <span class="hero-tag exclusive">👟 EXCLUSIVE</span>
-            <h1 class="hero-title">Nike Air Max<br>720 Collection</h1>
-            <p class="hero-subtitle">Step into the future with revolutionary cushioning technology.</p>
-            <div class="hero-price">From <strong>₹14,995</strong></div>
-            <a href="#" class="hero-cta cta-secondary" onclick="filterCategory(2);return false;">
-              Explore Collection <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div class="hero-image">
-            <div class="hero-emoji">👟</div>
-          </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="hero-slide" style="background:linear-gradient(135deg, #283c86 0%, #45a247 50%, #283c86 100%);">
-          <div class="hero-content">
-            <span class="hero-tag bestseller">🎧 BEST SELLER</span>
-            <h1 class="hero-title">Sony WH-1000<br>XM5 Headphones</h1>
-            <p class="hero-subtitle">Industry-leading noise cancellation. Premium comfort.</p>
-            <div class="hero-price">Save <strong>₹10,000</strong> Today</div>
-            <a href="#" class="hero-cta cta-success" onclick="openModal(3);return false;">
-              Buy Now <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div class="hero-image">
-            <div class="hero-emoji">🎧</div>
-          </div>
-        </div>
-
-        <!-- Slider Controls -->
-        <div class="hero-controls">
-          <button class="hero-arrow hero-arrow-prev" onclick="changeSlide(-1)">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <button class="hero-arrow hero-arrow-next" onclick="changeSlide(1)">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-        <div class="hero-dots" id="heroDots"></div>
-      </div>
-
-      <!-- Side Banners -->
-      <div class="hero-sidebar">
-        <div class="sidebar-card" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="filterCategory(2)">
-          <div class="sidebar-content">
-            <h3>Women's Fashion</h3>
-            <p>Up to 60% OFF</p>
-            <span class="sidebar-arrow"><i class="fas fa-arrow-right"></i></span>
-          </div>
-        </div>
-        <div class="sidebar-card" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="filterCategory(3)">
-          <div class="sidebar-content">
-            <h3>Home & Living</h3>
-            <p>New Arrivals Daily</p>
-            <span class="sidebar-arrow"><i class="fas fa-arrow-right"></i></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- ── FLASH DEALS ─────────────────────────────────────── -->
-  <section class="flash-deals">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-header-left">
-          <span class="section-icon">⚡</span>
-          <h2 class="section-title">Flash Deals</h2>
-          <span class="section-badge">LIMITED TIME</span>
-        </div>
-        <div class="countdown" id="countdown">
-          <div class="countdown-item">
-            <span class="countdown-value" id="hours">04</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-item">
-            <span class="countdown-value" id="minutes">47</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-item">
-            <span class="countdown-value" id="seconds">23</span>
-            <span class="countdown-label">Seconds</span>
-          </div>
-        </div>
-      </div>
-      <div class="flash-grid" id="flashGrid"></div>
-    </div>
-  </section>
-
-  <!-- ── CATEGORIES ──────────────────────────────────────── -->
-  <section class="categories-section">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-header-left">
-          <span class="section-icon">🏷️</span>
-          <h2 class="section-title">Shop by Category</h2>
-        </div>
-        <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="category-grid" id="categoryGrid"></div>
-    </div>
-  </section>
-
-  <!-- ── ALL PRODUCTS ────────────────────────────────────── -->
-  <section class="products-section">
-    <div class="container-fluid">
-      <div class="products-header">
-        <div class="products-header-left">
-          <h2 class="products-title">All Products</h2>
-          <span class="products-count" id="productCount">Showing all products</span>
-        </div>
-        <div class="products-controls">
-          <select class="sort-select" onchange="sortProducts(this.value)">
-            <option value="relevance">Sort by: Relevance</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="rating">Customer Rating</option>
-            <option value="newest">Newest First</option>
-            <option value="discount">Best Discount</option>
-          </select>
-          <div class="view-toggle">
-            <button class="view-btn active" onclick="setView('grid',this)" title="Grid View">
-              <i class="fas fa-th"></i>
-            </button>
-            <button class="view-btn" onclick="setView('list',this)" title="List View">
-              <i class="fas fa-bars"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="prod-grid" id="mainGrid"></div>
-    </div>
-  </section>
-
 </main>
 
-<!-- ═══════════════════════════════════════════════════════════
-     FOOTER
-════════════════════════════════════════════════════════════ -->
-<footer class="footer">
-  <div class="footer-top">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <div class="logo-icon">
-              <i class="fas fa-wave-square"></i>
-            </div>
-            <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
-          </div>
-          <p class="footer-desc">India's most trusted e-commerce platform. Shop millions of products with guaranteed quality, lightning-fast delivery, and unbeatable prices.</p>
-          <div class="footer-socials">
-            <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-title">Quick Links</h4>
-          <ul class="footer-links">
-            <li><a href="#"><i class="fas fa-chevron-right"></i>About Us</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Careers</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Press & Media</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Corporate Info</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Sitemap</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-title">Customer Service</h4>
-          <ul class="footer-links">
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Help Center</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Track Order</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Returns & Refunds</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Cancellation Policy</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Report Infringement</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-title">Policies</h4>
-          <ul class="footer-links">
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Terms of Use</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Security</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>Shipping Policy</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i>EPR Compliance</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-title">Newsletter</h4>
-          <p class="newsletter-text">Subscribe to get special offers, updates and more.</p>
-          <div class="newsletter-form">
-            <input type="email" placeholder="Enter your email" class="newsletter-input">
-            <button class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
-          </div>
-          <div class="app-download">
-            <p class="app-text">Download App</p>
-            <div class="app-buttons">
-              <a href="#" class="app-btn"><i class="fab fa-apple"></i> App Store</a>
-              <a href="#" class="app-btn"><i class="fab fa-google-play"></i> Play Store</a>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- TRUST -->
+<section class="trust-strip">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item"><span class="trust-icon">🚚</span><div><strong>Free Delivery</strong><p>On orders above ₹500</p></div></div>
+      <div class="trust-item"><span class="trust-icon">🔒</span><div><strong>Secure Payments</strong><p>100% safe & encrypted</p></div></div>
+      <div class="trust-item"><span class="trust-icon">↩️</span><div><strong>Easy Returns</strong><p>30-day hassle-free</p></div></div>
+      <div class="trust-item"><span class="trust-icon">🌟</span><div><strong>Top Rated</strong><p>4.8/5 by 50K+ customers</p></div></div>
     </div>
   </div>
-  <div class="footer-bottom">
-    <div class="container">
-      <div class="footer-bottom-content">
-        <p class="copyright">© 2024 ShopWave. All rights reserved. Designed with ❤️ in India</p>
-        <div class="payment-methods">
-          <span class="payment-text">We Accept:</span>
-          <div class="payment-icons">
-            <span class="payment-icon">💳</span>
-            <span class="payment-icon">🏦</span>
-            <span class="payment-icon upi">UPI</span>
-            <span class="payment-icon">📱</span>
-            <span class="payment-icon">💰</span>
-          </div>
-        </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="#" class="nav-logo" style="display:inline-flex;margin-bottom:var(--space-3)">
+          <svg width="24" height="24" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="var(--color-primary)"/><path d="M8 14h4l2 8 3-6 3 6 2-8h4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="25" r="1.5" fill="white"/><circle cx="22" cy="25" r="1.5" fill="white"/></svg>
+          <span style="margin-left:var(--space-2);font-weight:700">ShopWave</span>
+        </a>
+        <p class="footer-tagline">Your premium destination for quality products delivered fast.</p>
       </div>
+      <div class="footer-col"><h4>Shop</h4><ul><li><a href="#">All Products</a></li><li><a href="#">New Arrivals</a></li><li><a href="#">Best Sellers</a></li><li><a href="#">Deals & Offers</a></li></ul></div>
+      <div class="footer-col"><h4>Account</h4><ul><li><a href="#" onclick="openAuth()">Sign In</a></li><li><a href="#" onclick="switchTab('register');openAuth()">Register</a></li><li><a href="#">My Orders</a></li><li><a href="#">Wishlist</a></li></ul></div>
+      <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Help Center</a></li><li><a href="#">Track Order</a></li><li><a href="#">Returns</a></li><li><a href="#">Contact Us</a></li></ul></div>
     </div>
+    <div class="footer-bottom"><p>© 2026 ShopWave by Tanishq Negi · Spring Boot + PostgreSQL · Deployed on Render</p></div>
   </div>
 </footer>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CART PANEL
-════════════════════════════════════════════════════════════ -->
-<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-head">
-    <h3 class="cart-title">
-      <i class="fas fa-shopping-cart"></i>
-      My Cart <span class="cart-count-badge" id="cartCount">0</span>
-    </h3>
-    <button class="cart-close" onclick="toggleCart()">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="cart-items" id="cartItems">
-    <div class="cart-empty">
-      <i class="fas fa-shopping-cart"></i>
-      <p>Your cart is empty</p>
-      <button class="btn-shop" onclick="toggleCart()">Continue Shopping</button>
-    </div>
-  </div>
-  <div class="cart-footer">
-    <div class="cart-summary">
-      <div class="cart-summary-row">
-        <span>Subtotal</span>
-        <span id="cartSubtotal">₹0</span>
-      </div>
-      <div class="cart-summary-row">
-        <span>Shipping</span>
-        <span class="free-badge" id="cartShipping">FREE</span>
-      </div>
-      <div class="cart-summary-row discount-row">
-        <span>Discount (5%)</span>
-        <span id="cartDiscount">-₹0</span>
-      </div>
-      <div class="cart-summary-row total-row">
-        <span>Total</span>
-        <span id="cartTotal">₹0</span>
-      </div>
-    </div>
-    <button class="btn-checkout" onclick="checkout()">
-      <i class="fas fa-lock"></i> Proceed to Checkout
-    </button>
-    <p class="secure-text"><i class="fas fa-shield-alt"></i> 100% Secure Payment</p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     WISHLIST PANEL
-════════════════════════════════════════════════════════════ -->
-<div class="wishlist-overlay" id="wishlistOverlay" onclick="toggleWishlist()"></div>
-<div class="wishlist-panel" id="wishlistPanel">
-  <div class="wishlist-head">
-    <h3 class="wishlist-title">
-      <i class="fas fa-heart"></i>
-      My Wishlist <span class="wishlist-count-badge" id="wishlistCount">0</span>
-    </h3>
-    <button class="wishlist-close" onclick="toggleWishlist()">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="wishlist-items" id="wishlistItems">
-    <div class="wishlist-empty">
-      <i class="fas fa-heart"></i>
-      <p>Your wishlist is empty</p>
-      <button class="btn-shop" onclick="toggleWishlist()">Start Shopping</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     PRODUCT MODAL
-════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeModal()">
-      <i class="fas fa-times"></i>
-    </button>
-    <div class="product-modal" id="modalContent"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     AUTH MODAL
-════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="authModal">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeAuthModal()">
-      <i class="fas fa-times"></i>
-    </button>
-    <div class="auth-modal">
-      <div class="auth-header">
-        <div class="auth-logo">
-          <div class="logo-icon">
-            <i class="fas fa-wave-square"></i>
-          </div>
-          <span class="logo-text"><span class="logo-shop">Shop</span><span class="logo-wave">Wave</span></span>
-        </div>
-        <p class="auth-subtitle" id="authSubtitle">Sign in to your account</p>
-      </div>
-      <div class="auth-tabs">
-        <button id="tabLogin" class="auth-tab active" onclick="switchTab('login')">Login</button>
-        <button id="tabRegister" class="auth-tab" onclick="switchTab('register')">Register</button>
-      </div>
-      <form class="auth-form" onsubmit="submitAuth(); return false;">
-        <div id="registerFields" class="form-group" style="display:none">
-          <label>Full Name</label>
-          <input id="authName" type="text" placeholder="Enter your full name" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input id="authEmail" type="email" placeholder="Enter your email" class="form-input" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input id="authPassword" type="password" placeholder="Enter your password (min 6 characters)" class="form-input" required>
-        </div>
-        <div id="authError" class="auth-error" style="display:none"></div>
-        <button type="submit" id="authSubmitBtn" class="auth-submit-btn">
-          Sign In
-        </button>
-      </form>
-      <div class="auth-footer">
-        <p>By continuing, you agree to ShopWave's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     ORDERS MODAL
-════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="ordersModal">
-  <div class="modal-wrapper">
-    <button class="modal-close" onclick="closeOrdersModal()">
-      <i class="fas fa-times"></i>
-    </button>
-    <div class="orders-modal">
-      <h2 class="orders-title">
-        <i class="fas fa-box"></i> My Orders
-      </h2>
-      <div id="ordersList" class="orders-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     TOAST NOTIFICATION
-════════════════════════════════════════════════════════════ -->
-<div id="toast" class="toast"></div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     BACK TO TOP BUTTON
-════════════════════════════════════════════════════════════ -->
-<button class="back-to-top" id="backToTop" onclick="scrollToTop()">
-  <i class="fas fa-arrow-up"></i>
-</button>
-
-<script src="app.js"></script>
+<script src="./js/app.js"></script>
 </body>
 </html>
