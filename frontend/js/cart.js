@@ -203,3 +203,4 @@ const closeCheckout = () => {
   document.getElementById('checkoutOverlay').classList.remove('open');
   document.body.style.overflow = '';
 };
+ 
