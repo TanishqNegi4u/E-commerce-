@@ -9,10 +9,18 @@ function Stars({ rating = 0 }) {
   return (
     <span className="product-card__stars" aria-label={`${rating} stars`}>
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} style={{ color: i < r ? 'var(--accent)' : 'var(--border2)' }}>★</span>
+        <span key={i} style={{ color: i < r ? '#f5a623' : 'var(--border2)' }}>★</span>
       ))}
     </span>
   );
+}
+
+// Generate a deterministic delivery date (2-5 days) based on product id
+function getDeliveryDate(productId) {
+  const days = 2 + (Number(String(productId).replace(/\D/g, '').slice(-1) || 0) % 4);
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export default function ProductCard({ product }) {
@@ -28,6 +36,8 @@ export default function ProductCard({ product }) {
       ? Math.round((1 - product.price / product.originalPrice) * 100)
       : 0;
 
+  const deliveryDate = getDeliveryDate(product.id);
+
   const handleAdd = (e) => {
     e.stopPropagation();
     addToCart(product.id, 1);
@@ -39,8 +49,6 @@ export default function ProductCard({ product }) {
       onClick={() => navigate(`/product/${product.id}`)}
       role="button"
       tabIndex={0}
-      // IMP-4 FIX: added Space key handler alongside Enter.
-      // Both Enter and Space are expected for button-like elements per ARIA spec.
       onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -60,8 +68,6 @@ export default function ProductCard({ product }) {
         {discount > 0 && (
           <span className="product-card__badge" aria-label={`${discount}% off`}>−{discount}%</span>
         )}
-        {/* IMP-3: Wishlist button is non-functional — removed onClick stub.
-            Kept in UI but clearly marked. Wire up when wishlist feature is built. */}
         <button
           className="product-card__wishlist"
           onClick={e => e.stopPropagation()}
@@ -72,31 +78,42 @@ export default function ProductCard({ product }) {
           🤍
         </button>
       </div>
+
       <div className="product-card__body">
         {product.brand && <div className="product-card__brand">{product.brand}</div>}
         <div className="product-card__name">{product.name}</div>
+
         {product.averageRating > 0 && (
           <div className="product-card__rating">
             <Stars rating={product.averageRating} />
-            <span className="product-card__rating-count">({product.totalReviews || 0})</span>
+            <span className="product-card__rating-count">
+              ({(product.totalReviews || 0).toLocaleString('en-IN')})
+            </span>
           </div>
         )}
-        <div className="product-card__footer">
-          <div>
-            <div className="product-card__price">{fmt(product.price)}</div>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <div className="product-card__original">{fmt(product.originalPrice)}</div>
-            )}
-          </div>
-          <button
-            className="product-card__add"
-            onClick={handleAdd}
-            aria-label={`Add ${product.name} to cart`}
-            title="Add to cart"
-          >
-            +
-          </button>
+
+        <div className="product-card__price-row">
+          <span className="product-card__price">{fmt(product.price)}</span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className="product-card__original">{fmt(product.originalPrice)}</span>
+          )}
+          {discount > 0 && (
+            <span className="product-card__discount-pct">{discount}% off</span>
+          )}
         </div>
+
+        <div className="product-card__delivery">
+          <span className="product-card__delivery-icon">🚚</span>
+          <span>FREE delivery by <strong>{deliveryDate}</strong></span>
+        </div>
+
+        <button
+          className="product-card__add-btn"
+          onClick={handleAdd}
+          aria-label={`Add ${product.name} to cart`}
+        >
+          Add to Cart
+        </button>
       </div>
     </article>
   );
