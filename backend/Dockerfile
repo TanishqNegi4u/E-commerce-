@@ -13,7 +13,7 @@ RUN mvn -B dependency:go-offline -q
 
 # Build the app
 COPY src ./src
-RUN mvn -B clean package -DskipTests -q
+RUN mvn -B clean package -Dmaven.test.skip=true -q
 
 # ══════════════════════════════════════════════
 # Stage 2: Runtime (slim)
