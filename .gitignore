@@ -1,0 +1,25 @@
+# Secrets — NEVER commit
+.env
+*.env
+application-local.properties
+application-secrets.properties
+
+# Build outputs
+backend/target/
+frontend-react/node_modules/
+frontend-react/build/
+frontend-react/.env.local
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
