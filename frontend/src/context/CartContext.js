@@ -1,4 +1,4 @@
-// src/context/CartContext.js
+// frontend/src/context/CartContext.js  — FULL REPLACEMENT
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { cartApi } from '../api/client';
 import { useAuth } from './AuthContext';
@@ -29,7 +29,7 @@ export function CartProvider({ children }) {
   const isLoggedInRef = useRef(isLoggedIn);
   useEffect(() => { isLoggedInRef.current = isLoggedIn; }, [isLoggedIn]);
 
-  const [cart, setCart] = useState(null);
+  const [cart, setCart]       = useState(null);
   const [loading, setLoading] = useState(false);
 
   const fetchCart = useCallback(async () => {
@@ -49,12 +49,11 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     registerAuthChangeCallback((event) => {
-      if (event === 'login') fetchCart();
+      if (event === 'login')  fetchCart();
       if (event === 'logout') clearCart();
     });
   }, [registerAuthChangeCallback, fetchCart, clearCart]);
 
-  // FIX: fetch cart on every app load if token exists, not just on login event
   useEffect(() => {
     if (isLoggedIn) fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,19 +62,38 @@ export function CartProvider({ children }) {
   const addToCart = useCallback(async (productId, quantity = 1) => {
     if (!isLoggedInRef.current) {
       toast.error('Please login to add items to cart');
-      setTimeout(() => { window.location.href = '/login'; }, 1200);
+      // ── FIX: preserve current page so user is returned after login ──
+      setTimeout(() => {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }, 1200);
       return;
     }
     const toastId = toast.loading('Adding to cart…');
     try {
       const data = await cartApi.add(productId, quantity);
       setCart(normalizeCart(data));
-      toast.success('Added to cart!', { id: toastId });
+      // ── FIX: show actionable toast with "View Cart" link ──
+      toast(
+        (t) => (
+          <span>
+            Added to cart!{' '}
+            <button
+              onClick={() => { toast.dismiss(t.id); window.location.href = '/cart'; }}
+              style={{ textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontWeight: 700 }}
+            >
+              View Cart →
+            </button>
+          </span>
+        ),
+        { id: toastId, duration: 3500 }
+      );
     } catch (e) {
       const msg = e?.message || 'Failed to add to cart';
       if (msg.includes('Session expired') || msg.includes('401')) {
         toast.error('Session expired. Please log in again.', { id: toastId });
-        setTimeout(() => { window.location.href = '/login'; }, 1400);
+        setTimeout(() => {
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        }, 1400);
       } else {
         toast.error(msg, { id: toastId });
       }
