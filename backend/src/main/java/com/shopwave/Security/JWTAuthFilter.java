@@ -1,4 +1,4 @@
-package com.shopwave.security;
+package com.shopwave.Security;
 
 import com.shopwave.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
