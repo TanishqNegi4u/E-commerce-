@@ -6,9 +6,35 @@ import toast from 'react-hot-toast';
 
 const CartContext = createContext(null);
 
+/**
+ * The backend returns CartItem with a nested `product` object:
+ *   { id, product: { id, name, price, imageUrl, ... }, quantity, unitPrice, totalPrice }
+ *
+ * The Cart page expects flat fields:
+ *   { productId, productName, imageUrl, unitPrice, totalPrice, quantity }
+ *
+ * This function normalizes every cart response from the backend.
+ */
+function normalizeCart(raw) {
+  if (!raw) return null;
+  return {
+    ...raw,
+    items: (raw.items || []).map(item => {
+      const p = item.product || {};
+      return {
+        ...item,
+        productId:   item.productId   ?? p.id,
+        productName: item.productName ?? p.name,
+        imageUrl:    item.imageUrl    ?? p.imageUrl ?? p.images?.[0],
+        unitPrice:   item.unitPrice   ?? p.price,
+        totalPrice:  item.totalPrice  ?? (p.price * item.quantity),
+      };
+    }),
+  };
+}
+
 export function CartProvider({ children }) {
   const { isLoggedIn, registerAuthChangeCallback } = useAuth();
-  // Use a ref so addToCart always reads the latest value without stale closure
   const isLoggedInRef = useRef(isLoggedIn);
   useEffect(() => { isLoggedInRef.current = isLoggedIn; }, [isLoggedIn]);
 
@@ -20,7 +46,7 @@ export function CartProvider({ children }) {
     try {
       setLoading(true);
       const data = await cartApi.get();
-      setCart(data);
+      setCart(normalizeCart(data));
     } catch {
       setCart(null);
     } finally {
@@ -43,7 +69,6 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = useCallback(async (productId, quantity = 1) => {
-    // Use ref to avoid stale closure bug where isLoggedIn is always false
     if (!isLoggedInRef.current) {
       toast.error('Please login to add items to cart');
       setTimeout(() => { window.location.href = '/login'; }, 1200);
@@ -51,17 +76,17 @@ export function CartProvider({ children }) {
     }
     try {
       const data = await cartApi.add(productId, quantity);
-      setCart(data);
+      setCart(normalizeCart(data));
       toast.success('Added to cart!');
     } catch (e) {
       toast.error(e.message || 'Failed to add to cart');
     }
-  }, []); // No dependency on isLoggedIn — uses ref instead
+  }, []);
 
   const updateQuantity = useCallback(async (productId, quantity) => {
     try {
       const data = await cartApi.update(productId, quantity);
-      setCart(data);
+      setCart(normalizeCart(data));
     } catch (e) {
       toast.error(e.message || 'Failed to update quantity');
     }
@@ -70,7 +95,7 @@ export function CartProvider({ children }) {
   const removeItem = useCallback(async (productId) => {
     try {
       const data = await cartApi.remove(productId);
-      setCart(data);
+      setCart(normalizeCart(data));
       toast.success('Removed from cart');
     } catch (e) {
       toast.error(e.message || 'Failed to remove item');
