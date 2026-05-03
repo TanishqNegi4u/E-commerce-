@@ -1,4 +1,5 @@
-import React, { Suspense, useEffect } from 'react';
+// frontend/src/App.js  — FULL REPLACEMENT
+import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -37,11 +38,13 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// ── Lazy page imports ──────────────────────────────────────────
 const Home          = React.lazy(() => import('./pages/Home'));
 const Products      = React.lazy(() => import('./pages/Products'));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
 const Search        = React.lazy(() => import('./pages/Search'));
 const Cart          = React.lazy(() => import('./pages/Cart'));
+const Checkout      = React.lazy(() => import('./pages/Checkout'));   // ← NEW
 const Orders        = React.lazy(() => import('./pages/Orders'));
 const Login         = React.lazy(() => import('./pages/Login'));
 const Register      = React.lazy(() => import('./pages/Register'));
@@ -62,6 +65,33 @@ function PageLoader() {
       <div className="page-loader__spinner" aria-label="Loading page" />
       <span className="page-loader__text">loading…</span>
     </div>
+  );
+}
+
+// ── Back-to-top button ─────────────────────────────────────────
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  if (!show) return null;
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Back to top"
+      style={{
+        position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 200,
+        width: 44, height: 44, borderRadius: '50%',
+        background: 'var(--accent)', border: 'none', cursor: 'pointer',
+        fontSize: '1.2rem', boxShadow: '0 4px 20px rgba(0,0,0,.25)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'transform .2s, opacity .2s',
+      }}
+    >
+      ↑
+    </button>
   );
 }
 
@@ -98,6 +128,7 @@ export default function App() {
                     <Route path="/product/:id" element={<ErrorBoundary key="/product"><ProductDetail /></ErrorBoundary>} />
                     <Route path="/search"      element={<ErrorBoundary key="/search"><Search /></ErrorBoundary>} />
                     <Route path="/cart"        element={<ProtectedRoute><ErrorBoundary key="/cart"><Cart /></ErrorBoundary></ProtectedRoute>} />
+                    <Route path="/checkout"    element={<ProtectedRoute><ErrorBoundary key="/checkout"><Checkout /></ErrorBoundary></ProtectedRoute>} />  {/* ← NEW */}
                     <Route path="/orders"      element={<ProtectedRoute><ErrorBoundary key="/orders"><Orders /></ErrorBoundary></ProtectedRoute>} />
                     <Route path="/login"       element={<Login />} />
                     <Route path="/register"    element={<Register />} />
@@ -106,6 +137,7 @@ export default function App() {
                 </Suspense>
               </main>
               <Footer />
+              <BackToTop />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
