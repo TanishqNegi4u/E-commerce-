@@ -56,8 +56,6 @@ public class Product {
     @Column(name = "cost_price", precision = 10, scale = 2)
     private BigDecimal costPrice;
 
-    // FIX (MED-02): Changed from FetchType.EAGER to FetchType.LAZY to avoid N+1
-    // queries on product list endpoints and unnecessary joins on every product load.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -120,7 +118,6 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ── FIX: was @Transient — now persisted as JSON text in DB column ──────
     @Column(name = "images", columnDefinition = "TEXT")
     @Convert(converter = StringListConverter.class)
     @Builder.Default
@@ -142,7 +139,6 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
-    // Alias methods for backward compatibility
     public Integer getStockQuantity() { return stock; }
     public void setStockQuantity(Integer stockQuantity) { this.stock = stockQuantity; }
     public Double getRating() { return averageRating; }
@@ -161,7 +157,6 @@ public class Product {
         return ProductStatus.ACTIVE;
     }
 
-    // ── JPA AttributeConverters — JSON <-> TEXT column ───────────────────
     @Converter
     public static class StringListConverter implements AttributeConverter<List<String>, String> {
         private static final ObjectMapper MAPPER = new ObjectMapper();
