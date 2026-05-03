@@ -21,13 +21,13 @@ INSERT INTO categories (name, slug, active) VALUES
 ON CONFLICT (slug) DO NOTHING;
 
 -- Admin user (password: Admin@123 — BCrypt(12))
-INSERT INTO users (email, password, first_name, last_name, role, is_active)
-VALUES ('admin@shopwave.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2NJzMaGEty', 'Admin', 'ShopWave', 'ADMIN', true)
+INSERT INTO users (email, password, first_name, last_name, role, is_active, created_at, updated_at)
+VALUES ('admin@shopwave.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2NJzMaGEty', 'Admin', 'ShopWave', 'ADMIN', true, NOW(), NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- Demo seller
-INSERT INTO users (email, password, first_name, last_name, role, is_active)
-VALUES ('seller@shopwave.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2NJzMaGEty', 'Demo', 'Seller', 'SELLER', true)
+INSERT INTO users (email, password, first_name, last_name, role, is_active, created_at, updated_at)
+VALUES ('seller@shopwave.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2NJzMaGEty', 'Demo', 'Seller', 'SELLER', true, NOW(), NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- Coupons
@@ -38,7 +38,7 @@ VALUES
 ('SAVE20', 'PERCENTAGE', 20, 2000, 500, true)
 ON CONFLICT (code) DO NOTHING;
 
--- Products (representative set; real products from original data.sql carried forward)
+-- Products
 INSERT INTO products (name, slug, description, price, original_price, discount_percent, stock, sku, brand, category_id, average_rating, total_reviews, is_featured, is_active, status, free_shipping, image_url)
 SELECT * FROM (VALUES
   ('iPhone 15 Pro', 'iphone-15-pro', 'Apple A17 Pro chip, 48MP camera, titanium design', 134900, 149900, 10, 50, 'IPH15P-001', 'Apple', (SELECT id FROM categories WHERE slug='mobiles-tablets'), 4.8, 2341, true, true, 'ACTIVE', true, 'https://images.unsplash.com/photo-1695048133142-1a20484429be?w=400'),
