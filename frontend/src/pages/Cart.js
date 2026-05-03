@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { orderApi, couponApi } from '../api/client';
@@ -8,14 +8,22 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 const fmt = n => '₹' + Number(n).toLocaleString('en-IN');
 
 export default function Cart() {
-  // IMP-5 FIX: removed unused fetchCart — cart is already managed by CartContext
-  const { cart, loading, updateQuantity, removeItem, itemCount } = useCart();
+  useDocumentTitle('Shopping Cart');
+  const { cart, loading, fetchCart, updateQuantity, removeItem, itemCount } = useCart();
   const navigate = useNavigate();
-  const [coupon, setCoupon]         = useState('');
+  const [coupon, setCoupon]             = useState('');
   const [couponResult, setCouponResult] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
-  const [placing, setPlacing]       = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(null);
+  const [placing, setPlacing]           = useState(false);
+  const [orderPlaced, setOrderPlaced]   = useState(null);
+
+  // FIX: Always fetch fresh cart when this page mounts.
+  // CartContext only auto-fetches on login — if the page is opened
+  // directly or after a backend restart, cart is null until fetched.
+  useEffect(() => {
+    fetchCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (orderPlaced) return (
     <div className="container page-wrap">
@@ -54,10 +62,11 @@ export default function Cart() {
     try {
       const order = await orderApi.place({
         couponCode: couponResult?.valid ? coupon.trim() : null,
-        paymentMethod: 'COD', notes: '',
+        paymentMethod: 'COD',
+        notes: '',
       });
       setOrderPlaced(order.orderNumber);
-      toast.success('Order placed successfully!');
+      toast.success('Order placed successfully! 🎉');
     } catch (e) {
       toast.error(e.message || 'Failed to place order');
     } finally { setPlacing(false); }
@@ -72,7 +81,9 @@ export default function Cart() {
 
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-          {[1, 2].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 'var(--radius)' }} aria-hidden="true" />)}
+          {[1, 2, 3].map(i => (
+            <div key={i} className="skeleton" style={{ height: 120, borderRadius: 'var(--radius)' }} aria-hidden="true" />
+          ))}
         </div>
       ) : items.length === 0 ? (
         <div className="empty-state">
@@ -83,7 +94,8 @@ export default function Cart() {
         </div>
       ) : (
         <div className="cart-page">
-          {/* Items */}
+
+          {/* ── Cart Items ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
             {items.map(item => (
               <div key={item.productId || item.id} className="cart-item">
@@ -122,20 +134,24 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Summary */}
+          {/* ── Order Summary + Checkout ── */}
           <div>
             <div className="cart-summary">
               <h3>Order Summary</h3>
-              <div className="cart-summary-row"><span>Subtotal</span><span>{fmt(subtotal)}</span></div>
+
+              <div className="cart-summary-row">
+                <span>Subtotal ({itemCount} items)</span>
+                <span>{fmt(subtotal)}</span>
+              </div>
               <div className="cart-summary-row">
                 <span>Shipping</span>
                 <span style={{ color: shipping === 0 ? 'var(--green)' : 'inherit' }}>
-                  {shipping === 0 ? 'FREE' : fmt(shipping)}
+                  {shipping === 0 ? '🚚 FREE' : fmt(shipping)}
                 </span>
               </div>
               {shipping > 0 && (
                 <div style={{ fontSize: '.75rem', color: 'var(--muted)', marginBottom: '.5rem' }}>
-                  Add {fmt(500 - subtotal)} more for free shipping
+                  Add {fmt(500 - subtotal)} more for FREE shipping
                 </div>
               )}
               {couponResult?.valid && (
@@ -144,10 +160,25 @@ export default function Cart() {
                   <span>−{fmt(discount)}</span>
                 </div>
               )}
-              <div className="cart-summary-row total"><span>Total</span><span>{fmt(total)}</span></div>
+              <div className="cart-summary-row total">
+                <span>Total</span>
+                <span>{fmt(total)}</span>
+              </div>
 
+              {/* Savings callout */}
+              {(discount > 0 || shipping === 0) && (
+                <div style={{
+                  background: 'rgba(0,229,160,.08)', border: '1px solid rgba(0,229,160,.2)',
+                  borderRadius: 'var(--radius-sm)', padding: '.6rem .85rem',
+                  fontSize: '.78rem', color: 'var(--green)', marginBottom: '1rem'
+                }}>
+                  🎉 You are saving {fmt(discount + (shipping === 0 && subtotal < 549 ? 0 : 49))} on this order!
+                </div>
+              )}
+
+              {/* Coupon */}
               <div className="coupon-section">
-                <label htmlFor="coupon-input">Have a coupon code?</label>
+                <label htmlFor="coupon-input">Have a coupon?</label>
                 <div className="coupon-input-row">
                   <input
                     id="coupon-input"
@@ -175,22 +206,39 @@ export default function Cart() {
                 </div>
               </div>
 
+              {/* ── CHECKOUT BUTTON ── */}
               <button
                 className="btn btn-primary w-full"
-                style={{ padding: '.85rem', fontSize: '1rem' }}
+                style={{ padding: '.9rem', fontSize: '1rem', fontWeight: 700, marginBottom: '.75rem' }}
                 onClick={handlePlaceOrder}
                 disabled={placing || items.length === 0}
                 aria-label={`Place order for ${fmt(total)}`}
               >
-                {placing ? 'Placing Order…' : `Place Order · ${fmt(total)}`}
+                {placing ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '.5rem', justifyContent: 'center' }}>
+                    <span style={{ width: 16, height: 16, border: '2px solid #00000040', borderTopColor: '#000', borderRadius: '50%', animation: 'spin .7s linear infinite', display: 'inline-block' }} />
+                    Placing Order…
+                  </span>
+                ) : (
+                  `🛒 Place Order · ${fmt(total)}`
+                )}
+              </button>
+
+              <button
+                className="btn btn-ghost w-full"
+                style={{ fontSize: '.88rem', marginBottom: '.75rem' }}
+                onClick={() => navigate('/products')}
+              >
+                ← Continue Shopping
               </button>
 
               <div className="cart-secure">
                 <span>🔒</span>
-                <span>Secured with BCrypt + JWT · Free returns within 7 days</span>
+                <span>100% Secure · Free returns within 7 days</span>
               </div>
             </div>
           </div>
+
         </div>
       )}
     </div>
