@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { productApi } from '../api/client';
 import ProductCard from '../components/ProductCard';
-import DSAPanel from '../components/DSAPanel';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const CATEGORIES = [
@@ -21,7 +20,7 @@ const TRUST = [
   { icon: '🚚', title: 'Free Shipping',    sub: 'On orders above ₹500' },
   { icon: '🔒', title: 'Secure Payments',  sub: 'BCrypt + JWT secured' },
   { icon: '↩️', title: 'Easy Returns',     sub: '7-day no-questions return' },
-  { icon: '🧠', title: 'Smart Search',     sub: 'Trie-powered autocomplete' },
+  { icon: '🧠', title: 'Smart Search',     sub: 'Find anything instantly' },
 ];
 
 function SkeletonGrid({ count = 8 }) {
@@ -52,25 +51,25 @@ export default function Home() {
       <section className="hero">
         <div className="hero__grid" aria-hidden="true" />
         <div className="container" style={{ position: 'relative' }}>
-          <div className="hero__badge">⬡ Full-Stack · DSA Powered · FAANG Ready</div>
+          <div className="hero__badge">⬡ Fast Shipping · Secure Payments · Easy Returns</div>
           <h1>
             Shop the future<br />
             with <em>ShopWave</em>
           </h1>
           <p className="hero__desc">
-            Production-grade e-commerce powered by 10 real data structures —
-            Trie autocomplete, LRU cache, merge sort, BFS recommendations & more.
+            Discover the best deals on mobiles, laptops, audio, fashion, cameras and more —
+            all in one place with fast delivery and secure checkout.
           </p>
           <div className="hero__cta">
             <Link to="/products" className="btn btn-primary btn-lg">
               Browse Products
             </Link>
-            <a href="#dsa" className="btn btn-ghost btn-lg">
-              🧠 See DSA in Code
-            </a>
+            <Link to="/products" className="btn btn-ghost btn-lg">
+              🔥 View Deals
+            </Link>
           </div>
-          <div className="hero__chips" role="list" aria-label="Tech stack highlights">
-            {['10 DSA Structures','Spring Boot 3.2','React 18 + Code-Split','Flyway Migrations','Bucket4j Rate Limiting','Docker + K8s Ready'].map(c => (
+          <div className="hero__chips" role="list" aria-label="Shopping highlights">
+            {['Free Shipping above ₹500','Secure Checkout','Easy 7-day Returns','24/7 Support','Top Brands','Best Prices'].map(c => (
               <span key={c} className="hero__chip" role="listitem">{c}</span>
             ))}
           </div>
@@ -95,9 +94,6 @@ export default function Home() {
             ))}
           </div>
         </section>
-
-        {/* ── DSA PANEL ─────────────────────────────────── */}
-        <div id="dsa"><DSAPanel /></div>
 
         {/* ── FEATURED ──────────────────────────────────── */}
         <section className="section" aria-labelledby="featured-heading">
