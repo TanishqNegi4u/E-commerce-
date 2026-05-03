@@ -48,6 +48,30 @@ function StarIcon({ filled }) {
   );
 }
 
+// Collapsible accordion section for sidebar
+function AccordionSection({ title, defaultOpen = true, children, count }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="sidebar__section">
+      <button
+        className="sidebar__section-header"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
+        <span className="sidebar__section-title">{title}</span>
+        <span className="sidebar__section-chevron" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div className="sidebar__options">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -108,6 +132,14 @@ export default function Products() {
     placeholderData: keepPreviousData,
   });
 
+  // Fetch all products once (no filters) for count badges
+  const { data: allData } = useQuery({
+    queryKey: ['products-all-for-counts'],
+    queryFn: () => productApi.getAll(0, 1000, 'createdAt', 'desc', {}),
+    staleTime: 5 * 60 * 1000,
+  });
+  const allProductsList = allData?.content || (Array.isArray(allData) ? allData : []);
+
   const allProducts = data?.content || (Array.isArray(data) ? data : []);
   const totalPages  = data?.totalPages || 1;
   const total       = data?.totalElements ?? allProducts.length;
@@ -132,6 +164,22 @@ export default function Products() {
     return true;
   });
 
+  // Count helpers using allProductsList for badges
+  const getCatCount = (cId) => allProductsList.filter(p => String(p.categoryId) === String(cId)).length;
+  const getPriceCount = (range) => allProductsList.filter(p => {
+    const price = Number(p.price);
+    return price >= range.min && price <= range.max;
+  }).length;
+  const getRatingCount = (minR) => allProductsList.filter(p => (p.averageRating || 0) >= minR).length;
+  const getDiscountCount = (minD) => allProductsList.filter(p => {
+    const disc = p.discountPercent
+      ? p.discountPercent
+      : p.originalPrice && p.price < p.originalPrice
+        ? (1 - p.price / p.originalPrice) * 100
+        : 0;
+    return disc >= minD;
+  }).length;
+
   const activeFilterCount = [catId, minRating > 0, priceKey, inStock, discountRaw].filter(Boolean).length;
 
   const Sidebar = () => (
@@ -145,78 +193,83 @@ export default function Products() {
         )}
       </div>
 
-      <div className="sidebar__section">
-        <div className="sidebar__section-title">Category</div>
-        <div className="sidebar__options">
-          <label className="sidebar__option">
-            <input type="radio" name="category" checked={catId === ''} onChange={() => setParam('cat', '')} />
-            <span>All Categories</span>
+      <AccordionSection title="Category" defaultOpen={true}>
+        <label className="sidebar__option">
+          <input type="radio" name="category" checked={catId === ''} onChange={() => setParam('cat', '')} />
+          <span>All Categories</span>
+          {allProductsList.length > 0 && (
+            <span className="sidebar__count">{allProductsList.length}</span>
+          )}
+        </label>
+        {cats.map(c => (
+          <label key={c.id} className="sidebar__option">
+            <input type="radio" name="category" checked={catId === String(c.id)} onChange={() => setParam('cat', c.id)} />
+            <span>{c.name}</span>
+            {allProductsList.length > 0 && (
+              <span className="sidebar__count">{getCatCount(c.id)}</span>
+            )}
           </label>
-          {cats.map(c => (
-            <label key={c.id} className="sidebar__option">
-              <input type="radio" name="category" checked={catId === String(c.id)} onChange={() => setParam('cat', c.id)} />
-              <span>{c.name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+        ))}
+      </AccordionSection>
 
-      <div className="sidebar__section">
-        <div className="sidebar__section-title">Price Range</div>
-        <div className="sidebar__options">
-          <label className="sidebar__option">
-            <input type="radio" name="price" checked={priceKey === ''} onChange={() => setParam('price', '')} />
-            <span>Any Price</span>
+      <AccordionSection title="Price Range" defaultOpen={true}>
+        <label className="sidebar__option">
+          <input type="radio" name="price" checked={priceKey === ''} onChange={() => setParam('price', '')} />
+          <span>Any Price</span>
+        </label>
+        {PRICE_RANGES.map((r, i) => (
+          <label key={i} className="sidebar__option">
+            <input type="radio" name="price" checked={priceKey === String(i)} onChange={() => setParam('price', priceKey === String(i) ? '' : i)} />
+            <span>{r.label}</span>
+            {allProductsList.length > 0 && (
+              <span className="sidebar__count">{getPriceCount(r)}</span>
+            )}
           </label>
-          {PRICE_RANGES.map((r, i) => (
-            <label key={i} className="sidebar__option">
-              <input type="radio" name="price" checked={priceKey === String(i)} onChange={() => setParam('price', priceKey === String(i) ? '' : i)} />
-              <span>{r.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+        ))}
+      </AccordionSection>
 
-      <div className="sidebar__section">
-        <div className="sidebar__section-title">Customer Rating</div>
-        <div className="sidebar__options">
-          <label className="sidebar__option">
-            <input type="radio" name="rating" checked={minRating === 0} onChange={() => setParam('rating', 0)} />
-            <span>Any Rating</span>
+      <AccordionSection title="Customer Rating" defaultOpen={true}>
+        <label className="sidebar__option">
+          <input type="radio" name="rating" checked={minRating === 0} onChange={() => setParam('rating', 0)} />
+          <span>Any Rating</span>
+        </label>
+        {RATING_OPTIONS.map(r => (
+          <label key={r.value} className="sidebar__option">
+            <input type="radio" name="rating" checked={minRating === r.value} onChange={() => setParam('rating', minRating === r.value ? 0 : r.value)} />
+            <span className="sidebar__rating">
+              {Array.from({ length: 5 }, (_, i) => <StarIcon key={i} filled={i < r.value} />)}
+              {' '}& above
+            </span>
+            {allProductsList.length > 0 && (
+              <span className="sidebar__count">{getRatingCount(r.value)}</span>
+            )}
           </label>
-          {RATING_OPTIONS.map(r => (
-            <label key={r.value} className="sidebar__option">
-              <input type="radio" name="rating" checked={minRating === r.value} onChange={() => setParam('rating', minRating === r.value ? 0 : r.value)} />
-              <span className="sidebar__rating">
-                {Array.from({ length: 5 }, (_, i) => <StarIcon key={i} filled={i < r.value} />)}
-                {' '}& above
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
+        ))}
+      </AccordionSection>
 
-      <div className="sidebar__section">
-        <div className="sidebar__section-title">Availability</div>
-        <div className="sidebar__options">
-          <label className="sidebar__option">
-            <input type="checkbox" checked={inStock} onChange={e => setParam('inStock', e.target.checked ? 'true' : '')} />
-            <span>In Stock Only</span>
+      <AccordionSection title="Availability" defaultOpen={false}>
+        <label className="sidebar__option">
+          <input type="checkbox" checked={inStock} onChange={e => setParam('inStock', e.target.checked ? 'true' : '')} />
+          <span>In Stock Only</span>
+          {allProductsList.length > 0 && (
+            <span className="sidebar__count">
+              {allProductsList.filter(p => p.stockQuantity == null || p.stockQuantity > 0).length}
+            </span>
+          )}
+        </label>
+      </AccordionSection>
+
+      <AccordionSection title="Min. Discount" defaultOpen={false}>
+        {DISCOUNT_OPTIONS.map(d => (
+          <label key={d} className="sidebar__option">
+            <input type="checkbox" checked={discounts.includes(d)} onChange={() => toggleDiscount(d)} />
+            <span>{d}% or more</span>
+            {allProductsList.length > 0 && (
+              <span className="sidebar__count">{getDiscountCount(d)}</span>
+            )}
           </label>
-        </div>
-      </div>
-
-      <div className="sidebar__section">
-        <div className="sidebar__section-title">Min. Discount</div>
-        <div className="sidebar__options">
-          {DISCOUNT_OPTIONS.map(d => (
-            <label key={d} className="sidebar__option">
-              <input type="checkbox" checked={discounts.includes(d)} onChange={() => toggleDiscount(d)} />
-              <span>{d}% or more</span>
-            </label>
-          ))}
-        </div>
-      </div>
+        ))}
+      </AccordionSection>
     </aside>
   );
 
