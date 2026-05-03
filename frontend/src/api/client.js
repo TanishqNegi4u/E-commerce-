@@ -8,9 +8,6 @@ const BASE_URL = process.env.REACT_APP_API_URL
       ? 'http://localhost:8080/api'
       : `${window.location.protocol}//${window.location.hostname}/api`);
 
-// IMP-6 FIX: 401 interceptor — calls logout() from AuthContext on token expiry.
-// We use a module-level ref so the apiFetch function (defined before AuthContext)
-// can still call logout without a circular import.
 let _logoutFn = null;
 export function setLogoutHandler(fn) {
   _logoutFn = fn;
@@ -26,8 +23,6 @@ const apiFetch = async (path, options = {}) => {
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
   if (res.status === 204) return null;
 
-  // IMP-6 FIX: intercept 401 and trigger auto-logout so expired tokens
-  // don't leave users stuck seeing generic "HTTP 401" error messages.
   if (res.status === 401) {
     if (_logoutFn) _logoutFn();
     throw new Error('Session expired. Please log in again.');
@@ -39,8 +34,14 @@ const apiFetch = async (path, options = {}) => {
 };
 
 export const productApi = {
-  getAll: (page = 0, size = 20, sortBy = 'createdAt', sortDir = 'desc') =>
-    apiFetch(`/products?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`),
+  getAll: (page = 0, size = 20, sortBy = 'createdAt', sortDir = 'desc', filters = {}) => {
+    const params = new URLSearchParams({ page, size, sortBy, sortDir });
+    if (filters.minPrice != null) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice != null) params.set('maxPrice', filters.maxPrice);
+    if (filters.minRating != null && filters.minRating > 0) params.set('minRating', filters.minRating);
+    if (filters.inStock) params.set('inStock', 'true');
+    return apiFetch(`/products?${params.toString()}`);
+  },
   getById: (id) => apiFetch(`/products/${id}`),
   search: (q, page = 0) =>
     apiFetch(`/products/search?q=${encodeURIComponent(q)}&page=${page}`),
@@ -48,10 +49,14 @@ export const productApi = {
     apiFetch(`/products/search/suggestions?prefix=${encodeURIComponent(prefix)}`),
   getFeatured: () => apiFetch('/products/featured'),
   getBestsellers: () => apiFetch('/products/bestsellers'),
-  getByCategory: (categoryId, page = 0) =>
-    apiFetch(`/products/category/${categoryId}?page=${page}`),
-  // BUG-4: getRecentlyViewed removed from Home page call site.
-  // Kept here for when the feature is wired to a logged-in UI surface.
+  getByCategory: (categoryId, page = 0, filters = {}) => {
+    const params = new URLSearchParams({ page });
+    if (filters.minPrice != null) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice != null) params.set('maxPrice', filters.maxPrice);
+    if (filters.minRating != null && filters.minRating > 0) params.set('minRating', filters.minRating);
+    if (filters.inStock) params.set('inStock', 'true');
+    return apiFetch(`/products/category/${categoryId}?${params.toString()}`);
+  },
   getRecentlyViewed: () => apiFetch('/products/recently-viewed'),
 };
 
