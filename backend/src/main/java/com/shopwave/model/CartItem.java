@@ -22,9 +22,7 @@ public class CartItem {
     @ToString.Exclude
     private Cart cart;
 
-    // BUG-6 FIX: changed from EAGER to LAZY to prevent N+1 queries on cart load.
-    // CartRepository.findByUserId() uses JOIN FETCH to load products in one query.
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude
     private Product product;
