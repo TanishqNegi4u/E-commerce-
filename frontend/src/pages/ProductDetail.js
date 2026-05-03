@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// frontend/src/pages/ProductDetail.js  — FULL REPLACEMENT
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { productApi } from '../api/client';
@@ -20,26 +21,58 @@ function Stars({ rating = 0, size = '1.1rem' }) {
 }
 
 export default function ProductDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }     = useParams();
+  const navigate   = useNavigate();
   const { addToCart } = useCart();
-  const [qty, setQty] = useState(1);
-  const [adding, setAdding] = useState(false);
+  const [qty, setQty]         = useState(1);
+  const [adding, setAdding]   = useState(false);
+  const [zoomed, setZoomed]   = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const addBtnRef = useRef(null);
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
     queryFn: () => productApi.getById(id),
   });
 
-  // IMP-2 FIX: set tab title dynamically to product name
   useDocumentTitle(product?.name || null);
 
+  // ── Show sticky bar when main Add button scrolls out of view ──
+  useEffect(() => {
+    if (!addBtnRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(addBtnRef.current);
+    return () => observer.disconnect();
+  }, [product]);
+
+  // ── Wishlist (localStorage) ────────────────────────────────
+  const [wishlisted, setWishlisted] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('sw_wishlist') || '[]').includes(Number(id)); }
+    catch { return false; }
+  });
+
+  const toggleWishlist = () => {
+    try {
+      const wl   = JSON.parse(localStorage.getItem('sw_wishlist') || '[]');
+      const pid  = Number(id);
+      const next = wishlisted ? wl.filter(x => x !== pid) : [...wl, pid];
+      localStorage.setItem('sw_wishlist', JSON.stringify(next));
+      setWishlisted(!wishlisted);
+      toast(wishlisted ? 'Removed from wishlist' : '❤️ Added to wishlist', { duration: 1800 });
+    } catch {}
+  };
+
   const handleAdd = async () => {
+    if (adding) return;
     setAdding(true);
     await addToCart(product.id, qty);
     setAdding(false);
   };
 
+  // ── Loading skeleton ───────────────────────────────────────
   if (isLoading) return (
     <div className="container page-wrap">
       <div className="product-detail">
@@ -76,16 +109,13 @@ export default function ProductDetail() {
   const savings = product.originalPrice && product.originalPrice > product.price
     ? product.originalPrice - product.price : 0;
 
-  const specs = product.specifications
-    ? Object.entries(product.specifications)
-    : [];
-
+  const specs  = product.specifications ? Object.entries(product.specifications) : [];
   const inStock = product.stock > 0;
 
   return (
     <div className="container page-wrap">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" style={{ marginBottom: '1.5rem', fontSize: '.82rem', color: 'var(--muted)', display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+      <nav aria-label="Breadcrumb" style={{ marginBottom: '1.5rem', fontSize: '.82rem', color: 'var(--muted)', display: 'flex', gap: '.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <Link to="/" style={{ color: 'var(--muted)' }}>Home</Link>
         <span>›</span>
         <Link to="/products" style={{ color: 'var(--muted)' }}>Products</Link>
@@ -94,18 +124,32 @@ export default function ProductDetail() {
       </nav>
 
       <div className="product-detail">
-        {/* Image */}
-        <div className="product-detail__img-wrap">
-          <img src={imageUrl} alt={product.name} className="product-detail__img"
-            onError={e => { e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop'; }} />
+        {/* ── Image with zoom ── */}
+        <div className="product-detail__img-wrap" style={{ overflow: 'hidden' }}>
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="product-detail__img"
+            onClick={() => setZoomed(z => !z)}
+            style={{
+              cursor: zoomed ? 'zoom-out' : 'zoom-in',
+              transform: zoomed ? 'scale(1.45)' : 'scale(1)',
+              transition: 'transform .35s ease',
+            }}
+            onError={e => { e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop'; }}
+          />
+          {zoomed && (
+            <div style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,.5)', color: '#fff', fontSize: '.7rem', padding: '.2rem .5rem', borderRadius: 8 }}>
+              Click to zoom out
+            </div>
+          )}
         </div>
 
-        {/* Info */}
+        {/* ── Info ── */}
         <div>
           {product.brand && <div className="product-detail__brand">{product.brand}</div>}
           <h1 className="product-detail__title">{product.name}</h1>
 
-          {/* Rating */}
           {product.averageRating > 0 && (
             <div className="product-detail__rating">
               <Stars rating={product.averageRating} />
@@ -115,13 +159,11 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Stock badge */}
           <div className={`product-detail__stock-badge product-detail__stock-badge--${inStock ? 'in' : 'out'}`}>
             <span className="product-detail__stock-dot" aria-hidden="true" />
             {inStock ? `${product.stock} in stock` : 'Out of stock'}
           </div>
 
-          {/* Price */}
           <div className="product-detail__price-row">
             <span className="product-detail__price">{fmt(product.price)}</span>
             {product.originalPrice && product.originalPrice > product.price && (
@@ -135,31 +177,21 @@ export default function ProductDetail() {
             <div className="product-detail__savings">You save {fmt(savings)}</div>
           )}
 
-          {/* Description */}
           {product.description && (
             <p className="product-detail__desc">{product.description}</p>
           )}
 
-          {/* Qty + Add */}
           {inStock && (
             <>
               <div className="product-detail__qty-row">
                 <span className="product-detail__qty-label">Qty</span>
                 <div className="qty-control">
-                  <button
-                    onClick={() => setQty(q => Math.max(1, q - 1))}
-                    disabled={qty <= 1}
-                    aria-label="Decrease quantity"
-                  >−</button>
+                  <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1} aria-label="Decrease quantity">−</button>
                   <span aria-label={`Quantity: ${qty}`}>{qty}</span>
-                  <button
-                    onClick={() => setQty(q => Math.min(product.stock, q + 1))}
-                    disabled={qty >= product.stock}
-                    aria-label="Increase quantity"
-                  >+</button>
+                  <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} disabled={qty >= product.stock} aria-label="Increase quantity">+</button>
                 </div>
               </div>
-              <div className="product-detail__actions">
+              <div className="product-detail__actions" ref={addBtnRef}>
                 <button
                   className="btn btn-primary btn-lg"
                   onClick={handleAdd}
@@ -168,12 +200,17 @@ export default function ProductDetail() {
                 >
                   {adding ? 'Adding…' : '🛒 Add to Cart'}
                 </button>
-                <button className="btn btn-ghost btn-lg" aria-label="Add to wishlist">🤍 Wishlist</button>
+                <button
+                  className="btn btn-ghost btn-lg"
+                  onClick={toggleWishlist}
+                  aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {wishlisted ? '❤️ Wishlisted' : '🤍 Wishlist'}
+                </button>
               </div>
             </>
           )}
 
-          {/* Specs */}
           {specs.length > 0 && (
             <div className="product-detail__specs">
               <div className="product-detail__specs-title">Specifications</div>
@@ -187,6 +224,30 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
+
+      {/* ── Sticky mobile CTA (shows when main button scrolled out) ── */}
+      {inStock && showStickyBar && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'var(--surface)', borderTop: '1px solid var(--border)',
+          padding: '.75rem 1rem', zIndex: 150,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: '1rem', boxShadow: '0 -4px 20px rgba(0,0,0,.15)',
+        }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: '.78rem', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--accent)' }}>{fmt(product.price)}</div>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={handleAdd}
+            disabled={adding}
+            style={{ flexShrink: 0, padding: '.65rem 1.4rem' }}
+          >
+            {adding ? 'Adding…' : '🛒 Add to Cart'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
