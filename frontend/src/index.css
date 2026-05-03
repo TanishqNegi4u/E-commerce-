@@ -1312,3 +1312,146 @@ select.form-input { cursor: pointer; }
   .products-topbar__right { width: 100%; }
   .sort-select { flex: 1; min-width: 0; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PRODUCT CARD — v2 upgrades (full-width button, delivery line)
+══════════════════════════════════════════════════════════════ */
+
+/* Remove old footer flex layout — card body is now column */
+.product-card__footer { display: none; }
+
+/* Price row: price + strikethrough + discount % in one line */
+.product-card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-top: .1rem;
+}
+
+/* Keep .product-card__price but override font-size for compactness */
+.product-card__price-row .product-card__price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.product-card__price-row .product-card__original {
+  font-size: .73rem;
+  color: var(--muted);
+  text-decoration: line-through;
+  font-family: var(--font-mono);
+}
+
+.product-card__discount-pct {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--green);
+  font-family: var(--font-mono);
+}
+
+/* FREE delivery trust signal */
+.product-card__delivery {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
+  color: var(--text2);
+  margin-top: .15rem;
+}
+.product-card__delivery strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.product-card__delivery-icon {
+  font-size: .78rem;
+  flex-shrink: 0;
+}
+
+/* Full-width "Add to Cart" button — the main fix */
+.product-card__add-btn {
+  width: 100%;
+  margin-top: .6rem;
+  padding: .55rem 0;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: .02em;
+}
+.product-card__add-btn:hover {
+  background: var(--accent2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(245,166,35,.4);
+}
+.product-card__add-btn:active {
+  transform: translateY(0);
+}
+
+/* Hide old tiny + add button if it somehow shows */
+.product-card__add { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   SIDEBAR — Accordion upgrades
+══════════════════════════════════════════════════════════════ */
+
+/* Accordion toggle button for each section header */
+.sidebar__section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .85rem 1.25rem;
+  font-family: inherit;
+  color: var(--text);
+  transition: background var(--transition);
+}
+.sidebar__section-header:hover {
+  background: var(--surface2);
+}
+
+/* Keep section-title style but inside a button */
+.sidebar__section-header .sidebar__section-title {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-family: var(--font-mono);
+  margin-bottom: 0; /* override old margin since it's inside button now */
+}
+
+.sidebar__section-chevron {
+  font-size: .7rem;
+  color: var(--muted);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+/* Give options some top padding when open */
+.sidebar__section .sidebar__options {
+  padding: 0 .5rem .75rem;
+}
+
+/* Count badge next to each filter option */
+.sidebar__count {
+  margin-left: auto;
+  font-size: .67rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  background: var(--surface3);
+  border-radius: 10px;
+  padding: .1rem .42rem;
+  flex-shrink: 0;
+  min-width: 22px;
+  text-align: center;
+}
