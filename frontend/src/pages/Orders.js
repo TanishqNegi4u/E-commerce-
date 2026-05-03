@@ -14,15 +14,18 @@ function SkeletonOrder() {
   );
 }
 
-// BUG-8 FIX: Orders now supports pagination instead of always loading page 0.
-// Adds page state and prev/next controls so users can see all their orders.
 export default function Orders() {
   useDocumentTitle('My Orders');
   const [page, setPage] = useState(0);
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ['orders', page],
     queryFn: () => orderApi.getMyOrders(page),
+    // Don't retry on 401/403 — user needs to re-login, not hammer the server
+    retry: (failCount, err) => {
+      if (err?.message?.includes('401') || err?.message?.includes('Session expired')) return false;
+      return failCount < 2;
+    },
   });
 
   const orders     = data?.content || (Array.isArray(data) ? data : []);
@@ -44,26 +47,46 @@ export default function Orders() {
     <div className="container page-wrap">
       <div className="page-header">
         <h1>My Orders</h1>
-        <p className="text-muted">{totalCount} order{totalCount !== 1 ? 's' : ''}</p>
+        {!error && <p className="text-muted">{totalCount} order{totalCount !== 1 ? 's' : ''}</p>}
       </div>
 
       {error && (
-        <div className="error-banner" role="alert">
-          <span className="error-banner__icon">⚠️</span>
-          <span>Failed to load orders.</span>
+        <div className="orders-error-wrap">
+          <div className="error-banner" role="alert">
+            <span className="error-banner__icon">⚠️</span>
+            <span>
+              {error.message?.includes('Session expired')
+                ? 'Your session has expired. Please log in again.'
+                : 'Failed to load orders. Please try again.'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            {error.message?.includes('Session expired') ? (
+              <Link to="/login" className="btn btn-primary btn-sm">Log In Again</Link>
+            ) : (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+              >
+                {isFetching ? 'Retrying…' : '↺ Retry'}
+              </button>
+            )}
+            <Link to="/products" className="btn btn-ghost btn-sm">Continue Shopping</Link>
+          </div>
         </div>
       )}
 
       {isLoading ? (
         <>{[1,2,3].map(i => <SkeletonOrder key={i} />)}</>
-      ) : orders.length === 0 ? (
+      ) : !error && orders.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state__icon">📦</span>
           <h3>No orders yet</h3>
           <p>Looks like you haven't ordered anything.</p>
           <Link to="/products" className="btn btn-primary mt-2">Start Shopping</Link>
         </div>
-      ) : (
+      ) : !error && (
         <>
           <div>
             {orders.map(order => (
@@ -118,7 +141,6 @@ export default function Orders() {
             ))}
           </div>
 
-          {/* BUG-8 FIX: pagination controls */}
           {totalPages > 1 && (
             <nav className="pagination" aria-label="Orders pagination">
               <button
