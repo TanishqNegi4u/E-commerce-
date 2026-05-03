@@ -2,25 +2,25 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 import { productApi } from '../api/client';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [query, setQuery]           = useState('');
+  const [query, setQuery]             = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [showSug, setShowSug]       = useState(false);
-  const [menuOpen, setMenuOpen]     = useState(false);
+  const [showSug, setShowSug]         = useState(false);
+  const [menuOpen, setMenuOpen]       = useState(false);
   const debounceRef = useRef(null);
   const inputRef    = useRef(null);
   const menuRef     = useRef(null);
 
-  // FE-2a: close dropdown on route change
   useEffect(() => { setShowSug(false); setMenuOpen(false); }, [location]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
     document.addEventListener('mousedown', handler);
@@ -89,12 +89,7 @@ export default function Navbar() {
             >✕</button>
           )}
           {showSug && suggestions.length > 0 && (
-            <div
-              className="navbar__suggestions"
-              id="search-suggestions"
-              role="listbox"
-              aria-label="Search suggestions"
-            >
+            <div className="navbar__suggestions" id="search-suggestions" role="listbox" aria-label="Search suggestions">
               {suggestions.map((s, i) => (
                 <div
                   key={i}
@@ -114,6 +109,16 @@ export default function Navbar() {
         {/* Actions */}
         <div className="navbar__actions">
           <Link to="/products" className="btn btn-ghost btn-sm nav-hide">Products</Link>
+
+          {/* Theme Toggle */}
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Light mode' : 'Dark mode'}
+          >
+            <span className="theme-toggle__icon">{isDark ? '☀️' : '🌙'}</span>
+          </button>
 
           {/* Cart */}
           <Link to="/cart" className="btn btn-ghost btn-sm navbar__cart-btn" aria-label={`Cart, ${itemCount} item${itemCount !== 1 ? 's' : ''}`}>
