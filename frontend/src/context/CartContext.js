@@ -1,7 +1,4 @@
 // src/context/CartContext.js
-// FIX (BUG-10): Cart now re-fetches when user logs in and clears on logout.
-// The useEffect previously fired unconditionally on mount regardless of auth state,
-// causing unauthenticated 401 requests on every page load.
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { cartApi } from '../api/client';
 import { useAuth } from './AuthContext';
@@ -29,7 +26,6 @@ export function CartProvider({ children }) {
 
   const clearCart = useCallback(() => setCart(null), []);
 
-  // Register callback so AuthContext can trigger fetchCart on login / clearCart on logout
   useEffect(() => {
     registerAuthChangeCallback((event) => {
       if (event === 'login') fetchCart();
@@ -37,15 +33,15 @@ export function CartProvider({ children }) {
     });
   }, [registerAuthChangeCallback, fetchCart, clearCart]);
 
-  // Fetch cart on mount only if already logged in (page refresh with existing session)
   useEffect(() => {
     if (isLoggedIn) fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally only on mount — auth change is handled via callback above
+  }, []);
 
   const addToCart = useCallback(async (productId, quantity = 1) => {
-    if (!localStorage.getItem('sw_token')) {
+    if (!isLoggedIn) {
       toast.error('Please login to add items to cart');
+      setTimeout(() => { window.location.href = '/login'; }, 1200);
       return;
     }
     try {
@@ -55,7 +51,7 @@ export function CartProvider({ children }) {
     } catch (e) {
       toast.error(e.message || 'Failed to add to cart');
     }
-  }, []);
+  }, [isLoggedIn]);
 
   const updateQuantity = useCallback(async (productId, quantity) => {
     try {
