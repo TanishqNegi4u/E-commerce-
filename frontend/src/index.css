@@ -1,4 +1,40 @@
+:root {
+  /* Layout */
+  --nav-h: 64px;
 
+  /* Colors */
+  --bg: #f1f3f6;
+  --surface: #ffffff;
+  --surface2: #f8f9fa;
+  --border: #e0e0e0;
+  --border2: #d0d0d0;
+  --text: #212121;
+  --text2: #717171;
+  --accent: #2874f0;
+  --accent-hover: #1a5dc8;
+  --danger: #e53935;
+
+  /* Typography */
+  --font-body: 'Inter', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Misc */
+  --radius: 4px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+}
 /* ══════════════════════════════════════════════════════════════
    PRODUCTS PAGE — FLIPKART STYLE
 ═══════════════════════════════════════════════════════════════ */
