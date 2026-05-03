@@ -47,8 +47,11 @@ export function CartProvider({ children }) {
       setLoading(true);
       const data = await cartApi.get();
       setCart(normalizeCart(data));
-    } catch {
-      setCart(null);
+    } catch (e) {
+      // Don't wipe cart on network blip — only on explicit 401
+      if (e?.message?.includes('Session expired')) {
+        setCart(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -74,21 +77,41 @@ export function CartProvider({ children }) {
       setTimeout(() => { window.location.href = '/login'; }, 1200);
       return;
     }
+    // Optimistic feedback — show a loading toast while the request is in flight
+    const toastId = toast.loading('Adding to cart…');
     try {
       const data = await cartApi.add(productId, quantity);
       setCart(normalizeCart(data));
-      toast.success('Added to cart!');
+      toast.success('Added to cart!', { id: toastId });
     } catch (e) {
-      toast.error(e.message || 'Failed to add to cart');
+      const msg = e?.message || 'Failed to add to cart';
+      // If session expired, direct to login
+      if (msg.includes('Session expired') || msg.includes('401')) {
+        toast.error('Session expired. Please log in again.', { id: toastId });
+        setTimeout(() => { window.location.href = '/login'; }, 1400);
+      } else {
+        toast.error(msg, { id: toastId });
+      }
     }
   }, []);
 
   const updateQuantity = useCallback(async (productId, quantity) => {
+    // quantity = 0 means remove
+    if (quantity <= 0) {
+      try {
+        const data = await cartApi.remove(productId);
+        setCart(normalizeCart(data));
+        toast.success('Removed from cart');
+      } catch (e) {
+        toast.error(e?.message || 'Failed to remove item');
+      }
+      return;
+    }
     try {
       const data = await cartApi.update(productId, quantity);
       setCart(normalizeCart(data));
     } catch (e) {
-      toast.error(e.message || 'Failed to update quantity');
+      toast.error(e?.message || 'Failed to update quantity');
     }
   }, []);
 
@@ -98,7 +121,7 @@ export function CartProvider({ children }) {
       setCart(normalizeCart(data));
       toast.success('Removed from cart');
     } catch (e) {
-      toast.error(e.message || 'Failed to remove item');
+      toast.error(e?.message || 'Failed to remove item');
     }
   }, []);
 
