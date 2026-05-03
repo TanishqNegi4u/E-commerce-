@@ -303,16 +303,3 @@ VALUES
 ('SHOPWAVE20', 'PERCENTAGE', 20, 1000, 200,
     DATE_ADD(NOW(), INTERVAL 3 MONTH), TRUE);
 
-CREATE TABLE IF NOT EXISTS reviews (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
-    reviewer_name VARCHAR(100),
-    verified_purchase BOOLEAN DEFAULT FALSE,
-    helpful_count INT DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    UNIQUE(user_id, product_id)
-);
