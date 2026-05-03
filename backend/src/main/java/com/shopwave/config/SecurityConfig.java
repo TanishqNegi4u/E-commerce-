@@ -48,19 +48,19 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // CORS preflight must always be permitted — this is the key fix.
+                // Without this, Spring Security intercepts OPTIONS requests and
+                // returns 403 before the CORS filter can respond with 200.
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico", "/manifest.json").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
-                // FIX (IMP-10): coupon/validate now requires auth to prevent
-                // unauthenticated brute-force enumeration of coupon codes.
-                // .requestMatchers(HttpMethod.GET, "/coupons/validate").permitAll() // REMOVED
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
-            // Rate limit fires before JWT filter
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -70,18 +70,41 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
+        // Wildcard patterns for local dev and Render deployments
         config.addAllowedOriginPattern("http://localhost:*");
         config.addAllowedOriginPattern("http://127.0.0.1:*");
         config.addAllowedOriginPattern("https://*.onrender.com");
+
+        // Also add any explicit origins from the environment variable (CORS_ORIGINS)
         Arrays.stream(allowedOrigins.split(","))
               .map(String::trim)
               .filter(o -> !o.isEmpty())
               .forEach(config::addAllowedOrigin);
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Authorization","Content-Type","Accept","Origin","X-Requested-With"));
+
+        config.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
+
+        // Must explicitly include all headers the frontend sends
+        config.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "Accept",
+            "Origin",
+            "X-Requested-With",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
+
         config.setExposedHeaders(List.of("Authorization"));
+
+        // false = no cookies, but Authorization header still works fine
         config.setAllowCredentials(false);
+
+        // Cache preflight result for 1 hour — reduces OPTIONS round-trips
         config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
