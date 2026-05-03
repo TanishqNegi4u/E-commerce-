@@ -6,15 +6,6 @@ import toast from 'react-hot-toast';
 
 const CartContext = createContext(null);
 
-/**
- * The backend returns CartItem with a nested `product` object:
- *   { id, product: { id, name, price, imageUrl, ... }, quantity, unitPrice, totalPrice }
- *
- * The Cart page expects flat fields:
- *   { productId, productName, imageUrl, unitPrice, totalPrice, quantity }
- *
- * This function normalizes every cart response from the backend.
- */
 function normalizeCart(raw) {
   if (!raw) return null;
   return {
@@ -48,10 +39,7 @@ export function CartProvider({ children }) {
       const data = await cartApi.get();
       setCart(normalizeCart(data));
     } catch (e) {
-      // Don't wipe cart on network blip — only on explicit 401
-      if (e?.message?.includes('Session expired')) {
-        setCart(null);
-      }
+      if (e?.message?.includes('Session expired')) setCart(null);
     } finally {
       setLoading(false);
     }
@@ -66,10 +54,11 @@ export function CartProvider({ children }) {
     });
   }, [registerAuthChangeCallback, fetchCart, clearCart]);
 
+  // FIX: fetch cart on every app load if token exists, not just on login event
   useEffect(() => {
     if (isLoggedIn) fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoggedIn]);
 
   const addToCart = useCallback(async (productId, quantity = 1) => {
     if (!isLoggedInRef.current) {
@@ -77,7 +66,6 @@ export function CartProvider({ children }) {
       setTimeout(() => { window.location.href = '/login'; }, 1200);
       return;
     }
-    // Optimistic feedback — show a loading toast while the request is in flight
     const toastId = toast.loading('Adding to cart…');
     try {
       const data = await cartApi.add(productId, quantity);
@@ -85,7 +73,6 @@ export function CartProvider({ children }) {
       toast.success('Added to cart!', { id: toastId });
     } catch (e) {
       const msg = e?.message || 'Failed to add to cart';
-      // If session expired, direct to login
       if (msg.includes('Session expired') || msg.includes('401')) {
         toast.error('Session expired. Please log in again.', { id: toastId });
         setTimeout(() => { window.location.href = '/login'; }, 1400);
@@ -96,7 +83,6 @@ export function CartProvider({ children }) {
   }, []);
 
   const updateQuantity = useCallback(async (productId, quantity) => {
-    // quantity = 0 means remove
     if (quantity <= 0) {
       try {
         const data = await cartApi.remove(productId);
