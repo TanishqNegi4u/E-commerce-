@@ -1,4 +1,8 @@
+version: '3.8'
 
+services:
+
+  # â”€â”€ PostgreSQL Database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   db:
     image: postgres:16-alpine
     container_name: shopwave-db
@@ -19,7 +23,7 @@
     networks:
       - shopwave-net
 
-  # ── Spring Boot Backend
+  # â”€â”€ Spring Boot Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   backend:
     build:
       context: ./backend
@@ -48,89 +52,12 @@
       start_period: 90s
       retries: 3
 
-  # ── React Frontend ────────────────────────────────────────
+  # â”€â”€ React Frontend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   frontend:
     build:
-      context: ./frontend-react
+      context: ./frontend
       dockerfile: Dockerfile
       args:
-        # For local Docker Compose, frontend proxies through nginx to backend container.
-        # For Render, set REACT_APP_API_URL in Render dashboard environment variables.
-        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8080/api}
-    container_name: shopwave-frontend
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_healthy
-    ports:
-      - "3000:80"
-    networks:
-      - shopwave-net
-
-volumes:
-  postgres_data:
-    driver: local
-
-networks:
-  shopwave-net:
-    driver: bridge
-  db:
-    image: postgres:16-alpine
-    container_name: shopwave-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: shopwave_db
-      POSTGRES_USER: ${DB_USERNAME:-shopwave}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-shopwave} -d shopwave_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - shopwave-net
-
-  # ── Spring Boot Backend ───────────────────────────────────
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: shopwave-backend
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DB_URL: jdbc:postgresql://db:5432/shopwave_db
-      DB_USERNAME: ${DB_USERNAME:-shopwave}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGINS: http://localhost:3000,http://localhost:80,http://frontend
-      PORT: 8080
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-    ports:
-      - "8080:8080"
-    networks:
-      - shopwave-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      start_period: 90s
-      retries: 3
-
-  # ── React Frontend ────────────────────────────────────────
-  frontend:
-    build:
-      context: ./frontend-react
-      dockerfile: Dockerfile
-      args:
-        # For local Docker Compose, frontend proxies through nginx to backend container.
-        # For Render, set REACT_APP_API_URL in Render dashboard environment variables.
         REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8080/api}
     container_name: shopwave-frontend
     restart: unless-stopped
