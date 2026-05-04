@@ -90,14 +90,16 @@ SELECT * FROM (VALUES
    4.6, 1234, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop'),
 
-  ('Sony WF-1000XM5', 'sony-wf-1000xm5',
+  -- FIX: slug renamed from 'sony-wf-1000xm5' (duplicate of V5) to 'sony-wf-1000xm5-v2'
+  ('Sony WF-1000XM5', 'sony-wf-1000xm5-v2',
    'Best-in-class ANC, 8hr battery + 16hr case, LDAC, multipoint connection',
    23990, 27990, 14, 100, 'SONWF5-V6-001', 'Sony',
    (SELECT id FROM categories WHERE slug='audio-headphones'),
    4.7, 2100, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=400&fit=crop'),
 
-  ('Sennheiser Momentum 4', 'sennheiser-momentum-4',
+  -- FIX: slug renamed from 'sennheiser-momentum-4' (duplicate of V5) to 'sennheiser-momentum-4-wireless'
+  ('Sennheiser Momentum 4', 'sennheiser-momentum-4-wireless',
    '60hr battery, adaptive ANC, equalizer app, premium build quality',
    27990, 32990, 15, 40, 'SNHM4-V6-001', 'Sennheiser',
    (SELECT id FROM categories WHERE slug='audio-headphones'),
@@ -119,7 +121,8 @@ SELECT * FROM (VALUES
    4.7, 654, true, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop'),
 
-  ('Fujifilm X100VI', 'fujifilm-x100vi',
+  -- FIX: slug renamed from 'fujifilm-x100vi' (duplicate of V5) to 'fujifilm-x100vi-2024'
+  ('Fujifilm X100VI', 'fujifilm-x100vi-2024',
    '40MP X-Trans CMOS 5 HR, 6.2K video, IBIS, classic film simulations, fixed 23mm',
    169990, 189990, 11, 8, 'FUJX100V6-V6-001', 'Fujifilm',
    (SELECT id FROM categories WHERE slug='cameras'),
@@ -177,7 +180,8 @@ SELECT * FROM (VALUES
    4.7, 1234, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop'),
 
-  ('Instant Pot Duo 7-in-1', 'instant-pot-duo-7in1',
+  -- FIX: slug renamed from 'instant-pot-duo-7in1' (duplicate of V5) to 'instant-pot-duo-7in1-v2'
+  ('Instant Pot Duo 7-in-1', 'instant-pot-duo-7in1-v2',
    'Pressure cooker, slow cooker, rice cooker, steamer, sauté, yogurt maker, warmer',
    9999, 12999, 23, 150, 'INSTPD7-V6-001', 'Instant Pot',
    (SELECT id FROM categories WHERE slug='home-kitchen'),
@@ -213,7 +217,8 @@ SELECT * FROM (VALUES
    'https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=400&fit=crop'),
 
   -- WEARABLES (5 products)
-  ('Samsung Galaxy Watch 7', 'samsung-galaxy-watch-7',
+  -- FIX: slug renamed from 'samsung-galaxy-watch-7' (duplicate of V5) to 'samsung-galaxy-watch-7-lte'
+  ('Samsung Galaxy Watch 7', 'samsung-galaxy-watch-7-lte',
    'Advanced sleep coaching, body composition, BioActive sensor, 40hr battery',
    32999, 37999, 13, 80, 'SGGW7-V6-001', 'Samsung',
    (SELECT id FROM categories WHERE slug='wearables'),
@@ -249,14 +254,16 @@ SELECT * FROM (VALUES
    4.9, 5432, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&h=400&fit=crop'),
 
-  ('Nintendo Switch OLED', 'nintendo-switch-oled',
+  -- FIX: slug renamed from 'nintendo-switch-oled' (duplicate of V5) to 'nintendo-switch-oled-white'
+  ('Nintendo Switch OLED', 'nintendo-switch-oled-white',
    '7" OLED display, enhanced audio, 64GB storage, wired LAN port, kickstand',
    34990, 38990, 10, 60, 'NTSWOLED-V6-001', 'Nintendo',
    (SELECT id FROM categories WHERE slug='gaming'),
    4.7, 3210, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1631194758628-71ec7c35137e?w=400&h=400&fit=crop'),
 
-  ('Xbox Series X', 'xbox-series-x',
+  -- FIX: slug renamed from 'xbox-series-x' (duplicate of V5) to 'xbox-series-x-1tb'
+  ('Xbox Series X', 'xbox-series-x-1tb',
    '12 teraflops GPU, 4K 120fps, 1TB Custom NVMe SSD, Xbox Velocity Architecture',
    54990, 59990, 8, 35, 'XBSRX-V6-001', 'Microsoft',
    (SELECT id FROM categories WHERE slug='gaming'),
@@ -314,7 +321,8 @@ SELECT * FROM (VALUES
    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop'),
 
   -- BEAUTY (4 products)
-  ('Dyson Airwrap Multi-Styler', 'dyson-airwrap-multi-styler',
+  -- FIX: slug renamed from 'dyson-airwrap-multi-styler' (duplicate of V5) to 'dyson-airwrap-multi-styler-2024'
+  ('Dyson Airwrap Multi-Styler', 'dyson-airwrap-multi-styler-2024',
    'Coanda effect styling, no extreme heat, curls, waves, smooth and volumise',
    44900, 49900, 10, 30, 'DYSNAWS-V6-001', 'Dyson',
    (SELECT id FROM categories WHERE slug='beauty-skincare'),
