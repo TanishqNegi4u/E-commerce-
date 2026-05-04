@@ -1,6 +1,6 @@
 // src/context/AuthContext.js
 import React, { createContext, useContext, useRef, useState, useCallback } from 'react';
-import { authApi } from '../api/client';
+import { authApi, setLogoutHandler } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -10,15 +10,23 @@ export function AuthProvider({ children }) {
     catch { return null; }
   });
 
-  // BUG-7 FIX: replaced useState-based callback with useRef.
-  // The old pattern used setOnAuthChange(fn => { if (fn) fn('login'); return fn; })
-  // which relied on React batching behavior that is not guaranteed in Concurrent Mode.
-  // useRef is synchronous, stable, and doesn't cause re-renders.
   const onAuthChangeRef = useRef(null);
 
   const registerAuthChangeCallback = useCallback((fn) => {
     onAuthChangeRef.current = fn;
   }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('sw_token');
+    localStorage.removeItem('sw_user');
+    setUser(null);
+    onAuthChangeRef.current?.('logout');
+  }, []);
+
+  // FIX: register logout handler so 401 responses auto-logout globally
+  React.useEffect(() => {
+    setLogoutHandler(logout);
+  }, [logout]);
 
   const login = useCallback(async (email, password) => {
     const data = await authApi.login(email, password);
@@ -38,17 +46,15 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('sw_token');
-    localStorage.removeItem('sw_user');
-    setUser(null);
-    onAuthChangeRef.current?.('logout');
-  }, []);
+  // FIX: isLoggedIn checks BOTH user state AND token in localStorage.
+  // Previously if sw_user was missing/corrupted but sw_token existed,
+  // isLoggedIn was false and addToCart silently redirected to /login.
+  const isLoggedIn = !!user || !!localStorage.getItem('sw_token');
 
   return (
     <AuthContext.Provider value={{
       user, login, register, logout,
-      isLoggedIn: !!user,
+      isLoggedIn,
       registerAuthChangeCallback
     }}>
       {children}
