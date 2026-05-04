@@ -19,16 +19,17 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FIX: @JsonIgnore prevents Cart→User→Cart infinite recursion during
-    // JSON serialization which was causing HTTP 500 on every cart API call.
-    // The frontend never needs the full user object inside the cart response.
     @JsonIgnore
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     @ToString.Exclude
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    // KEY FIX: fetch = EAGER required because open-in-view=false closes the
+    // Hibernate session before Jackson serializes the response.
+    // Without EAGER, cart.items access outside the transaction throws
+    // LazyInitializationException → HTTP 500 → cart stays empty on frontend.
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     @ToString.Exclude
     private List<CartItem> items = new ArrayList<>();
