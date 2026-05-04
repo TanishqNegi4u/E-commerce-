@@ -1,9 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-//  ShopWave API Client — v2 (native fetch, no axios dependency)
+//  ShopWave API Client — v3 (native fetch, no axios dependency)
 // ═══════════════════════════════════════════════════════════════
 
+// FIX: prioritise explicit env var; fall back to localhost for dev only.
+// On Render, REACT_APP_API_URL must be set to your backend URL e.g.
+// https://shopwave-backend.onrender.com/api
 const BASE_URL = process.env.REACT_APP_API_URL
-  ? process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace(/\/$/, '') // strip trailing slash
   : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:8080/api'
       : `${window.location.protocol}//${window.location.hostname}/api`);
