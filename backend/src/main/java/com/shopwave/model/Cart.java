@@ -1,5 +1,6 @@
 package com.shopwave.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -13,11 +14,15 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Cart {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // FIX: @JsonIgnore prevents Cart→User→Cart infinite recursion during
+    // JSON serialization which was causing HTTP 500 on every cart API call.
+    // The frontend never needs the full user object inside the cart response.
+    @JsonIgnore
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     @ToString.Exclude
@@ -45,7 +50,6 @@ public class Cart {
         updatedAt = LocalDateTime.now();
     }
 
-    // Helper methods
     public void addItem(CartItem item) {
         items.add(item);
         item.setCart(this);
