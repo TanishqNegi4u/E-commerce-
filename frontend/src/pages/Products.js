@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+// src/pages/Products.js
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { productApi, categoryApi } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const SORT_OPTIONS = [
-  { label: 'Relevance',           value: 'createdAt,desc' },
-  { label: 'Price: Low to High',  value: 'price,asc' },
-  { label: 'Price: High to Low',  value: 'price,desc' },
-  { label: 'Top Rated',           value: 'averageRating,desc' },
-  { label: 'Newest First',        value: 'createdAt,desc' },
-  { label: 'Popularity',          value: 'totalSold,desc' },
+  { label: 'Relevance',          value: 'createdAt,desc' },
+  { label: 'Price: Low → High',  value: 'price,asc' },
+  { label: 'Price: High → Low',  value: 'price,desc' },
+  { label: 'Top Rated',          value: 'averageRating,desc' },
+  { label: 'Newest First',       value: 'createdAt,desc' },
+  { label: 'Popularity',         value: 'totalSold,desc' },
 ];
 
 const RATING_OPTIONS = [
   { label: '4★ & above', value: 4 },
   { label: '3★ & above', value: 3 },
   { label: '2★ & above', value: 2 },
-  { label: '1★ & above', value: 1 },
 ];
 
 const PRICE_RANGES = [
@@ -31,8 +31,9 @@ const PRICE_RANGES = [
 ];
 
 const DISCOUNT_OPTIONS = [10, 20, 30, 40, 50];
+const PAGE_SIZE = 20;
 
-function SkeletonGrid({ count = 16 }) {
+function SkeletonGrid({ count = 12 }) {
   return (
     <div className="product-grid">
       {Array.from({ length: count }).map((_, i) => (
@@ -43,31 +44,18 @@ function SkeletonGrid({ count = 16 }) {
 }
 
 function StarIcon({ filled }) {
-  return (
-    <span style={{ color: filled ? '#f5a623' : '#303058', fontSize: '0.85rem' }}>★</span>
-  );
+  return <span style={{ color: filled ? '#f5a623' : '#303058', fontSize: '0.85rem' }}>★</span>;
 }
 
-// Collapsible accordion section for sidebar
-function AccordionSection({ title, defaultOpen = true, children, count }) {
+function AccordionSection({ title, defaultOpen = true, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="sidebar__section">
-      <button
-        className="sidebar__section-header"
-        onClick={() => setOpen(o => !o)}
-        aria-expanded={open}
-      >
+      <button className="sidebar__section-header" onClick={() => setOpen(o => !o)} aria-expanded={open}>
         <span className="sidebar__section-title">{title}</span>
-        <span className="sidebar__section-chevron" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-          ▾
-        </span>
+        <span className="sidebar__section-chevron" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
       </button>
-      {open && (
-        <div className="sidebar__options">
-          {children}
-        </div>
-      )}
+      {open && <div className="sidebar__options">{children}</div>}
     </div>
   );
 }
@@ -75,13 +63,13 @@ function AccordionSection({ title, defaultOpen = true, children, count }) {
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const loaderRef = useRef(null);
 
-  const page        = parseInt(searchParams.get('page') || '0');
-  const catId       = searchParams.get('cat') || '';
-  const sort        = searchParams.get('sort') || 'createdAt,desc';
-  const minRating   = parseInt(searchParams.get('rating') || '0');
-  const priceKey    = searchParams.get('price') || '';
-  const inStock     = searchParams.get('inStock') === 'true';
+  const catId     = searchParams.get('cat') || '';
+  const sort      = searchParams.get('sort') || 'createdAt,desc';
+  const minRating = parseInt(searchParams.get('rating') || '0');
+  const priceKey  = searchParams.get('price') || '';
+  const inStock   = searchParams.get('inStock') === 'true';
   const discountRaw = searchParams.get('discount') || '';
   const discounts   = discountRaw ? discountRaw.split(',').map(Number) : [];
   const minDiscount = discounts.length > 0 ? Math.min(...discounts) : 0;
@@ -91,7 +79,6 @@ export default function Products() {
       const n = new URLSearchParams(prev);
       if (val === '' || val === null || val === false) n.delete(key);
       else n.set(key, val);
-      if (key !== 'page') n.set('page', '0');
       return n;
     });
   };
@@ -102,9 +89,7 @@ export default function Products() {
     setParam('discount', next.length ? next.sort((a, b) => a - b).join(',') : '');
   };
 
-  const clearAllFilters = () => {
-    setSearchParams({ sort: 'createdAt,desc', page: '0' });
-  };
+  const clearAllFilters = () => setSearchParams({ sort: 'createdAt,desc' });
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
@@ -115,37 +100,45 @@ export default function Products() {
   useDocumentTitle('Products');
 
   const [sortBy, sortDir] = sort.split(',');
-
   const selectedRange = PRICE_RANGES.find((_, i) => String(i) === priceKey);
   const filters = {
-    minPrice:  selectedRange ? selectedRange.min : undefined,
-    maxPrice:  selectedRange ? selectedRange.max : undefined,
+    minPrice: selectedRange?.min,
+    maxPrice: selectedRange?.max,
     minRating: minRating || undefined,
-    inStock:   inStock || undefined,
+    inStock: inStock || undefined,
   };
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['products', page, catId, sortBy, sortDir, priceKey, minRating, inStock],
-    queryFn: () => catId
-      ? productApi.getByCategory(catId, page, filters)
-      : productApi.getAll(page, 24, sortBy, sortDir, filters),
-    placeholderData: keepPreviousData,
+  // ── Infinite scroll query ──────────────────────────────────
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ['products-infinite', catId, sortBy, sortDir, priceKey, minRating, inStock],
+    queryFn: ({ pageParam = 0 }) =>
+      catId
+        ? productApi.getByCategory(catId, pageParam, filters)
+        : productApi.getAll(pageParam, PAGE_SIZE, sortBy, sortDir, filters),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalPages = lastPage?.totalPages;
+      const nextPage = allPages.length;
+      if (totalPages != null) return nextPage < totalPages ? nextPage : undefined;
+      // If backend doesn't return totalPages, keep fetching if last page was full
+      const items = lastPage?.content || (Array.isArray(lastPage) ? lastPage : []);
+      return items.length === PAGE_SIZE ? nextPage : undefined;
+    },
+    staleTime: 2 * 60 * 1000,
   });
 
-  // Fetch all products once (no filters) for count badges
-  const { data: allData } = useQuery({
-    queryKey: ['products-all-for-counts'],
-    queryFn: () => productApi.getAll(0, 1000, 'createdAt', 'desc', {}),
-    staleTime: 5 * 60 * 1000,
-  });
-  const allProductsList = allData?.content || (Array.isArray(allData) ? allData : []);
+  // Flatten all pages
+  const allProducts = (data?.pages || []).flatMap(page =>
+    page?.content || (Array.isArray(page) ? page : [])
+  );
 
-  const allProducts = data?.content || (Array.isArray(data) ? data : []);
-  const totalPages  = data?.totalPages || 1;
-  const total       = data?.totalElements ?? allProducts.length;
-  const cats        = Array.isArray(categories) ? categories : categories?.content || [];
-
-  // Client-side fallback filtering
+  // Client-side filter
   const products = allProducts.filter(p => {
     if (minRating && (p.averageRating || 0) < minRating) return false;
     if (selectedRange) {
@@ -157,62 +150,53 @@ export default function Products() {
       const disc = p.discountPercent
         ? p.discountPercent
         : p.originalPrice && p.price < p.originalPrice
-          ? (1 - p.price / p.originalPrice) * 100
-          : 0;
+          ? (1 - p.price / p.originalPrice) * 100 : 0;
       if (disc < minDiscount) return false;
     }
     return true;
   });
 
-  // Count helpers using allProductsList for badges
-  const getCatCount = (cId) => allProductsList.filter(p => String(p.categoryId) === String(cId)).length;
-  const getPriceCount = (range) => allProductsList.filter(p => {
-    const price = Number(p.price);
-    return price >= range.min && price <= range.max;
-  }).length;
-  const getRatingCount = (minR) => allProductsList.filter(p => (p.averageRating || 0) >= minR).length;
-  const getDiscountCount = (minD) => allProductsList.filter(p => {
-    const disc = p.discountPercent
-      ? p.discountPercent
-      : p.originalPrice && p.price < p.originalPrice
-        ? (1 - p.price / p.originalPrice) * 100
-        : 0;
-    return disc >= minD;
-  }).length;
-
+  const totalElements = data?.pages?.[0]?.totalElements ?? products.length;
+  const cats = Array.isArray(categories) ? categories : categories?.content || [];
   const activeFilterCount = [catId, minRating > 0, priceKey, inStock, discountRaw].filter(Boolean).length;
+
+  // ── Intersection Observer for infinite scroll ──────────────
+  const handleObserver = useCallback(entries => {
+    const target = entries[0];
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1, rootMargin: '200px' });
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   const Sidebar = () => (
     <aside className="products-sidebar">
       <div className="sidebar__header">
         <span className="sidebar__title">Filters</span>
         {activeFilterCount > 0 && (
-          <button className="sidebar__clear" onClick={clearAllFilters}>
-            Clear All ({activeFilterCount})
-          </button>
+          <button className="sidebar__clear" onClick={clearAllFilters}>Clear All ({activeFilterCount})</button>
         )}
       </div>
 
-      <AccordionSection title="Category" defaultOpen={true}>
+      <AccordionSection title="Category">
         <label className="sidebar__option">
           <input type="radio" name="category" checked={catId === ''} onChange={() => setParam('cat', '')} />
           <span>All Categories</span>
-          {allProductsList.length > 0 && (
-            <span className="sidebar__count">{allProductsList.length}</span>
-          )}
         </label>
         {cats.map(c => (
           <label key={c.id} className="sidebar__option">
             <input type="radio" name="category" checked={catId === String(c.id)} onChange={() => setParam('cat', c.id)} />
             <span>{c.name}</span>
-            {allProductsList.length > 0 && (
-              <span className="sidebar__count">{getCatCount(c.id)}</span>
-            )}
           </label>
         ))}
       </AccordionSection>
 
-      <AccordionSection title="Price Range" defaultOpen={true}>
+      <AccordionSection title="Price Range">
         <label className="sidebar__option">
           <input type="radio" name="price" checked={priceKey === ''} onChange={() => setParam('price', '')} />
           <span>Any Price</span>
@@ -221,14 +205,11 @@ export default function Products() {
           <label key={i} className="sidebar__option">
             <input type="radio" name="price" checked={priceKey === String(i)} onChange={() => setParam('price', priceKey === String(i) ? '' : i)} />
             <span>{r.label}</span>
-            {allProductsList.length > 0 && (
-              <span className="sidebar__count">{getPriceCount(r)}</span>
-            )}
           </label>
         ))}
       </AccordionSection>
 
-      <AccordionSection title="Customer Rating" defaultOpen={true}>
+      <AccordionSection title="Customer Rating">
         <label className="sidebar__option">
           <input type="radio" name="rating" checked={minRating === 0} onChange={() => setParam('rating', 0)} />
           <span>Any Rating</span>
@@ -240,9 +221,6 @@ export default function Products() {
               {Array.from({ length: 5 }, (_, i) => <StarIcon key={i} filled={i < r.value} />)}
               {' '}& above
             </span>
-            {allProductsList.length > 0 && (
-              <span className="sidebar__count">{getRatingCount(r.value)}</span>
-            )}
           </label>
         ))}
       </AccordionSection>
@@ -251,11 +229,6 @@ export default function Products() {
         <label className="sidebar__option">
           <input type="checkbox" checked={inStock} onChange={e => setParam('inStock', e.target.checked ? 'true' : '')} />
           <span>In Stock Only</span>
-          {allProductsList.length > 0 && (
-            <span className="sidebar__count">
-              {allProductsList.filter(p => p.stockQuantity == null || p.stockQuantity > 0).length}
-            </span>
-          )}
         </label>
       </AccordionSection>
 
@@ -264,9 +237,6 @@ export default function Products() {
           <label key={d} className="sidebar__option">
             <input type="checkbox" checked={discounts.includes(d)} onChange={() => toggleDiscount(d)} />
             <span>{d}% or more</span>
-            {allProductsList.length > 0 && (
-              <span className="sidebar__count">{getDiscountCount(d)}</span>
-            )}
           </label>
         ))}
       </AccordionSection>
@@ -295,7 +265,8 @@ export default function Products() {
                   ⚙ Filters {activeFilterCount > 0 && <span className="filter-badge">{activeFilterCount}</span>}
                 </button>
                 <span className="products-count">
-                  Showing <strong>{products.length}</strong> of <strong>{total}</strong> products
+                  Showing <strong>{products.length}</strong>
+                  {totalElements > 0 && <> of <strong>{totalElements}</strong></>} products
                 </span>
               </div>
               <div className="products-topbar__right">
@@ -355,17 +326,19 @@ export default function Products() {
                 <div className="product-grid">
                   {products.map(p => <ProductCard key={p.id} product={p} />)}
                 </div>
-                {totalPages > 1 && (
-                  <nav className="pagination" aria-label="Products pagination">
-                    <button disabled={page === 0} onClick={() => { setParam('page', page - 1); window.scrollTo(0, 0); }}>‹</button>
-                    {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => (
-                      <button key={i} className={i === page ? 'active' : ''} onClick={() => { setParam('page', i); window.scrollTo(0, 0); }} aria-current={i === page ? 'page' : undefined}>
-                        {i + 1}
-                      </button>
-                    ))}
-                    <button disabled={page >= totalPages - 1} onClick={() => { setParam('page', page + 1); window.scrollTo(0, 0); }}>›</button>
-                  </nav>
-                )}
+
+                {/* Infinite scroll trigger */}
+                <div ref={loaderRef} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1rem' }}>
+                  {isFetchingNextPage && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--muted)', fontSize: '.85rem' }}>
+                      <div className="page-loader__spinner" style={{ width: '20px', height: '20px' }} />
+                      Loading more products…
+                    </div>
+                  )}
+                  {!hasNextPage && products.length > 0 && (
+                    <div style={{ color: 'var(--muted)', fontSize: '.82rem' }}>✓ All products loaded</div>
+                  )}
+                </div>
               </>
             )}
           </div>
