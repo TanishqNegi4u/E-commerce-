@@ -1,5 +1,6 @@
 package com.shopwave.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -12,11 +13,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CartItem {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // FIX: @JsonIgnore stops CartItem→Cart→CartItem circular reference.
+    // Without this, Jackson falls into infinite recursion and either throws
+    // StackOverflowError (HTTP 500) or produces broken JSON the frontend
+    // can't parse — both silently swallowed as "failed to add to cart".
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     @ToString.Exclude
