@@ -1,3 +1,6 @@
+
+
+
 CREATE TABLE IF NOT EXISTS addresses (
     id              BIGSERIAL    PRIMARY KEY,
     user_id         BIGINT       NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -14,9 +17,11 @@ CREATE TABLE IF NOT EXISTS addresses (
 );
 CREATE INDEX IF NOT EXISTS idx_addresses_user ON addresses(user_id);
 
+-- 2. Add shipping_address_id to orders (Order.java has @ManyToOne Address)
 ALTER TABLE orders
     ADD COLUMN IF NOT EXISTS shipping_address_id BIGINT REFERENCES addresses(id) ON DELETE SET NULL;
 
+-- 3. Add view_count to products (Product.java has @Column view_count)
 ALTER TABLE products
     ADD COLUMN IF NOT EXISTS view_count INT NOT NULL DEFAULT 0;
 
