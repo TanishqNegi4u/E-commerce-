@@ -1,9 +1,16 @@
 -- ShopWave V6 — 60 additional products with real Unsplash images
 
+-- Insert missing categories that V6 products need (safe, skips if already exists)
+INSERT INTO categories (name, slug, active) VALUES
+  ('Smart Home',        'smart-home',   true),
+  ('Wearables',         'wearables',    true),
+  ('Televisions',       'televisions',  true)
+ON CONFLICT (slug) DO NOTHING;
+
 INSERT INTO products (name, slug, description, price, original_price, discount_percent, stock, sku, brand, category_id, average_rating, total_reviews, is_featured, is_active, status, free_shipping, image_url)
 SELECT * FROM (VALUES
 
-  -- MOBILES & TABLETS (10 more)
+  -- MOBILES & TABLETS
   ('Samsung Galaxy S24 Ultra', 'samsung-galaxy-s24-ultra',
    'Snapdragon 8 Gen 3, 200MP camera, built-in S Pen, 6.8" Dynamic AMOLED',
    134999, 149999, 10, 60, 'SGS24U-V6-001', 'Samsung',
@@ -39,7 +46,7 @@ SELECT * FROM (VALUES
    4.3, 543, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=400&fit=crop'),
 
-  -- LAPTOPS (8 more)
+  -- LAPTOPS
   ('Dell XPS 15 9530', 'dell-xps-15-9530',
    'Intel Core i9-13900H, RTX 4070, 15.6" 3.5K OLED, 86Wh battery',
    199990, 219990, 9, 12, 'DXPS159530-V6-001', 'Dell',
@@ -68,7 +75,7 @@ SELECT * FROM (VALUES
    4.2, 345, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=400&fit=crop'),
 
-  -- AUDIO (8 more)
+  -- AUDIO
   ('Bose QuietComfort 45', 'bose-quietcomfort-45',
    'Industry-leading noise cancellation, 24hr battery, foldable, USB-C',
    29900, 33900, 12, 80, 'BQCF45-V6-001', 'Bose',
@@ -90,7 +97,6 @@ SELECT * FROM (VALUES
    4.6, 1234, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'sony-wf-1000xm5' (duplicate of V5) to 'sony-wf-1000xm5-v2'
   ('Sony WF-1000XM5', 'sony-wf-1000xm5-v2',
    'Best-in-class ANC, 8hr battery + 16hr case, LDAC, multipoint connection',
    23990, 27990, 14, 100, 'SONWF5-V6-001', 'Sony',
@@ -98,7 +104,6 @@ SELECT * FROM (VALUES
    4.7, 2100, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'sennheiser-momentum-4' (duplicate of V5) to 'sennheiser-momentum-4-wireless'
   ('Sennheiser Momentum 4', 'sennheiser-momentum-4-wireless',
    '60hr battery, adaptive ANC, equalizer app, premium build quality',
    27990, 32990, 15, 40, 'SNHM4-V6-001', 'Sennheiser',
@@ -106,51 +111,50 @@ SELECT * FROM (VALUES
    4.6, 876, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=400&h=400&fit=crop'),
 
-  -- CAMERAS (6 products)
+  -- CAMERAS (using correct slug: cameras-photography)
   ('Sony Alpha A7 IV', 'sony-alpha-a7-iv',
    '33MP full-frame sensor, 4K 60fps, real-time eye AF, 10fps burst, weather sealed',
    239990, 269990, 11, 15, 'SONA7IV-V6-001', 'Sony',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.8, 876, true, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop'),
 
   ('Canon EOS R6 Mark II', 'canon-eos-r6-mk2',
    '40MP full-frame CMOS, DIGIC X, 4K 60fps RAW, dual pixel CMOS AF II',
    229990, 249990, 8, 10, 'CANEOSRM2-V6-001', 'Canon',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.7, 654, true, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'fujifilm-x100vi' (duplicate of V5) to 'fujifilm-x100vi-2024'
   ('Fujifilm X100VI', 'fujifilm-x100vi-2024',
    '40MP X-Trans CMOS 5 HR, 6.2K video, IBIS, classic film simulations, fixed 23mm',
    169990, 189990, 11, 8, 'FUJX100V6-V6-001', 'Fujifilm',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.9, 432, true, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=400&h=400&fit=crop'),
 
   ('GoPro Hero 13 Black', 'gopro-hero-13-black',
    '5.3K video, HyperSmooth 6.0, 27MP photo, 70min waterproof, interchangeable lens',
    44990, 49990, 10, 50, 'GPHR13-V6-001', 'GoPro',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.6, 1543, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=400&fit=crop'),
 
   ('DJI Pocket 3', 'dji-pocket-3',
    '1-inch CMOS, 4K 120fps, 3-axis gimbal, OLED touchscreen, 166min battery',
    54990, 59990, 8, 30, 'DJIPKT3-V6-001', 'DJI',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.7, 765, false, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=400&h=400&fit=crop'),
 
   ('Nikon Z50 II', 'nikon-z50-ii',
    '20.9MP APS-C sensor, 4K 30fps, flip-down touchscreen, EN-EL25b battery',
    89990, 99990, 10, 20, 'NIKZ50II-V6-001', 'Nikon',
-   (SELECT id FROM categories WHERE slug='cameras'),
+   (SELECT id FROM categories WHERE slug='cameras-photography'),
    4.5, 432, false, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=400&h=400&fit=crop'),
 
-  -- TVs & DISPLAYS (5 products)
+  -- TVs (using new slug: televisions — inserted above)
   ('Samsung 65" QLED 4K Q80C', 'samsung-65-qled-q80c',
    'Quantum Dot technology, 120Hz, Dolby Atmos, Object Tracking Sound, 4K Upscaling',
    129990, 149990, 13, 20, 'SGQS65Q80-V6-001', 'Samsung',
@@ -172,24 +176,23 @@ SELECT * FROM (VALUES
    4.7, 432, false, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=400&h=400&fit=crop'),
 
-  -- HOME APPLIANCES (6 products)
-  ('Dyson V15 Detect', 'dyson-v15-detect',
+  -- HOME KITCHEN
+  ('Dyson V15 Detect Absolute', 'dyson-v15-detect-absolute',
    'Laser dust detection, HEPA filtration, 60min run time, LCD screen',
    62900, 72900, 14, 25, 'DYSNV15-V6-001', 'Dyson',
    (SELECT id FROM categories WHERE slug='home-kitchen'),
    4.7, 1234, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'instant-pot-duo-7in1' (duplicate of V5) to 'instant-pot-duo-7in1-v2'
   ('Instant Pot Duo 7-in-1', 'instant-pot-duo-7in1-v2',
-   'Pressure cooker, slow cooker, rice cooker, steamer, sauté, yogurt maker, warmer',
+   'Pressure cooker, slow cooker, rice cooker, steamer, saute, yogurt maker, warmer',
    9999, 12999, 23, 150, 'INSTPD7-V6-001', 'Instant Pot',
    (SELECT id FROM categories WHERE slug='home-kitchen'),
    4.6, 5432, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop'),
 
   ('Philips Air Purifier 3000i', 'philips-air-purifier-3000i',
-   'HEPA + active carbon filter, auto purification, WiFi connected, 70m² coverage',
+   'HEPA + active carbon filter, auto purification, WiFi connected, 70m2 coverage',
    24999, 29999, 17, 40, 'PHIAP3000-V6-001', 'Philips',
    (SELECT id FROM categories WHERE slug='home-kitchen'),
    4.5, 876, false, true, 'ACTIVE', false,
@@ -216,8 +219,7 @@ SELECT * FROM (VALUES
    4.7, 1432, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=400&fit=crop'),
 
-  -- WEARABLES (5 products)
-  -- FIX: slug renamed from 'samsung-galaxy-watch-7' (duplicate of V5) to 'samsung-galaxy-watch-7-lte'
+  -- WEARABLES (using new slug: wearables — inserted above)
   ('Samsung Galaxy Watch 7', 'samsung-galaxy-watch-7-lte',
    'Advanced sleep coaching, body composition, BioActive sensor, 40hr battery',
    32999, 37999, 13, 80, 'SGGW7-V6-001', 'Samsung',
@@ -246,7 +248,7 @@ SELECT * FROM (VALUES
    4.6, 543, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop'),
 
-  -- GAMING (5 products)
+  -- GAMING
   ('PlayStation 5 Slim', 'playstation-5-slim',
    'Custom AMD GPU, 3D Audio, DualSense haptic feedback, 4K 120fps, 1TB SSD',
    54990, 59990, 8, 40, 'PS5SLM-V6-001', 'Sony',
@@ -254,7 +256,6 @@ SELECT * FROM (VALUES
    4.9, 5432, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'nintendo-switch-oled' (duplicate of V5) to 'nintendo-switch-oled-white'
   ('Nintendo Switch OLED', 'nintendo-switch-oled-white',
    '7" OLED display, enhanced audio, 64GB storage, wired LAN port, kickstand',
    34990, 38990, 10, 60, 'NTSWOLED-V6-001', 'Nintendo',
@@ -262,7 +263,6 @@ SELECT * FROM (VALUES
    4.7, 3210, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1631194758628-71ec7c35137e?w=400&h=400&fit=crop'),
 
-  -- FIX: slug renamed from 'xbox-series-x' (duplicate of V5) to 'xbox-series-x-1tb'
   ('Xbox Series X', 'xbox-series-x-1tb',
    '12 teraflops GPU, 4K 120fps, 1TB Custom NVMe SSD, Xbox Velocity Architecture',
    54990, 59990, 8, 35, 'XBSRX-V6-001', 'Microsoft',
@@ -271,7 +271,7 @@ SELECT * FROM (VALUES
    'https://images.unsplash.com/photo-1621259182978-a45536b48a2f?w=400&h=400&fit=crop'),
 
   ('Razer DeathAdder V3 Pro', 'razer-deathadder-v3-pro',
-   '30K DPI Focus Pro optical sensor, 63hr battery, 59g ultralight, 90-hour battery',
+   '30K DPI Focus Pro optical sensor, 63hr battery, 59g ultralight',
    12999, 15999, 19, 100, 'RZDAV3P-V6-001', 'Razer',
    (SELECT id FROM categories WHERE slug='gaming'),
    4.7, 1234, false, true, 'ACTIVE', false,
@@ -284,44 +284,43 @@ SELECT * FROM (VALUES
    4.8, 987, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=400&h=400&fit=crop'),
 
-  -- FASHION & CLOTHING (5 products)
+  -- FASHION (using correct slug: fashion-clothing)
   ('Levi''s 511 Slim Jeans', 'levis-511-slim-jeans',
    'Slim fit through thigh and leg, stretch denim, sits below waist, medium indigo',
    3499, 4499, 22, 300, 'LVS511-V6-001', 'Levi''s',
-   (SELECT id FROM categories WHERE slug='fashion'),
+   (SELECT id FROM categories WHERE slug='fashion-clothing'),
    4.4, 8765, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop'),
 
   ('Nike Air Force 1 Low', 'nike-air-force-1-low',
    'Leather upper, Air-Sole unit, rubber outsole, timeless low-profile design',
    7995, 8995, 11, 500, 'NKAF1L-V6-001', 'Nike',
-   (SELECT id FROM categories WHERE slug='fashion'),
+   (SELECT id FROM categories WHERE slug='fashion-clothing'),
    4.6, 12345, true, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop'),
 
   ('Adidas Ultraboost 24', 'adidas-ultraboost-24',
    'BOOST midsole, Primeknit+ upper, Continental rubber outsole, Linear Energy Push',
    19999, 22999, 13, 150, 'ADUB24-V6-001', 'Adidas',
-   (SELECT id FROM categories WHERE slug='fashion'),
+   (SELECT id FROM categories WHERE slug='fashion-clothing'),
    4.5, 4321, true, true, 'ACTIVE', true,
    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop'),
 
   ('Allen Solly Formal Shirt', 'allen-solly-formal-shirt',
    'Regular fit, wrinkle resistant cotton blend, spread collar, full sleeve',
    1299, 1999, 35, 400, 'ALSLFS-V6-001', 'Allen Solly',
-   (SELECT id FROM categories WHERE slug='fashion'),
+   (SELECT id FROM categories WHERE slug='fashion-clothing'),
    4.2, 3456, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=400&fit=crop'),
 
   ('Puma RS-X Efekt', 'puma-rsx-efekt',
    'Chunky retro sole, mesh upper, RS foam cushioning, mixed material details',
    8999, 10999, 18, 200, 'PMRSXE-V6-001', 'Puma',
-   (SELECT id FROM categories WHERE slug='fashion'),
+   (SELECT id FROM categories WHERE slug='fashion-clothing'),
    4.3, 2345, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop'),
 
-  -- BEAUTY (4 products)
-  -- FIX: slug renamed from 'dyson-airwrap-multi-styler' (duplicate of V5) to 'dyson-airwrap-multi-styler-2024'
+  -- BEAUTY
   ('Dyson Airwrap Multi-Styler', 'dyson-airwrap-multi-styler-2024',
    'Coanda effect styling, no extreme heat, curls, waves, smooth and volumise',
    44900, 49900, 10, 30, 'DYSNAWS-V6-001', 'Dyson',
@@ -343,7 +342,7 @@ SELECT * FROM (VALUES
    4.5, 2345, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=400&h=400&fit=crop'),
 
-  -- SPORTS (4 products)
+  -- SPORTS
   ('Yonex Arcsaber 11 Pro', 'yonex-arcsaber-11-pro',
    'Repulsion power, compact frame, isometric head shape, 83g weight',
    14999, 17999, 17, 40, 'YNXASP-V6-001', 'Yonex',
@@ -372,7 +371,7 @@ SELECT * FROM (VALUES
    4.3, 876, false, true, 'ACTIVE', false,
    'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&h=400&fit=crop'),
 
-  -- SMART HOME (4 products)
+  -- SMART HOME (using new slug: smart-home — inserted above)
   ('Amazon Echo Dot 5th Gen', 'amazon-echo-dot-5th-gen',
    'Improved bass, motion detection, temperature sensor, eero Wi-Fi compatibility',
    4999, 5999, 17, 300, 'AMECD5-V6-001', 'Amazon',
