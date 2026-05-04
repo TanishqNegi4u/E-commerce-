@@ -20,15 +20,8 @@ ALTER TABLE orders
 ALTER TABLE products
     ADD COLUMN IF NOT EXISTS view_count INT NOT NULL DEFAULT 0;
 
--- FIX: unit_price was nullable but CartItem.java declares it NOT NULL.
--- Added NOT NULL DEFAULT 0 to match the entity, then backfill from products.
+-- 4. Add missing columns to cart_items (CartItem.java has unit_price, created_at, updated_at)
 ALTER TABLE cart_items
-    ADD COLUMN IF NOT EXISTS unit_price  DECIMAL(10,2) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS unit_price  DECIMAL(10,2),
     ADD COLUMN IF NOT EXISTS created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-
-UPDATE cart_items ci
-SET unit_price = p.price
-FROM products p
-WHERE ci.product_id = p.id
-  AND ci.unit_price = 0;
